@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  width: 1500px;
+  height: 500px;
+  background: #E30A17;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.bg-shade {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.12) 100%);
+}
+
+/* Hourglass logo */
+.logo {
+  position: absolute;
+  left: 80px; top: 80px;
+  width: 140px; height: 140px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 28px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Title next to logo */
+.title-ist {
+  position: absolute;
+  left: 250px; top: 82px;
+  font-size: 58px; font-weight: 700;
+  color: #FFFFFF; letter-spacing: 4px;
+}
+
+.title-bek {
+  position: absolute;
+  left: 250px; top: 148px;
+  font-size: 58px; font-weight: 700;
+  color: #FFFFFF; letter-spacing: 4px;
+  opacity: 0.9;
+}
+
+/* Tagline - bigger and bolder */
+.tagline {
+  position: absolute;
+  left: 80px; top: 250px;
+  font-size: 22px; color: rgba(255,255,255,0.85);
+  line-height: 1.5; font-weight: 500;
+}
+
+/* Date - more readable */
+.dateline {
+  position: absolute;
+  left: 80px; top: 310px;
+  font-family: 'Courier New', monospace;
+  font-size: 15px; color: rgba(255,255,255,0.6);
+  letter-spacing: 3px;
+}
+
+/* Divider */
+.divider {
+  position: absolute;
+  left: 920px; top: 80px;
+  width: 1px; height: 280px;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.2), transparent);
+}
+
+/* CTA */
+.cta-text {
+  position: absolute;
+  right: 80px; top: 120px;
+  font-size: 32px; font-weight: 700;
+  color: #FFFFFF;
+  text-align: right; line-height: 1.35;
+}
+
+.cta-sub {
+  position: absolute;
+  right: 80px; top: 205px;
+  font-size: 18px;
+  color: rgba(255,255,255,0.7);
+  text-align: right;
+}
+
+.cta-btn {
+  position: absolute;
+  right: 80px; top: 255px;
+  padding: 14px 40px;
+  background: #FFFFFF;
+  color: #E30A17;
+  font-size: 16px; font-weight: 700;
+  letter-spacing: 2px;
+  border-radius: 30px;
+}
+
+/* Bottom skyline */
+.skyline {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 75px;
+}
+
+.top-line {
+  position: absolute;
+  bottom: 73px; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 3%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0.15) 80%, transparent 97%);
+}
+</style>
+</head>
+<body>
+
+<div class="bg-shade"></div>
+
+<!-- Logo -->
+<div class="logo">
+  <svg width="70" height="70" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M15 8 L45 8 L45 12 L33 28 L33 32 L45 48 L45 52 L15 52 L15 48 L27 32 L27 28 L15 12 Z" 
+          fill="white" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+  </svg>
+</div>
+
+<!-- Title -->
+<div class="title-ist">İSTANBUL</div>
+<div class="title-bek">BEKLİYOR</div>
+
+<!-- Tagline -->
+<div class="tagline">Her gün bir görsel. Her görsel bir ses.<br>İstanbul seçilmiş başkanını bekliyor.</div>
+<div class="dateline">19 MART 2025'TEN BERİ</div>
+
+<!-- Divider -->
+<div class="divider"></div>
+
+<!-- CTA -->
+<div class="cta-text">Takip et,<br>hiçbir günü kaçırma.</div>
+<div class="cta-sub">Bildirimleri aç &#x1F514;</div>
+<div class="cta-btn">TAKİP ET</div>
+
+<div class="top-line"></div>
+
+<div class="skyline">
+  <svg viewBox="0 0 1500 75" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="
+      M0,75 L0,58
+      L50,58 L50,54 L52,54 L52,28 L54,28 L54,54 L56,54 L56,58
+      L120,58 L120,50 L128,50 L133,42 L142,32 L158,24 L175,22 L192,24 L208,32 L217,42 L222,50 L230,50 L230,58
+      L295,58 L295,56 L297,56 L297,14 L299,14 L299,56 L301,56 L301,58
+      L380,58 L380,54 L383,54 L386,46 L390,46 L393,54 L396,54 L396,58
+      L470,58 L470,50 L478,50 L483,42 L492,32 L508,24 L525,22 L542,24 L558,32 L567,42 L572,50 L580,50 L580,58
+      L650,58 L650,56 L652,56 L652,12 L654,12 L654,56 L656,56 L656,58
+      L730,58 L730,54 L734,54 L734,46 L737,46 L737,42 L741,42 L741,46 L744,46 L744,54 L748,54 L748,58
+      L830,58 L830,50 L838,50 L843,40 L852,30 L868,24 L888,22 L908,24 L928,30 L937,40 L942,50 L950,50 L950,58
+      L1020,58 L1020,56 L1022,56 L1022,16 L1024,16 L1024,56 L1026,56 L1026,58
+      L1100,58 L1100,54 L1103,54 L1106,46 L1110,46 L1113,54 L1116,54 L1116,58
+      L1190,58 L1190,50 L1198,50 L1203,42 L1212,32 L1228,24 L1245,22 L1262,24 L1278,32 L1287,42 L1292,50 L1300,50 L1300,58
+      L1370,58 L1370,56 L1372,56 L1372,20 L1374,20 L1374,56 L1376,56 L1376,58
+      L1440,58 L1440,54 L1444,54 L1444,44 L1447,44 L1447,54 L1451,54 L1451,58
+      L1500,58 L1500,75 Z
+    " fill="rgba(255,255,255,0.08)"/>
+  </svg>
+</div>
+
+</body>
+</html>
