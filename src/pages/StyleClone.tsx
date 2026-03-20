@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { CopyBtn } from '../components/CopyBtn'
 import {
   hasApiKey, analyzeStyle, listStyles, getStyleFromAPI, deleteStyleFromAPI, saveCustomStyle,
-  composeRefine, scoreDraft, lookupUser,
+  composeRefine, scoreDraft, lookupUser, isValidXUsername, proxyImageUrl,
   getSavedDrafts, saveDraft, deleteDraft,
 } from '../lib/xquik'
 import type { StyleProfile, XUser, Draft, ScoreResult, ComposeRefineResult } from '../lib/xquik'
@@ -46,8 +46,8 @@ export default function StyleClone() {
       listStyles().then(res => {
         const s = res.styles || []
         setStyles(s)
-        // Fetch profile pictures for all cached styles
-        s.forEach(style => {
+        // Fetch profile pictures only for valid X usernames
+        s.filter(style => isValidXUsername(style.xUsername)).forEach(style => {
           lookupUser(style.xUsername)
             .then(user => setUserCache(prev => ({ ...prev, [style.xUsername]: user })))
             .catch(() => {})
@@ -304,7 +304,7 @@ export default function StyleClone() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       {userInfo?.profilePicture ? (
-                        <img src={userInfo.profilePicture.replace('_normal', '_200x200')} alt="" className="w-12 h-12 rounded-full object-cover" />
+                        <img src={proxyImageUrl(userInfo.profilePicture)} alt="" className="w-12 h-12 rounded-full object-cover" />
                       ) : (
                         <div className="w-12 h-12 rounded-full bg-brand-red/10 flex items-center justify-center text-brand-red font-bold text-lg">
                           {currentStyle.xUsername[0]?.toUpperCase()}
@@ -411,7 +411,7 @@ export default function StyleClone() {
                     >
                       <div className="flex items-center gap-3">
                         {userCache[style.xUsername]?.profilePicture ? (
-                          <img src={userCache[style.xUsername].profilePicture!.replace('_normal', '_200x200')} alt="" className="w-8 h-8 rounded-full object-cover" />
+                          <img src={proxyImageUrl(userCache[style.xUsername].profilePicture)} alt="" className="w-8 h-8 rounded-full object-cover" />
                         ) : (
                           <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-white/[0.08] flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-300">
                             {style.xUsername[0]?.toUpperCase()}

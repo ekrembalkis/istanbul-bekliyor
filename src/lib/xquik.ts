@@ -161,6 +161,22 @@ export async function lookupUser(username: string): Promise<XUser> {
   return api<XUser>(`/x/users/${encodeURIComponent(username.replace('@', ''))}`)
 }
 
+// ── Helpers ──
+
+/** Validate X username format: 1-15 chars, only [A-Za-z0-9_] */
+export function isValidXUsername(name: string): boolean {
+  return /^[A-Za-z0-9_]{1,15}$/.test(name)
+}
+
+/** Proxy Twitter profile images through our server to bypass tracking prevention */
+export function proxyImageUrl(url: string | undefined): string {
+  if (!url || typeof url !== 'string') return ''
+  // Upgrade to higher resolution
+  const upgraded = url.replace('_normal', '_200x200')
+  if (IS_DEV) return upgraded
+  return `/api/image-proxy?url=${encodeURIComponent(upgraded)}`
+}
+
 // ── Local Storage for Drafts ──
 export interface Draft {
   id: string

@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/api/xquik", "destination": "/api/xquik" },
+    { "source": "/api/image-proxy", "destination": "/api/image-proxy" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
