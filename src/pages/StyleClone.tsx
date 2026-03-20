@@ -4,8 +4,10 @@ import {
   hasApiKey, analyzeStyle, listStyles, getStyleFromAPI, deleteStyleFromAPI, saveCustomStyle,
   composeRefine, scoreDraft, lookupUser, isValidXUsername, proxyImageUrl,
   getSavedDrafts, saveDraft, deleteDraft,
+  startDeepAnalysis, getExtractionJob, getAllExtractionResults, saveCuratedStyle,
+  createMonitor, listMonitors, deleteMonitor, createWebhook, listWebhooks,
 } from '../lib/xquik'
-import type { StyleProfile, XUser, Draft, ScoreResult, ComposeRefineResult } from '../lib/xquik'
+import type { StyleProfile, XUser, Draft, ScoreResult, ComposeRefineResult, Monitor } from '../lib/xquik'
 
 type Tab = 'analyze' | 'compose' | 'drafts'
 
@@ -21,6 +23,10 @@ export default function StyleClone() {
   const [styles, setStyles] = useState<StyleProfile[]>([])
   const [userCache, setUserCache] = useState<Record<string, XUser>>({})
   const [error, setError] = useState('')
+
+  // ── Deep Analysis ──
+  const [deepProgress, setDeepProgress] = useState<string | null>(null)
+  const [monitors, setMonitors] = useState<Monitor[]>([])
 
   // ── Manual ──
   const [manualTweets, setManualTweets] = useState('')
@@ -39,7 +45,7 @@ export default function StyleClone() {
   // ── Drafts ──
   const [drafts, setDrafts] = useState<Draft[]>([])
 
-  // Load styles and drafts on mount
+  // Load styles, drafts, and monitors on mount
   useEffect(() => {
     setDrafts(getSavedDrafts())
     if (apiReady) {
@@ -53,40 +59,118 @@ export default function StyleClone() {
             .catch(() => {})
         })
       }).catch(() => {})
+      listMonitors().then(res => setMonitors(res.monitors || [])).catch(() => {})
     }
   }, [])
 
-  // ── Analyze a profile ──
+  // ── Deep Analysis (Extraction → Filter → PUT → Monitor) ──
   const handleAnalyze = async () => {
     if (!username.trim()) return
+    const clean = username.replace('@', '')
     setAnalyzing(true)
     setError('')
     setUserInfo(null)
     setCurrentStyle(null)
+    setDeepProgress('Kullanici bilgisi aliniyor...')
 
+    // 1. Fetch user info first (free call)
     try {
-      // Fetch style + user info in parallel
-      const [style, user] = await Promise.allSettled([
-        analyzeStyle(username),
-        lookupUser(username)
-      ])
+      const user = await lookupUser(clean)
+      setUserInfo(user)
+      setUserCache(prev => ({ ...prev, [clean]: user }))
+    } catch { /* user info optional */ }
 
-      if (style.status === 'fulfilled') {
-        setCurrentStyle(style.value)
-        // Refresh styles list
-        listStyles().then(res => setStyles(res.styles || [])).catch(() => {})
-      } else {
-        setError(`Stil analizi hatası: ${style.reason?.message || 'Bilinmeyen hata'}`)
+    // 2. Start extraction job
+    setDeepProgress('Derin analiz baslatiliyor (en iyi tweetler cekilecek)...')
+    try {
+      const job = await startDeepAnalysis(clean, { minFaves: 50, language: 'tr', resultsLimit: 200 })
+      setDeepProgress(`Extraction calisiyor (job: ${job.id})...`)
+
+      // 3. Poll until complete
+      let status = 'running'
+      let attempts = 0
+      while (status === 'running' && attempts < 30) {
+        await new Promise(r => setTimeout(r, 2000))
+        const check = await getExtractionJob(job.id)
+        status = check.job.status
+        if (status === 'completed') {
+          setDeepProgress(`${check.job.totalResults} tweet bulundu, filtreleniyor...`)
+        } else if (status === 'failed') {
+          throw new Error('Extraction basarisiz oldu')
+        }
+        attempts++
       }
 
-      if (user.status === 'fulfilled') {
-        setUserInfo(user.value)
-        setUserCache(prev => ({ ...prev, [username.replace('@', '')]: user.value }))
+      if (status !== 'completed') throw new Error('Extraction zaman asimina ugradi')
+
+      // 4. Get all results and save as curated style
+      const allTweets = await getAllExtractionResults(job.id)
+      const filtered = allTweets.filter(t => !t.tweetText.startsWith('@') && t.tweetText.length > 30)
+      setDeepProgress(`${filtered.length} kaliteli tweet filtrelendi, stil kaydediliyor...`)
+
+      const style = await saveCuratedStyle(clean, allTweets)
+      setCurrentStyle(style)
+
+      // 5. Refresh styles list
+      listStyles().then(res => setStyles(res.styles || [])).catch(() => {})
+
+      // 6. Auto-setup monitor if not exists
+      const hasMonitor = monitors.some(m => m.xUsername === clean)
+      if (!hasMonitor) {
+        setDeepProgress('Canli takip (monitor) ayarlaniyor...')
+        try {
+          const monitor = await createMonitor(clean)
+          setMonitors(prev => [...prev, monitor])
+
+          // Setup webhook if none exists
+          const { webhooks } = await listWebhooks()
+          const webhookUrl = `${window.location.origin}/api/style-webhook`
+          const hasWebhook = webhooks.some(w => w.url === webhookUrl && w.isActive)
+          if (!hasWebhook) {
+            await createWebhook(webhookUrl)
+          }
+        } catch (e: any) {
+          // Monitor setup is optional, don't block on failure
+          console.warn('Monitor setup failed:', e.message)
+        }
       }
+
+      setDeepProgress(null)
     } catch (e: any) {
-      setError(e.message || 'Bir hata oluştu')
+      // Fallback: try basic analysis if extraction fails (e.g. no subscription)
+      setDeepProgress('Extraction kullanilamadi, basit analiz deneniyor...')
+      try {
+        const style = await analyzeStyle(clean)
+        setCurrentStyle(style)
+        listStyles().then(res => setStyles(res.styles || [])).catch(() => {})
+      } catch (e2: any) {
+        setError(e2.message || e.message || 'Analiz basarisiz')
+      }
+      setDeepProgress(null)
     }
     setAnalyzing(false)
+  }
+
+  // ── Toggle monitor for a username ──
+  const toggleMonitor = async (uname: string) => {
+    const existing = monitors.find(m => m.xUsername === uname)
+    if (existing) {
+      try {
+        await deleteMonitor(existing.id)
+        setMonitors(prev => prev.filter(m => m.id !== existing.id))
+      } catch (e: any) { setError(e.message) }
+    } else {
+      try {
+        const monitor = await createMonitor(uname)
+        setMonitors(prev => [...prev, monitor])
+        // Ensure webhook exists
+        const { webhooks } = await listWebhooks()
+        const webhookUrl = `${window.location.origin}/api/style-webhook`
+        if (!webhooks.some(w => w.url === webhookUrl && w.isActive)) {
+          await createWebhook(webhookUrl)
+        }
+      } catch (e: any) { setError(e.message) }
+    }
   }
 
   // ── Load existing style ──
@@ -267,11 +351,17 @@ export default function StyleClone() {
                 {analyzing ? (
                   <span className="flex items-center gap-2">
                     <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" /><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" /></svg>
-                    Analiz ediliyor...
+                    Derin Analiz...
                   </span>
-                ) : 'Analiz Et'}
+                ) : 'Derin Analiz'}
               </button>
             </div>
+            {deepProgress && (
+              <div className="mt-3 flex items-center gap-2 text-xs text-blue-500 dark:text-blue-400">
+                <svg className="w-3 h-3 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" /><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" /></svg>
+                {deepProgress}
+              </div>
+            )}
             <div className="flex items-center gap-3 mt-3">
               <button onClick={() => setShowManual(!showManual)} className="text-xs text-slate-400 hover:text-brand-red transition-colors">
                 {showManual ? '✕ Manuel girişi kapat' : '+ Manuel tweet yapıştır'}
@@ -423,6 +513,19 @@ export default function StyleClone() {
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5">
+                        {isValidXUsername(style.xUsername) && (
+                          <button
+                            onClick={e => { e.stopPropagation(); toggleMonitor(style.xUsername) }}
+                            className={`btn text-[10px] py-1 px-2 ${
+                              monitors.some(m => m.xUsername === style.xUsername)
+                                ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10'
+                                : 'text-slate-400'
+                            }`}
+                            title={monitors.some(m => m.xUsername === style.xUsername) ? 'Canli takip aktif' : 'Canli takibi ac'}
+                          >
+                            {monitors.some(m => m.xUsername === style.xUsername) ? 'CANLI' : 'Takip'}
+                          </button>
+                        )}
                         <button
                           onClick={e => { e.stopPropagation(); setComposeStyle(style.xUsername); setTab('compose') }}
                           className="btn text-[10px] py-1 px-2"

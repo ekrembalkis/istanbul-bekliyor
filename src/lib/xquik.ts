@@ -161,6 +161,144 @@ export async function lookupUser(username: string): Promise<XUser> {
   return api<XUser>(`/x/users/${encodeURIComponent(username.replace('@', ''))}`)
 }
 
+// ── Deep Style Analysis (Extraction API) ──
+
+export interface ExtractionJob {
+  id: string
+  status: 'running' | 'completed' | 'failed'
+  totalResults?: number
+}
+
+export interface ExtractionTweet {
+  tweetId: string
+  tweetText: string
+  tweetCreatedAt: string
+  xUsername: string
+  xDisplayName: string
+  xProfileImageUrl: string
+  xFollowersCount: number
+}
+
+/** Start deep extraction for a user's best tweets */
+export async function startDeepAnalysis(username: string, opts?: {
+  minFaves?: number
+  language?: string
+  resultsLimit?: number
+}): Promise<ExtractionJob> {
+  const clean = username.replace('@', '')
+  return api<ExtractionJob>('/extractions', {
+    method: 'POST',
+    body: {
+      toolType: 'tweet_search_extractor',
+      searchQuery: `from:${clean}`,
+      fromUser: clean,
+      resultsLimit: opts?.resultsLimit ?? 200,
+      replies: 'exclude',
+      retweets: 'exclude',
+      minFaves: opts?.minFaves ?? 50,
+      language: opts?.language ?? 'tr',
+    }
+  })
+}
+
+/** Poll extraction job status */
+export async function getExtractionJob(jobId: string): Promise<{ job: ExtractionJob; results: ExtractionTweet[]; hasMore: boolean; nextCursor?: string }> {
+  return api(`/extractions/${jobId}`, { method: 'GET' })
+}
+
+/** Get all extraction results with pagination */
+export async function getAllExtractionResults(jobId: string): Promise<ExtractionTweet[]> {
+  const all: ExtractionTweet[] = []
+  let cursor: string | undefined
+  for (let page = 0; page < 10; page++) {
+    const path = cursor
+      ? `/extractions/${jobId}?limit=50&after=${cursor}`
+      : `/extractions/${jobId}?limit=50`
+    const res = await api<{ results: ExtractionTweet[]; hasMore: boolean; nextCursor?: string }>(path)
+    all.push(...(res.results || []))
+    if (!res.hasMore || !res.nextCursor) break
+    cursor = res.nextCursor
+  }
+  return all
+}
+
+/** Filter extraction results and save as curated style (overwrites existing) */
+export async function saveCuratedStyle(username: string, tweets: ExtractionTweet[]): Promise<StyleProfile> {
+  const clean = username.replace('@', '')
+  // Filter: no replies, min 30 chars
+  const curated = tweets
+    .filter(t => !t.tweetText.startsWith('@') && t.tweetText.length > 30)
+    .map(t => ({ text: t.tweetText }))
+
+  // First do basic POST /styles to register the username, then overwrite with curated data
+  try { await api('/styles', { method: 'POST', body: { username: clean } }) } catch { /* may fail, ok */ }
+
+  return api<StyleProfile>(`/styles/${encodeURIComponent(clean)}`, {
+    method: 'PUT',
+    body: { label: clean, tweets: curated }
+  })
+}
+
+// ── Monitor & Webhook (Live Updates) ──
+
+export interface Monitor {
+  id: string
+  xUsername: string
+  eventTypes: string[]
+  isActive: boolean
+  createdAt: string
+}
+
+export interface Webhook {
+  id: string
+  url: string
+  eventTypes: string[]
+  isActive: boolean
+  secret?: string
+}
+
+/** Create a monitor for new tweets from a user */
+export async function createMonitor(username: string): Promise<Monitor> {
+  return api<Monitor>('/monitors', {
+    method: 'POST',
+    body: {
+      username: username.replace('@', ''),
+      eventTypes: ['tweet.new'],
+    }
+  })
+}
+
+/** List active monitors */
+export async function listMonitors(): Promise<{ monitors: Monitor[] }> {
+  return api<{ monitors: Monitor[] }>('/monitors')
+}
+
+/** Delete a monitor */
+export async function deleteMonitor(id: string): Promise<void> {
+  await api(`/monitors/${id}`, { method: 'DELETE' })
+}
+
+/** Create webhook for style auto-update */
+export async function createWebhook(callbackUrl: string): Promise<Webhook> {
+  return api<Webhook>('/webhooks', {
+    method: 'POST',
+    body: {
+      url: callbackUrl,
+      eventTypes: ['tweet.new'],
+    }
+  })
+}
+
+/** List webhooks */
+export async function listWebhooks(): Promise<{ webhooks: Webhook[] }> {
+  return api<{ webhooks: Webhook[] }>('/webhooks')
+}
+
+/** Delete webhook */
+export async function deleteWebhook(id: string): Promise<void> {
+  await api(`/webhooks/${id}`, { method: 'DELETE' })
+}
+
 // ── Helpers ──
 
 /** Validate X username format: 1-15 chars, only [A-Za-z0-9_] */
