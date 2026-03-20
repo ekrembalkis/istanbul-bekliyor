@@ -119,13 +119,13 @@ export function checkAlgorithm(tweetText: string): { score: number; checks: Algo
 }
 
 export function getScoreColor(score: number): string {
-  if (score >= 80) return 'text-green-400';
-  if (score >= 60) return 'text-yellow-400';
-  return 'text-red-400';
+  if (score >= 80) return 'text-emerald-600';
+  if (score >= 60) return 'text-amber-600';
+  return 'text-red-600';
 }
 
 export function getScoreBg(score: number): string {
-  if (score >= 80) return 'bg-green-400/10 border-green-400/30';
-  if (score >= 60) return 'bg-yellow-400/10 border-yellow-400/30';
-  return 'bg-red-400/10 border-red-400/30';
+  if (score >= 80) return 'bg-emerald-50 border border-emerald-200';
+  if (score >= 60) return 'bg-amber-50 border border-amber-200';
+  return 'bg-red-50 border border-red-200';
 }

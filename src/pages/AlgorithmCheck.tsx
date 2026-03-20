@@ -8,76 +8,71 @@ export default function AlgorithmCheck() {
   const hasText = text.trim().length > 0
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold">Algoritma Kontrolü</h1>
-        <p className="text-sm text-white/30 mt-1">Tweet taslağını yapıştır, X algoritmasına göre analiz et.</p>
+    <div className="space-y-6 animate-fade-in">
+      <div className="section-header">
+        <h1 className="text-2xl font-serif font-bold text-slate-800">Algoritma Kontrolu</h1>
+        <p className="text-sm text-slate-400 mt-1">Tweet taslagini yapistir, X algoritmasina gore analiz et.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Input */}
-        <div className="glass-card-static rounded-2xl p-5">
-          <label className="text-xs font-semibold text-white/40 block mb-2">TWEET TASLAĞI</label>
+        <div className="card p-6">
+          <label className="text-[10px] font-bold text-slate-400 tracking-wider block mb-3">TWEET TASLAGI</label>
           <textarea
             value={text}
             onChange={e => setText(e.target.value)}
             rows={12}
-            className="w-full glass-input p-4 text-white/90 text-sm leading-relaxed resize-none"
-            placeholder={'Tweet metnini buraya yapıştır...\n\nÖrnek:\nGÜN 366.\n\nİstanbul bekliyor.\n\n#İstanbulBekliyor'}
+            className="w-full input-field p-4 text-slate-700 text-sm leading-relaxed resize-none"
+            placeholder={'Tweet metnini buraya yapistir...\n\nOrnek:\nGUN 366.\n\nIstanbul bekliyor.\n\n#IstanbulBekliyor'}
           />
           <div className="flex items-center justify-between mt-3">
-            <span className={`text-xs font-mono ${text.length > 280 ? 'text-red-400' : text.length > 250 ? 'text-yellow-400' : 'text-white/30'}`}>
+            <span className={`text-xs font-mono ${text.length > 280 ? 'text-red-500' : text.length > 250 ? 'text-amber-500' : 'text-slate-400'}`}>
               {text.length}/280
             </span>
             <div className="flex gap-2">
               {hasText && <CopyBtn text={text} label="Kopyala" />}
               {hasText && (
-                <button
-                  onClick={() => setText('')}
-                  className="glass-btn px-3 py-1.5 text-white/40 text-xs font-semibold"
-                >
-                  Temizle
-                </button>
+                <button onClick={() => setText('')} className="btn text-xs py-1.5">Temizle</button>
               )}
             </div>
           </div>
         </div>
 
         {/* Results */}
-        <div className="space-y-4">
+        <div className="space-y-5">
           {hasText ? (
             <>
               {/* Score */}
-              <div className={`glass-card border-gradient rounded-2xl p-6 ${getScoreBg(analysis.score)}`}>
+              <div className={`card rounded-2xl p-6 ${getScoreBg(analysis.score)}`}>
                 <div className="flex items-center justify-between mb-2">
                   <div>
-                    <label className="text-xs font-semibold text-white/40">ALGORİTMA SKORU</label>
-                    <div className="text-xs text-white/25 mt-1">
-                      {analysis.score >= 80 ? 'Paylaşıma hazır' : analysis.score >= 60 ? 'İyileştirme önerilir' : 'Kritik sorunlar var'}
+                    <label className="text-[10px] font-bold text-slate-400 tracking-wider">ALGORITMA SKORU</label>
+                    <div className="text-xs text-slate-400 mt-1">
+                      {analysis.score >= 80 ? 'Paylasima hazir' : analysis.score >= 60 ? 'Iyilestirme onerilir' : 'Kritik sorunlar var'}
                     </div>
                   </div>
-                  <span className={`text-5xl font-black font-mono ${getScoreColor(analysis.score)}`}>{analysis.score}</span>
+                  <span className={`stat-number text-6xl ${getScoreColor(analysis.score)}`}>{analysis.score}</span>
                 </div>
               </div>
 
               {/* Checks */}
-              <div className="glass-card rounded-2xl p-5">
-                <label className="text-xs font-semibold text-white/40 block mb-3">DETAYLI ANALİZ</label>
+              <div className="card p-6">
+                <label className="text-[10px] font-bold text-slate-400 tracking-wider block mb-4">DETAYLI ANALIZ</label>
                 <div className="space-y-3">
                   {analysis.checks.map((check, i) => (
-                    <div key={i} className={`flex items-start gap-3 text-sm p-3 rounded-xl ${check.passed ? 'bg-green-500/[0.03]' : 'bg-red-500/[0.03]'}`}>
-                      <span className={`mt-0.5 text-xs flex-shrink-0 ${check.passed ? 'text-green-400' : 'text-red-400'}`}>
+                    <div key={i} className={`flex items-start gap-3 text-sm p-3 rounded-xl ${check.passed ? 'bg-emerald-50/50' : 'bg-red-50/50'}`}>
+                      <span className={`mt-0.5 text-xs flex-shrink-0 font-bold ${check.passed ? 'text-emerald-500' : 'text-red-500'}`}>
                         {check.passed ? '✓' : '✕'}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <div className={`font-medium ${check.passed ? 'text-white/45' : 'text-white/75'}`}>{check.rule}</div>
-                        <div className="text-xs text-white/25 mt-0.5">{check.tip}</div>
+                        <div className={`font-medium ${check.passed ? 'text-slate-400' : 'text-slate-700'}`}>{check.rule}</div>
+                        <div className="text-xs text-slate-400 mt-0.5">{check.tip}</div>
                       </div>
-                      <span className={`glass-chip ${
-                        check.impact === 'critical' ? '!bg-red-500/10 text-red-400' :
-                        check.impact === 'high' ? '!bg-orange-500/10 text-orange-400' :
-                        '!bg-yellow-500/10 text-yellow-400'
-                      }`}>{check.impact === 'critical' ? 'KRİTİK' : check.impact === 'high' ? 'YÜKSEK' : 'ORTA'}</span>
+                      <span className={`chip text-[10px] ${
+                        check.impact === 'critical' ? 'bg-red-50 text-red-600 border-red-200' :
+                        check.impact === 'high' ? 'bg-amber-50 text-amber-600 border-amber-200' :
+                        'bg-slate-50 text-slate-500 border-slate-200'
+                      }`}>{check.impact === 'critical' ? 'KRITIK' : check.impact === 'high' ? 'YUKSEK' : 'ORTA'}</span>
                     </div>
                   ))}
                 </div>
@@ -85,12 +80,12 @@ export default function AlgorithmCheck() {
 
               {/* Quick fixes */}
               {analysis.checks.some(c => !c.passed) && (
-                <div className="glass-card border-gradient-gold rounded-xl p-4">
-                  <div className="text-xs font-semibold text-brand-gold mb-2">İYİLEŞTİRME ÖNERİLERİ</div>
-                  <ul className="space-y-1.5 text-xs text-white/35">
+                <div className="card border-l-4 border-l-brand-gold p-5 bg-brand-gold-light">
+                  <div className="text-xs font-bold text-brand-gold mb-3 tracking-wider">IYILESTIRME ONERILERI</div>
+                  <ul className="space-y-2 text-sm text-slate-500">
                     {analysis.checks.filter(c => !c.passed).map((c, i) => (
                       <li key={i} className="flex gap-2">
-                        <span className="text-brand-gold">→</span>
+                        <span className="text-brand-gold font-bold">→</span>
                         <span>{c.tip}</span>
                       </li>
                     ))}
@@ -99,10 +94,14 @@ export default function AlgorithmCheck() {
               )}
             </>
           ) : (
-            <div className="glass-card-static rounded-2xl p-12 text-center">
-              <div className="text-4xl mb-4 opacity-20">📝</div>
-              <div className="text-white/30 text-sm">Tweet metnini sol tarafa yaz veya yapıştır.</div>
-              <div className="text-white/15 text-xs mt-2">Sistem X algoritmasının kaynak koduna göre analiz edecek.</div>
+            <div className="card rounded-2xl p-16 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-100 flex items-center justify-center">
+                <svg className="w-8 h-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </div>
+              <div className="text-slate-500 text-sm font-medium">Tweet metnini sol tarafa yaz veya yapistir.</div>
+              <div className="text-slate-400 text-xs mt-2">Sistem X algoritmasinin kaynak koduna gore analiz edecek.</div>
             </div>
           )}
         </div>

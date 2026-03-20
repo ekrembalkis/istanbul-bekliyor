@@ -8,33 +8,16 @@
 }
 
 body {
-  background: #0C0C12;
-  color: #E8E6E3;
+  background: #FAFAFA;
+  color: #1A1F2E;
   min-height: 100vh;
 }
 
-/* Body vignette — subtle red glow top-left */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 15% 0%, rgba(227,10,23,0.07) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 100%, rgba(12,12,18,0.6) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-#root {
-  position: relative;
-  z-index: 1;
-}
-
 /* Scrollbar */
-::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.18); }
 
 /* Checkbox */
 input[type="checkbox"] {
@@ -43,157 +26,150 @@ input[type="checkbox"] {
 
 /* Selection */
 ::selection {
-  background: rgba(227, 10, 23, 0.3);
-  color: #fff;
+  background: rgba(227, 10, 23, 0.12);
+  color: #1A1F2E;
 }
-
-/* ═══════════════════════════════════════════
-   GLASSMORPHISM UTILITIES
-   ═══════════════════════════════════════════ */
 
 @layer components {
 
-  /* ── Glass Card (with hover lift) ── */
-  .glass-card {
-    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.08);
+  /* ── Card ── */
+  .card {
+    background: #FFFFFF;
+    border: 1px solid rgba(0,0,0,0.06);
     border-radius: 1rem;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
   }
 
-  /* ── Glass Card Static (no hover) ── */
-  .glass-card-static {
-    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 1rem;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
-  }
-
-  /* ── Glass Card Lite (no backdrop-filter, for lists) ── */
-  .glass-card-lite {
-    background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 0.75rem;
-  }
-
-  /* ── Border Gradient (red → gold → white) ── */
-  .border-gradient {
+  /* ── Section Header (red accent bar) ── */
+  .section-header {
     position: relative;
+    padding-left: 0;
   }
-  .border-gradient::before {
+  .section-header::before {
     content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, rgba(227,10,23,0.5), rgba(212,168,67,0.25), rgba(255,255,255,0.06));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
+    display: block;
+    width: 32px;
+    height: 3px;
+    background: #E30A17;
+    border-radius: 2px;
+    margin-bottom: 12px;
   }
 
-  /* ── Border Gradient Gold variant ── */
-  .border-gradient-gold {
-    position: relative;
-  }
-  .border-gradient-gold::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, rgba(212,168,67,0.5), rgba(212,168,67,0.15), rgba(255,255,255,0.05));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-  }
-
-  /* ── Glass Chip (small pill badge) ── */
-  .glass-chip {
-    background: rgba(255,255,255,0.06);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 9999px;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.625rem;
+  /* ── Chip / Badge ── */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    font-size: 11px;
     font-weight: 600;
-  }
-
-  /* ── Glass Input (textarea/input) ── */
-  .glass-input {
-    background: rgba(255,255,255,0.04);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 0.75rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .glass-input:focus {
-    border-color: rgba(212,168,67,0.4);
-    box-shadow: 0 0 0 3px rgba(212,168,67,0.08);
-    outline: none;
-  }
-
-  /* ── Glass Button ── */
-  .glass-btn {
-    background: rgba(255,255,255,0.06);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 0.5rem;
+    letter-spacing: 0.02em;
+    border-radius: 9999px;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: rgba(0,0,0,0.02);
+    color: #64748B;
     transition: all 0.2s;
   }
 
-  /* ── Glass Sidebar ── */
-  .glass-sidebar {
-    background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-right: 1px solid rgba(255,255,255,0.06);
+  /* ── Input ── */
+  .input-field {
+    background: #FFFFFF;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 0.75rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .input-field:focus {
+    border-color: #E30A17;
+    box-shadow: 0 0 0 3px rgba(227,10,23,0.08);
+    outline: none;
   }
 
-  /* ── Gradient Divider ── */
-  .gradient-divider {
-    height: 1px;
-    width: 100%;
-    background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+  /* ── Button ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 0.625rem;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: #FFFFFF;
+    color: #374151;
+    transition: all 0.2s;
+    cursor: pointer;
   }
 
-  /* ── Gradient Text (red → gold) ── */
-  .gradient-text {
-    background: linear-gradient(135deg, #E30A17, #D4A843);
+  .btn-primary {
+    background: #E30A17;
+    color: #FFFFFF;
+    border-color: #E30A17;
+    box-shadow: 0 1px 3px rgba(227,10,23,0.2);
+  }
+
+  /* ── Stat Number ── */
+  .stat-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  /* ── Red Gradient Text ── */
+  .text-gradient {
+    background: linear-gradient(135deg, #E30A17 0%, #D4A843 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    width: 100%;
+    background: linear-gradient(to right, transparent, rgba(0,0,0,0.06), transparent);
+  }
+
+  /* ── Live Indicator ── */
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #E30A17;
+    animation: livePulse 2s ease-in-out infinite;
+  }
 }
 
-/* ── Hover effects (desktop only) ── */
+@keyframes livePulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(227,10,23,0.4); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(227,10,23,0); }
+}
+
+/* ── Hover effects ── */
 @media (hover: hover) {
-  .glass-card:hover {
+  .card:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06), 0 4px 10px rgba(0,0,0,0.04);
     transform: translateY(-1px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07);
   }
 
-  .glass-card-lite:hover {
-    background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.025) 100%);
+  .btn:hover {
+    background: #F9FAFB;
+    border-color: rgba(0,0,0,0.15);
   }
 
-  .glass-btn:hover {
-    background: rgba(255,255,255,0.12);
+  .btn-primary:hover {
+    background: #B80813;
+    border-color: #B80813;
     transform: translateY(-0.5px);
   }
 
-  .glass-chip:hover {
-    background: rgba(255,255,255,0.1);
+  .chip:hover {
+    background: rgba(0,0,0,0.04);
   }
+}
+
+/* ── Page transition ── */
+.page-enter {
+  animation: slideUp 0.4s ease-out;
 }

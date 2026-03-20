@@ -5,13 +5,13 @@ export function CopyBtn({ text, label = 'Kopyala', className = '' }: { text: str
   return (
     <button
       onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
-      className={`glass-btn px-3 py-1.5 text-xs font-semibold transition-all ${
+      className={`btn text-xs py-1.5 px-3 transition-all ${
         copied
-          ? 'bg-green-500/15 text-green-400 !border-green-500/20'
-          : 'text-white/50 hover:text-white/70'
+          ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+          : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
       } ${className}`}
     >
-      {copied ? '✓ Kopyalandı' : label}
+      {copied ? '✓ Kopyalandi' : label}
     </button>
   )
 }
