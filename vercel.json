@@ -1,5 +1,6 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/api/xquik", "destination": "/api/xquik" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }

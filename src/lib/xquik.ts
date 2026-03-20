@@ -1,4 +1,7 @@
-const BASE_URL = 'https://xquik.com/api/v1'
+// In production: calls go through /api/xquik proxy (avoids CORS)
+// In dev: calls go directly to xquik.com with API key
+const IS_DEV = import.meta.env.DEV
+const DIRECT_URL = 'https://xquik.com/api/v1'
 const API_KEY = import.meta.env.VITE_XQUIK_API_KEY?.trim() || ''
 
 export interface StyleProfile {
@@ -34,12 +37,24 @@ export interface ComposeRefineResult {
 
 // ── Core API Caller ──
 async function api<T = unknown>(path: string, options?: { method?: string; body?: unknown }): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: options?.method || 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': API_KEY,
-    },
+  const method = options?.method || 'GET'
+
+  let url: string
+  let headers: Record<string, string>
+
+  if (IS_DEV) {
+    // Dev: direct call with API key
+    url = `${DIRECT_URL}${path}`
+    headers = { 'Content-Type': 'application/json', 'x-api-key': API_KEY }
+  } else {
+    // Production: go through Vercel serverless proxy
+    url = `/api/xquik?path=${encodeURIComponent(path)}`
+    headers = { 'Content-Type': 'application/json' }
+  }
+
+  const res = await fetch(url, {
+    method,
+    headers,
     body: options?.body ? JSON.stringify(options.body) : undefined,
   })
 
@@ -174,7 +189,8 @@ export function deleteDraft(id: string) {
   localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts))
 }
 
-/** Check if API key is configured */
+/** Check if API is ready (dev: needs key, prod: proxy handles it) */
 export function hasApiKey(): boolean {
-  return !!API_KEY && API_KEY.startsWith('xq_')
+  if (IS_DEV) return !!API_KEY && API_KEY.startsWith('xq_')
+  return true // Production uses serverless proxy with server-side key
 }
