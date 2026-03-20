@@ -9,6 +9,7 @@ const navItems = [
   { to: '/check', label: 'Kontrol' },
   { to: '/calendar', label: 'Takvim' },
   { to: '/archive', label: 'Arşiv' },
+  { to: '/style', label: 'Stil Klonu' },
   { to: '/algorithm', label: 'Algoritma' },
   { to: '/settings', label: 'Ayarlar' },
 ]

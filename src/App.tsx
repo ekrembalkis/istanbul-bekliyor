@@ -7,6 +7,7 @@ import Calendar from './pages/Calendar'
 import Archive from './pages/Archive'
 import AlgorithmGuide from './pages/AlgorithmGuide'
 import Settings from './pages/Settings'
+import StyleClone from './pages/StyleClone'
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/archive" element={<Archive />} />
         <Route path="/algorithm" element={<AlgorithmGuide />} />
+        <Route path="/style" element={<StyleClone />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
     </Routes>
