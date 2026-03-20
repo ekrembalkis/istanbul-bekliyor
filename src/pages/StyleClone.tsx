@@ -421,9 +421,9 @@ export default function StyleClone() {
                   )}
 
                   {/* Tweet samples */}
-                  {currentStyle.tweets.length > 0 ? (
+                  {(currentStyle.tweets?.length ?? 0) > 0 ? (
                     <div className="space-y-2 max-h-72 overflow-y-auto">
-                      {currentStyle.tweets.map((tweet, i) => (
+                      {(currentStyle.tweets ?? []).map((tweet, i) => (
                         <div key={tweet.id} className="bg-slate-50 dark:bg-white/[0.03] rounded-xl p-3 border border-slate-100 dark:border-white/[0.06]">
                           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">{tweet.text}</p>
                           <div className="text-[10px] text-slate-400 mt-1.5 font-mono">{tweet.createdAt ? new Date(tweet.createdAt).toLocaleDateString('tr-TR') : ''}</div>
@@ -439,25 +439,25 @@ export default function StyleClone() {
                   )}
 
                   {/* Style analysis */}
-                  {currentStyle.tweets.length > 0 && (
+                  {(currentStyle.tweets?.length ?? 0) > 0 && (
                     <div className="mt-4 bg-slate-50 dark:bg-white/[0.03] rounded-xl p-4 border border-slate-100 dark:border-white/[0.06]">
                       <div className="text-[10px] font-bold text-slate-400 tracking-wider mb-2">STİL PROFİLİ</div>
                       <div className="grid grid-cols-2 gap-3 text-xs text-slate-500 dark:text-slate-400">
                         <div>
                           <span className="font-semibold text-slate-600 dark:text-slate-300">Ort. uzunluk:</span>{' '}
-                          {Math.round(currentStyle.tweets.reduce((s, t) => s + t.text.length, 0) / currentStyle.tweets.length)} karakter
+                          {Math.round((currentStyle.tweets ?? []).reduce((s, t) => s + t.text.length, 0) / (currentStyle.tweets?.length ?? 0))} karakter
                         </div>
                         <div>
                           <span className="font-semibold text-slate-600 dark:text-slate-300">Emoji:</span>{' '}
-                          {currentStyle.tweets.filter(t => /[\u{1F600}-\u{1F6FF}]/u.test(t.text)).length}/{currentStyle.tweets.length}
+                          {(currentStyle.tweets ?? []).filter(t => /[\u{1F600}-\u{1F6FF}]/u.test(t.text)).length}/{(currentStyle.tweets?.length ?? 0)}
                         </div>
                         <div>
                           <span className="font-semibold text-slate-600 dark:text-slate-300">Soru:</span>{' '}
-                          {currentStyle.tweets.filter(t => t.text.includes('?')).length}/{currentStyle.tweets.length}
+                          {(currentStyle.tweets ?? []).filter(t => t.text.includes('?')).length}/{(currentStyle.tweets?.length ?? 0)}
                         </div>
                         <div>
                           <span className="font-semibold text-slate-600 dark:text-slate-300">Satır arası:</span>{' '}
-                          Ort. {Math.round(currentStyle.tweets.reduce((s, t) => s + (t.text.match(/\n/g) || []).length, 0) / currentStyle.tweets.length)}
+                          Ort. {Math.round((currentStyle.tweets ?? []).reduce((s, t) => s + (t.text.match(/\n/g) || []).length, 0) / (currentStyle.tweets?.length ?? 0))}
                         </div>
                       </div>
                     </div>
@@ -792,7 +792,7 @@ export default function StyleClone() {
 // ── Style Reference Sub-component ──
 function StyleReference({ username, styles }: { username: string; styles: StyleProfile[] }) {
   const style = styles.find(s => s.xUsername === username)
-  if (!style || style.tweets.length === 0) return <div className="text-xs text-slate-400">Stil verisi yok.</div>
+  if (!style || !style.tweets?.length) return <div className="text-xs text-slate-400">Stil verisi yok.</div>
 
   return (
     <div className="space-y-2 max-h-48 overflow-y-auto">
