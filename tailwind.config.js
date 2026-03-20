@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -14,6 +15,12 @@ export default {
         slate: {
           850: '#1A1F2E',
         },
+        dark: {
+          bg: '#0C0C12',
+          card: '#16161E',
+          border: '#1E1E2A',
+          hover: '#1C1C28',
+        },
       },
       fontFamily: {
         serif: ['Newsreader', 'Georgia', 'serif'],
@@ -25,7 +32,8 @@ export default {
         'card-hover': '0 10px 25px rgba(0,0,0,0.06), 0 4px 10px rgba(0,0,0,0.04)',
         'elevated': '0 20px 50px rgba(0,0,0,0.08), 0 8px 20px rgba(0,0,0,0.04)',
         'nav': '0 1px 0 rgba(0,0,0,0.05)',
-        'inner-glow': 'inset 0 1px 0 rgba(255,255,255,0.8)',
+        'dark-card': '0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2)',
+        'dark-card-hover': '0 10px 25px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.3)',
       },
       animation: {
         'counter-pulse': 'counterPulse 3s ease-in-out infinite',

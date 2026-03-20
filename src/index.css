@@ -11,6 +11,21 @@ body {
   background: #FAFAFA;
   color: #1A1F2E;
   min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark body,
+body.dark {
+  background: #0C0C12;
+  color: #E8E6E3;
+}
+
+html.dark {
+  background: #0C0C12;
+}
+html.dark body {
+  background: #0C0C12;
+  color: #E8E6E3;
 }
 
 /* Scrollbar */
@@ -18,17 +33,15 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.18); }
+.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); }
+.dark ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
 
 /* Checkbox */
-input[type="checkbox"] {
-  accent-color: #E30A17;
-}
+input[type="checkbox"] { accent-color: #E30A17; }
 
 /* Selection */
-::selection {
-  background: rgba(227, 10, 23, 0.12);
-  color: #1A1F2E;
-}
+::selection { background: rgba(227, 10, 23, 0.12); color: #1A1F2E; }
+.dark ::selection { background: rgba(227, 10, 23, 0.3); color: #fff; }
 
 @layer components {
 
@@ -38,14 +51,15 @@ input[type="checkbox"] {
     border: 1px solid rgba(0,0,0,0.06);
     border-radius: 1rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
-    transition: box-shadow 0.25s ease, transform 0.25s ease;
+    transition: box-shadow 0.25s ease, transform 0.25s ease, background-color 0.3s ease, border-color 0.3s ease;
+  }
+  .dark .card {
+    background: #16161E;
+    border-color: rgba(255,255,255,0.06);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
   }
 
-  /* ── Section Header (red accent bar) ── */
-  .section-header {
-    position: relative;
-    padding-left: 0;
-  }
+  /* ── Section Header ── */
   .section-header::before {
     content: '';
     display: block;
@@ -71,18 +85,32 @@ input[type="checkbox"] {
     color: #64748B;
     transition: all 0.2s;
   }
+  .dark .chip {
+    border-color: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: #94A3B8;
+  }
 
   /* ── Input ── */
   .input-field {
     background: #FFFFFF;
     border: 1px solid rgba(0,0,0,0.1);
     border-radius: 0.75rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s;
   }
   .input-field:focus {
     border-color: #E30A17;
     box-shadow: 0 0 0 3px rgba(227,10,23,0.08);
     outline: none;
+  }
+  .dark .input-field {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.08);
+    color: #E8E6E3;
+  }
+  .dark .input-field:focus {
+    border-color: #E30A17;
+    box-shadow: 0 0 0 3px rgba(227,10,23,0.15);
   }
 
   /* ── Button ── */
@@ -99,6 +127,11 @@ input[type="checkbox"] {
     color: #374151;
     transition: all 0.2s;
     cursor: pointer;
+  }
+  .dark .btn {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.1);
+    color: #D1D5DB;
   }
 
   .btn-primary {
@@ -130,6 +163,9 @@ input[type="checkbox"] {
     width: 100%;
     background: linear-gradient(to right, transparent, rgba(0,0,0,0.06), transparent);
   }
+  .dark .divider {
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.06), transparent);
+  }
 
   /* ── Live Indicator ── */
   .live-dot {
@@ -152,20 +188,27 @@ input[type="checkbox"] {
     box-shadow: 0 10px 25px rgba(0,0,0,0.06), 0 4px 10px rgba(0,0,0,0.04);
     transform: translateY(-1px);
   }
-
+  .dark .card:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.3);
+  }
   .btn:hover {
     background: #F9FAFB;
     border-color: rgba(0,0,0,0.15);
   }
-
+  .dark .btn:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.15);
+  }
   .btn-primary:hover {
     background: #B80813;
     border-color: #B80813;
     transform: translateY(-0.5px);
   }
-
   .chip:hover {
     background: rgba(0,0,0,0.04);
+  }
+  .dark .chip:hover {
+    background: rgba(255,255,255,0.08);
   }
 }
 

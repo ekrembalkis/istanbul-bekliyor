@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { getDayCount } from '../lib/utils'
+import { ThemeToggle } from './ThemeToggle'
 
 const navItems = [
   { to: '/', label: 'Panel' },
   { to: '/planner', label: 'Planla' },
   { to: '/check', label: 'Kontrol' },
   { to: '/calendar', label: 'Takvim' },
-  { to: '/archive', label: 'Arsiv' },
+  { to: '/archive', label: 'Arşiv' },
   { to: '/algorithm', label: 'Algoritma' },
   { to: '/settings', label: 'Ayarlar' },
 ]
@@ -17,9 +18,9 @@ export default function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-dark-bg transition-colors duration-300">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-black/[0.06] shadow-nav">
+      <header className="sticky top-0 z-50 bg-white/95 dark:bg-dark-card/95 backdrop-blur-sm border-b border-black/[0.06] dark:border-white/[0.06] shadow-nav">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -30,9 +31,9 @@ export default function Layout() {
                 </svg>
               </div>
               <div className="leading-none">
-                <span className="text-[15px] font-bold tracking-tight text-slate-850">ISTANBUL</span>
+                <span className="text-[15px] font-bold tracking-tight text-slate-850 dark:text-white">İSTANBUL</span>
                 <span className="text-brand-red font-bold text-[15px]">.</span>
-                <span className="text-brand-red text-[15px] font-bold tracking-tight">BEKLIYOR</span>
+                <span className="text-brand-red text-[15px] font-bold tracking-tight">BEKLİYOR</span>
               </div>
             </NavLink>
 
@@ -47,7 +48,7 @@ export default function Layout() {
                     `px-3 py-2 text-[13px] font-medium rounded-lg transition-all duration-200 ${
                       isActive
                         ? 'text-brand-red bg-brand-red/[0.06]'
-                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/60'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/[0.06]'
                     }`
                   }
                 >
@@ -56,20 +57,22 @@ export default function Layout() {
               ))}
             </nav>
 
-            {/* Day Counter Badge + Mobile Toggle */}
-            <div className="flex items-center gap-3">
+            {/* Right: Theme Toggle + Day Counter + Mobile Toggle */}
+            <div className="flex items-center gap-2.5">
+              <ThemeToggle />
+
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-red/[0.06] border border-brand-red/10">
                 <span className="live-dot flex-shrink-0" />
                 <span className="font-mono text-sm font-bold text-brand-red">{day}</span>
-                <span className="text-[10px] font-semibold text-brand-red/50 tracking-widest">GUN</span>
+                <span className="text-[10px] font-semibold text-brand-red/50 tracking-widest">GÜN</span>
               </div>
 
               {/* Mobile hamburger */}
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors"
               >
-                <svg className="w-5 h-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   {mobileOpen
                     ? <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     : <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
@@ -82,7 +85,7 @@ export default function Layout() {
 
         {/* Mobile Nav Dropdown */}
         {mobileOpen && (
-          <div className="md:hidden border-t border-black/[0.04] bg-white animate-slide-up">
+          <div className="md:hidden border-t border-black/[0.04] dark:border-white/[0.04] bg-white dark:bg-dark-card animate-slide-up">
             <div className="px-4 py-3 space-y-1">
               {navItems.map(item => (
                 <NavLink
@@ -94,7 +97,7 @@ export default function Layout() {
                     `block px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${
                       isActive
                         ? 'text-brand-red bg-brand-red/[0.06]'
-                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/[0.04]'
                     }`
                   }
                 >
@@ -112,7 +115,7 @@ export default function Layout() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-black/[0.04] bg-white mt-12">
+      <footer className="border-t border-black/[0.04] dark:border-white/[0.04] bg-white dark:bg-dark-card mt-12 transition-colors">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-sm text-slate-400">
             <div className="w-5 h-5 bg-brand-red rounded flex items-center justify-center">
@@ -124,7 +127,7 @@ export default function Layout() {
           </div>
           <div className="flex items-center gap-4 text-xs text-slate-400">
             <span className="font-mono">@istbekliyor</span>
-            <span>#IstanbulBekliyor</span>
+            <span>#İstanbulBekliyor</span>
           </div>
         </div>
       </footer>
