@@ -401,16 +401,15 @@ export async function lookupTweet(tweetIdOrUrl: string): Promise<TweetInfo> {
 // ── Account & Usage ──
 
 export interface XquikAccount {
-  email: string
-  locale: string
-  xUsername: string
-  subscription: {
-    plan?: string
-    status?: string
-    currentPeriodEnd?: string
-    cancelAtPeriodEnd?: boolean
-  } | null
-  usage: Record<string, unknown>
+  plan: string // "active" | "inactive" | etc
+  pricingVersion: number
+  currentPeriod: {
+    start: string
+    end: string
+    usagePercent: number
+  }
+  monitorsAllowed: number
+  monitorsUsed: number
 }
 
 /** Fetch Xquik account info including subscription and usage */

@@ -77,7 +77,10 @@ export default function Settings() {
 
   const promptTemplate = `Minimalist [SAHNE TÜRÜ] of [SAHNE DETAYI], shot in stark black and white. [DETAYLI AÇIKLAMA]. [ALTIN ELEMAN] has a warm amber gold color (#D4A843). Everything else is deep black and charcoal gray. [KAMERA]. Bold clean text reading "GÜN [SAYI]" in large uppercase sans-serif font at the top of the frame. Brutalist minimalist style. 1:1 aspect ratio at 2K resolution.`
 
-  const sub = account?.subscription
+  const isActive = account?.plan === 'active'
+  const period = account?.currentPeriod
+  const usagePct = period?.usagePercent ?? 0
+  const daysLeft = period?.end ? Math.max(0, Math.ceil((new Date(period.end).getTime() - Date.now()) / 86400000)) : 0
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -102,62 +105,69 @@ export default function Settings() {
                 <div className="text-xs text-red-600 dark:text-red-400">{accountError}</div>
               </div>
             ) : account ? (
-              <div className="bg-slate-50 dark:bg-white/[0.03] rounded-xl p-4 border border-slate-100 dark:border-white/[0.06] space-y-3">
+              <div className="bg-slate-50 dark:bg-white/[0.03] rounded-xl p-4 border border-slate-100 dark:border-white/[0.06] space-y-4">
+                {/* Status + Plan */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${sub?.status === 'active' ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
-                      {sub?.plan || 'Free'}
+                    <span className={`w-2.5 h-2.5 rounded-full ${isActive ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
+                    <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                      Xquik Pro
                     </span>
                   </div>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-lg font-bold ${
-                    sub?.status === 'active'
+                  <span className={`text-[10px] px-2.5 py-1 rounded-lg font-bold ${
+                    isActive
                       ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                       : 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400'
                   }`}>
-                    {sub?.status === 'active' ? 'Aktif' : sub?.status || 'Pasif'}
+                    {isActive ? 'Aktif' : 'Pasif'}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 text-[10px]">
-                  <div>
-                    <div className="text-slate-400">Hesap</div>
-                    <div className="font-mono text-slate-600 dark:text-slate-300">{account.email}</div>
+                {/* Usage gauge */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] text-slate-400">Dönem Kullanımı</span>
+                    <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{usagePct}%</span>
                   </div>
-                  <div>
-                    <div className="text-slate-400">X Hesabı</div>
-                    <div className="font-mono text-slate-600 dark:text-slate-300">@{account.xUsername || '-'}</div>
+                  <div className="h-3 bg-slate-200 dark:bg-white/[0.08] rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        usagePct > 80 ? 'bg-red-500' : usagePct > 50 ? 'bg-amber-500' : 'bg-emerald-500'
+                      }`}
+                      style={{ width: `${Math.max(2, usagePct)}%` }}
+                    />
                   </div>
-                  {sub?.currentPeriodEnd && (
-                    <div>
-                      <div className="text-slate-400">Dönem Sonu</div>
-                      <div className="font-mono text-slate-600 dark:text-slate-300">
-                        {new Date(sub.currentPeriodEnd).toLocaleDateString('tr-TR')}
-                      </div>
-                    </div>
-                  )}
-                  {sub?.cancelAtPeriodEnd && (
-                    <div>
-                      <div className="text-slate-400">Durum</div>
-                      <div className="font-mono text-amber-600 dark:text-amber-400">Dönem sonunda iptal</div>
-                    </div>
-                  )}
+                  <div className="flex justify-between mt-1 text-[10px] text-slate-400">
+                    <span>{usagePct}% kullanıldı</span>
+                    <span>{100 - usagePct}% kaldı</span>
+                  </div>
                 </div>
 
-                {/* Usage data from Xquik */}
-                {account.usage && Object.keys(account.usage).length > 0 && (
-                  <div className="border-t border-slate-100 dark:border-white/[0.06] pt-3 mt-3">
-                    <div className="text-[10px] font-bold text-slate-400 tracking-wider mb-2">XQUIK KULLANIM</div>
-                    <div className="grid grid-cols-2 gap-2 text-[10px]">
-                      {Object.entries(account.usage).map(([key, val]) => (
-                        <div key={key} className="flex justify-between bg-white dark:bg-dark-card rounded-lg px-2.5 py-1.5 border border-slate-100 dark:border-white/[0.06]">
-                          <span className="text-slate-400">{key}</span>
-                          <span className="font-mono font-bold text-slate-600 dark:text-slate-300">{String(val)}</span>
-                        </div>
-                      ))}
+                {/* Period + Monitors */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-white dark:bg-dark-card rounded-lg p-2.5 border border-slate-100 dark:border-white/[0.06]">
+                    <div className="text-[10px] text-slate-400 mb-0.5">Dönem</div>
+                    <div className="text-[11px] font-mono text-slate-600 dark:text-slate-300">
+                      {period ? new Date(period.start).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : '-'}
+                      {' — '}
+                      {period ? new Date(period.end).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : '-'}
                     </div>
                   </div>
-                )}
+                  <div className="bg-white dark:bg-dark-card rounded-lg p-2.5 border border-slate-100 dark:border-white/[0.06]">
+                    <div className="text-[10px] text-slate-400 mb-0.5">Kalan Gün</div>
+                    <div className="text-[11px] font-mono font-bold text-slate-600 dark:text-slate-300">{daysLeft} gün</div>
+                  </div>
+                  <div className="bg-white dark:bg-dark-card rounded-lg p-2.5 border border-slate-100 dark:border-white/[0.06]">
+                    <div className="text-[10px] text-slate-400 mb-0.5">Monitörler</div>
+                    <div className="text-[11px] font-mono text-slate-600 dark:text-slate-300">
+                      {account.monitorsUsed} / {account.monitorsAllowed}
+                    </div>
+                  </div>
+                  <div className="bg-white dark:bg-dark-card rounded-lg p-2.5 border border-slate-100 dark:border-white/[0.06]">
+                    <div className="text-[10px] text-slate-400 mb-0.5">API Versiyonu</div>
+                    <div className="text-[11px] font-mono text-slate-600 dark:text-slate-300">v{account.pricingVersion}</div>
+                  </div>
+                </div>
               </div>
             ) : null}
           </div>
