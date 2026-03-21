@@ -54,6 +54,7 @@ export default function StyleClone() {
   const [composeTone, setComposeTone] = useState('duygusal, umut dolu')
   const [composeGoal, setComposeGoal] = useState('engagement')
   const [composeDraft, setComposeDraft] = useState('')
+  const [cloneMode, setCloneMode] = useState(true)
   const [guidance, setGuidance] = useState<ComposeRefineResult | null>(null)
   const [scoreResult, setScoreResult] = useState<ScoreResult | null>(null)
   const [loading, setLoading] = useState(false)
@@ -205,6 +206,7 @@ export default function StyleClone() {
         tone: composeTone,
         goal: composeGoal,
         count: 3,
+        cloneMode,
       })
       setGeneratedTweets(result.tweets)
       incrementGenerated(composeStyle)
@@ -716,6 +718,31 @@ export default function StyleClone() {
                     </select>
                   </div>
                 </div>
+                <div className="flex items-center justify-between py-2">
+                  <label className="text-[10px] font-bold text-slate-400 tracking-wider">URETIM MODU</label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCloneMode(true)}
+                      className={`text-[10px] px-3 py-1.5 rounded-lg border transition-all ${
+                        cloneMode
+                          ? 'bg-brand-red/10 text-brand-red border-brand-red/20 font-bold'
+                          : 'text-slate-400 border-slate-200 dark:border-white/10 hover:text-slate-600'
+                      }`}
+                    >
+                      Birebir Klon
+                    </button>
+                    <button
+                      onClick={() => setCloneMode(false)}
+                      className={`text-[10px] px-3 py-1.5 rounded-lg border transition-all ${
+                        !cloneMode
+                          ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20 font-bold'
+                          : 'text-slate-400 border-slate-200 dark:border-white/10 hover:text-slate-600'
+                      }`}
+                    >
+                      Optimize
+                    </button>
+                  </div>
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={handleGetGuidance}
@@ -847,36 +874,64 @@ export default function StyleClone() {
             {/* Generated Tweets */}
             {generatedTweets.length > 0 && (
               <div className="card p-6">
-                <div className="text-[10px] font-bold text-slate-400 tracking-widest mb-4">URETILEN TWEETLER</div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-[10px] font-bold text-slate-400 tracking-widest">URETILEN TWEETLER</div>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-lg ${
+                    cloneMode
+                      ? 'bg-brand-red/10 text-brand-red'
+                      : 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                  }`}>
+                    {cloneMode ? 'Birebir Klon' : 'Optimize'}
+                  </span>
+                </div>
                 <div className="space-y-3">
-                  {generatedTweets.map((gt, i) => (
-                    <div key={i} className={`p-4 rounded-xl border ${
-                      gt.score?.passed
-                        ? 'bg-emerald-50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20'
-                        : 'bg-slate-50 dark:bg-white/[0.03] border-slate-100 dark:border-white/[0.06]'
-                    }`}>
-                      <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-line">{gt.tweet}</p>
-                      <div className="flex items-center justify-between mt-2">
-                        <div className="flex items-center gap-2">
-                          {gt.score && (
-                            <span className={`text-[10px] font-bold ${gt.score.passed ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
-                              {gt.score.count}/{gt.score.total}
-                            </span>
-                          )}
-                          <span className="text-[10px] text-slate-400">{gt.tweet.length} chr · {gt.attempts} deneme</span>
+                  {generatedTweets.map((gt, i) => {
+                    // In clone mode: if only CTA failed, treat as "style pass"
+                    const hasStyleOverride = (gt.styleOverrides?.length ?? 0) > 0
+                    const isStylePass = hasStyleOverride && !gt.score?.passed && gt.score
+                      ? gt.score.checklist?.filter(c => !c.passed).every(c => c.factor.includes('CTA'))
+                      : false
+                    const displayPassed = gt.score?.passed || isStylePass
+
+                    return (
+                      <div key={i} className={`p-4 rounded-xl border ${
+                        displayPassed
+                          ? 'bg-emerald-50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20'
+                          : 'bg-slate-50 dark:bg-white/[0.03] border-slate-100 dark:border-white/[0.06]'
+                      }`}>
+                        <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-line">{gt.tweet}</p>
+                        <div className="flex items-center justify-between mt-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {gt.score && (
+                              <span className={`text-[10px] font-bold ${displayPassed ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                                {gt.score.count}/{gt.score.total}
+                              </span>
+                            )}
+                            {isStylePass && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/[0.06] text-slate-400">
+                                stil uyumu
+                              </span>
+                            )}
+                            <span className="text-[10px] text-slate-400">{gt.tweet.length} chr</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <CopyBtn text={gt.tweet} />
+                            <button
+                              onClick={() => setComposeDraft(gt.tweet)}
+                              className="btn text-[10px] py-1 px-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10"
+                            >
+                              Duzenle
+                            </button>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1.5">
-                          <CopyBtn text={gt.tweet} />
-                          <button
-                            onClick={() => setComposeDraft(gt.tweet)}
-                            className="btn text-[10px] py-1 px-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10"
-                          >
-                            Duzenle
-                          </button>
-                        </div>
+                        {hasStyleOverride && (
+                          <div className="mt-2 text-[10px] text-slate-400 italic">
+                            {gt.styleOverrides?.join(' · ')}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}

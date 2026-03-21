@@ -303,8 +303,9 @@ export async function deleteWebhook(id: string): Promise<void> {
 
 export interface GeneratedTweet {
   tweet: string
-  score: { passed: boolean; count: number; total: number } | null
+  score: { passed: boolean; count: number; total: number; checklist?: { factor: string; passed: boolean }[] } | null
   attempts: number
+  styleOverrides?: string[]
 }
 
 export interface GenerateResult {
@@ -322,6 +323,7 @@ export async function generateTweet(opts: {
   tone?: string
   goal?: string
   count?: number
+  cloneMode?: boolean
 }): Promise<GenerateResult> {
   const res = await fetch('/api/generate-tweet', {
     method: 'POST',
@@ -332,6 +334,7 @@ export async function generateTweet(opts: {
       tone: opts.tone || 'sarkastik, samimi',
       goal: opts.goal || 'engagement',
       count: opts.count || 3,
+      cloneMode: opts.cloneMode ?? true,
     }),
   })
 
