@@ -6,10 +6,9 @@ import { ThemeToggle } from './ThemeToggle'
 const navItems = [
   { to: '/', label: 'Panel' },
   { to: '/planner', label: 'Planla' },
-  { to: '/check', label: 'Kontrol' },
   { to: '/calendar', label: 'Takvim' },
   { to: '/archive', label: 'Arşiv' },
-  { to: '/style', label: 'Stil Klonu' },
+  { to: '/style', label: 'Üret' },
   { to: '/settings', label: 'Ayarlar' },
 ]
 

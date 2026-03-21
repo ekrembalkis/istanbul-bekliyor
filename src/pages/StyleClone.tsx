@@ -14,6 +14,8 @@ import type { StyleLibraryEntry } from '../lib/styleLibrary'
 import { getTopicSuggestions } from '../lib/topicSuggestor'
 import type { TopicSuggestion } from '../lib/topicSuggestor'
 import { trackGeminiUsage } from '../lib/costTracker'
+import { checkCampaignRules, getScoreColor, getScoreBg } from '../lib/utils'
+import { scoreDraft } from '../lib/xquik'
 
 type Tab = 'analyze' | 'compose' | 'drafts'
 
@@ -46,6 +48,12 @@ export default function StyleClone() {
   const [topicContext, setTopicContext] = useState('')
   const [loadingTopics, setLoadingTopics] = useState(false)
   const [expandedTopic, setExpandedTopic] = useState<number | null>(null)
+
+  // ── Check (inline algorithm checker) ──
+  const [checkText, setCheckText] = useState('')
+  const [checkResult, setCheckResult] = useState<ScoreResult | null>(null)
+  const [checkLoading, setCheckLoading] = useState(false)
+  const [checkOpen, setCheckOpen] = useState(false)
 
   // ── Manual ──
   const [manualTweets, setManualTweets] = useState('')
@@ -332,6 +340,19 @@ export default function StyleClone() {
     }
     setLoading(false)
   }
+
+  // ── Check: score text inline ──
+  const handleCheck = async (text: string) => {
+    if (text.trim().length < 10) { setCheckResult(null); return }
+    setCheckLoading(true)
+    try {
+      const result = await scoreDraft(text, true)
+      setCheckResult(result)
+    } catch { setCheckResult(null) }
+    setCheckLoading(false)
+  }
+
+  const campaignCheck = checkText.trim() ? checkCampaignRules(checkText) : null
 
   // ═══════════ UI ═══════════
   if (!apiReady) {
@@ -638,6 +659,7 @@ export default function StyleClone() {
 
       {/* ═══════════ COMPOSE TAB ═══════════ */}
       {tab === 'compose' && (
+        <div className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left: Controls */}
           <div className="space-y-5">
@@ -1097,6 +1119,91 @@ export default function StyleClone() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* ── Inline Algorithm Check Card ── */}
+        <div className="mt-6">
+          <button
+            onClick={() => setCheckOpen(!checkOpen)}
+            className="flex items-center gap-2 text-[11px] font-bold text-slate-400 tracking-wider hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+          >
+            <svg className={`w-3 h-3 transition-transform ${checkOpen ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 12 12" stroke="currentColor" strokeWidth="2"><path d="M4 2l4 4-4 4"/></svg>
+            TWEET KONTROL
+          </button>
+          <div className={`overflow-hidden transition-all duration-300 ${checkOpen ? 'max-h-[600px] opacity-100 mt-3' : 'max-h-0 opacity-0'}`}>
+            <div className="card p-5">
+              <textarea
+                value={checkText}
+                onChange={e => setCheckText(e.target.value)}
+                rows={4}
+                className="w-full input-field p-3 text-sm text-slate-700 dark:text-slate-200 leading-relaxed resize-none"
+                placeholder="Tweet metnini yapıştır, algoritma + kampanya kontrolü yap..."
+              />
+              <div className="flex items-center justify-between mt-2">
+                <span className={`text-[10px] font-mono ${checkText.length > 280 ? 'text-red-500' : 'text-slate-400'}`}>
+                  {checkText.length}/280
+                </span>
+                <div className="flex gap-2">
+                  {checkText.trim() && <CopyBtn text={checkText} />}
+                  <button
+                    onClick={() => handleCheck(checkText)}
+                    disabled={checkLoading || checkText.trim().length < 10}
+                    className="btn btn-primary text-[10px] py-1.5 px-3 disabled:opacity-50"
+                  >
+                    {checkLoading ? (
+                      <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" /><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" /></svg>
+                    ) : 'Kontrol Et'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Results */}
+              {(checkResult || campaignCheck) && (
+                <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* Xquik 11 check */}
+                  {checkResult && (
+                    <div className={`rounded-xl p-3 ${checkResult.passed ? getScoreBg(100) : getScoreBg(Math.round((checkResult.passedCount / checkResult.totalChecks) * 100))}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-bold text-slate-400 tracking-wider">ALGORİTMA</span>
+                        <span className={`text-lg font-bold font-mono ${checkResult.passed ? 'text-emerald-600 dark:text-emerald-400' : getScoreColor(Math.round((checkResult.passedCount / checkResult.totalChecks) * 100))}`}>
+                          {checkResult.passedCount}/{checkResult.totalChecks}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        {checkResult.checklist.map((c, i) => (
+                          <div key={i} className="flex items-center gap-1.5 text-[10px]">
+                            <span className={c.passed ? 'text-emerald-500' : 'text-red-500'}>{c.passed ? '✓' : '✕'}</span>
+                            <span className={c.passed ? 'text-slate-400' : 'text-slate-600 dark:text-slate-200'}>{c.factor}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Campaign 3 check */}
+                  {campaignCheck && (
+                    <div className={`rounded-xl p-3 ${getScoreBg(campaignCheck.score)}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-bold text-slate-400 tracking-wider">KAMPANYA</span>
+                        <span className={`text-lg font-bold font-mono ${getScoreColor(campaignCheck.score)}`}>
+                          {campaignCheck.checks.filter(c => c.passed).length}/{campaignCheck.checks.length}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        {campaignCheck.checks.map((c, i) => (
+                          <div key={i} className="flex items-center gap-1.5 text-[10px]">
+                            <span className={c.passed ? 'text-emerald-500' : 'text-red-500'}>{c.passed ? '✓' : '✕'}</span>
+                            <span className={c.passed ? 'text-slate-400' : 'text-slate-600 dark:text-slate-200'}>{c.rule}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
         </div>
       )}
 
