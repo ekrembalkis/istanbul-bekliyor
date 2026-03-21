@@ -23,6 +23,7 @@ export default async function handler(req, res) {
     mode = 'tweet', // tweet | quote | reply | thread
     quoteTweetText = '', quoteTweetAuthor = '',
     lengthHint = '', // kisa | normal | uzun | (empty = style-based)
+    personalityDNA = null, // optional PersonalityDNA object from frontend
   } = req.body
 
   if (!styleUsername || (!topic && !quoteTweetText)) {
@@ -94,7 +95,40 @@ export default async function handler(req, res) {
       'Link koyma',
     ].filter(Boolean).join('\n- ')
 
-    // 4. Build prompt based on mode
+    // 4. Build personality DNA block (if available)
+    let dnaBlock = ''
+    if (personalityDNA) {
+      const d = personalityDNA
+      const traits = d.personalityTraits || {}
+      const topicCtx = (d.topicProfiles || [])
+        .map(tp => `- ${tp.topic}: ${tp.behavior}`)
+        .join('\n')
+      dnaBlock = `
+KISILIK DNA (bu kisinin gercek kisiligi — tweetleri buna gore yaz):
+Arketip: ${d.identity?.archetype || ''}
+Dunya gorusu: ${d.identity?.worldview || ''}
+Uzmanlik: ${(d.identity?.expertise || []).join(', ')}
+
+Ses tonu: ${d.voice?.toneSpectrum || ''}
+Acilis tarzi: ${d.voice?.openingStyle || ''}
+Kapanis tarzi: ${d.voice?.closingStyle || ''}
+Mizah: ${d.voice?.humorStyle || ''}
+
+Tepkiler:
+- Iyi habere: ${d.reactions?.toGoodNews || ''}
+- Kotu habere: ${d.reactions?.toBadNews || ''}
+- Polemige: ${d.reactions?.toControversy || ''}
+
+Asla yapmaz: ${(d.boundaries?.neverDoes || []).join(', ')}
+Her zaman yapar: ${(d.boundaries?.alwaysDoes || []).join(', ')}
+${topicCtx ? `\nKonu bazli davranis:\n${topicCtx}` : ''}
+${d.contextualBehavior ? `\nMutlu olunca: ${d.contextualBehavior.whenHappy}\nSinirli olunca: ${d.contextualBehavior.whenAngry}` : ''}
+
+Kisilik skorlari: Formality ${traits.formality || 0}/100, Humor ${traits.humor || 0}/100, Controversy ${traits.controversy || 0}/100
+`
+    }
+
+    // 5. Build prompt based on mode
     const numberedExamples = styleTweets.map((t, i) => `${i + 1}. ${t}`).join('\n')
     const modeLabel = cloneMode ? 'BIREBIR KLON — stili ASLA bozma' : 'OPTIMIZE — stili koru ama algoritmaya uy'
 
@@ -154,7 +188,7 @@ Bu stilde ${count} farkli tweet yaz. Her biri farkli bir aci olsun. Sadece tweet
 
 STIL ORNEKLERI (@${styleUsername}):
 ${numberedExamples}
-
+${dnaBlock}
 STIL DNA KURALLARI:
 - ${styleRules}
 ${lengthBlock}

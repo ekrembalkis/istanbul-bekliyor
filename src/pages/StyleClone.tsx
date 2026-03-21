@@ -6,9 +6,9 @@ import {
   getSavedDrafts, saveDraft, deleteDraft,
   startDeepAnalysis, getExtractionJob, getAllExtractionResults, saveCuratedStyle,
   createMonitor, listMonitors, deleteMonitor, createWebhook, listWebhooks,
-  generateTweet, getRadarTopics, lookupTweet,
+  generateTweet, getRadarTopics, lookupTweet, analyzePersonality,
 } from '../lib/xquik'
-import type { StyleProfile, XUser, Draft, ScoreResult, ComposeRefineResult, Monitor, GeneratedTweet } from '../lib/xquik'
+import type { StyleProfile, XUser, Draft, ScoreResult, ComposeRefineResult, Monitor, GeneratedTweet, PersonalityDNA } from '../lib/xquik'
 import { getLibrary, saveEntry, togglePin, incrementGenerated, addTopic, CATEGORIES } from '../lib/styleLibrary'
 import type { StyleLibraryEntry } from '../lib/styleLibrary'
 import { getTopicSuggestions, TOPIC_CATEGORIES } from '../lib/topicSuggestor'
@@ -177,6 +177,26 @@ export default function StyleClone() {
         }
       }
 
+      // 7. Auto-extract personality DNA
+      setDeepProgress('Kişilik DNA çıkarılıyor...')
+      try {
+        const tweetTexts = (style.tweets || []).map(t => t.text).filter(t => t.length > 20)
+        if (tweetTexts.length >= 5) {
+          const { dna, geminiUsage } = await analyzePersonality(tweetTexts)
+          if (geminiUsage) trackGeminiUsage(geminiUsage)
+          // Save DNA to library
+          const lib = getLibrary()
+          const entry = lib.find(e => e.username === clean)
+          if (entry) {
+            entry.personalityDNA = dna
+            saveEntry(entry)
+            setLibrary(getLibrary())
+          }
+        }
+      } catch (e: any) {
+        console.warn('DNA extraction failed:', e.message)
+      }
+
       setDeepProgress(null)
     } catch (e: any) {
       // Fallback: try basic analysis if extraction fails (e.g. no subscription)
@@ -244,6 +264,8 @@ export default function StyleClone() {
     setGeneratedTweets([])
 
     try {
+      // Get personality DNA from library if available
+      const styleDNA = library.find(e => e.username === composeStyle)?.personalityDNA
       const result = await generateTweet({
         styleUsername: composeStyle,
         topic: composeTopic,
@@ -256,6 +278,7 @@ export default function StyleClone() {
         quoteTweetText: quoteTweetText || undefined,
         quoteTweetAuthor: quoteTweetAuthor || undefined,
         lengthHint: lengthHint || undefined,
+        personalityDNA: styleDNA,
       })
       setGeneratedTweets(result.tweets)
       if (result.geminiUsage) trackGeminiUsage(result.geminiUsage)
@@ -736,7 +759,12 @@ export default function StyleClone() {
                               </div>
                             )}
                             <div className="text-left">
-                              <div className={`text-xs font-semibold ${isSelected ? 'text-brand-red' : 'text-slate-700 dark:text-slate-200'}`}>@{s.xUsername}</div>
+                              <div className="flex items-center gap-1">
+                                <span className={`text-xs font-semibold ${isSelected ? 'text-brand-red' : 'text-slate-700 dark:text-slate-200'}`}>@{s.xUsername}</span>
+                                {library.find(e => e.username === s.xUsername)?.personalityDNA && (
+                                  <span className="text-[8px] px-1 py-0.5 rounded bg-purple-50 dark:bg-purple-500/10 text-purple-500 border border-purple-200 dark:border-purple-500/20 font-bold">DNA</span>
+                                )}
+                              </div>
                               <div className="text-[10px] text-slate-400">{s.tweetCount} tweet</div>
                             </div>
                           </button>

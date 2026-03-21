@@ -1,6 +1,7 @@
 // Hybrid style library: localStorage + optional Supabase sync
 
 import { supabase } from './supabase'
+import type { PersonalityDNA } from './xquik'
 
 export interface StyleLibraryEntry {
   username: string
@@ -10,6 +11,7 @@ export interface StyleLibraryEntry {
   lastUsedAt: string
   generatedCount: number
   topics: string[]        // frequently used topics
+  personalityDNA?: PersonalityDNA
 }
 
 const LIBRARY_KEY = 'ib_style_library'
@@ -127,6 +129,7 @@ async function syncToSupabase(entry: StyleLibraryEntry) {
       last_used_at: entry.lastUsedAt,
       generated_count: entry.generatedCount,
       topics: entry.topics,
+      personality_dna: entry.personalityDNA || null,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'username' })
   } catch { /* supabase optional */ }
@@ -159,6 +162,7 @@ export async function syncFromSupabase() {
             lastUsedAt: row.last_used_at || row.updated_at,
             generatedCount: row.generated_count ?? 0,
             topics: row.topics || [],
+            personalityDNA: row.personality_dna || undefined,
           }
           if (idx >= 0) local[idx] = entry
           else local.push(entry)

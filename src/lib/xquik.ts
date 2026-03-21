@@ -330,6 +330,7 @@ export async function generateTweet(opts: {
   quoteTweetText?: string
   quoteTweetAuthor?: string
   lengthHint?: string
+  personalityDNA?: PersonalityDNA
 }): Promise<GenerateResult> {
   const res = await fetch('/api/generate-tweet', {
     method: 'POST',
@@ -346,6 +347,7 @@ export async function generateTweet(opts: {
       quoteTweetText: opts.quoteTweetText,
       quoteTweetAuthor: opts.quoteTweetAuthor,
       lengthHint: opts.lengthHint,
+      personalityDNA: opts.personalityDNA,
     }),
   })
 
@@ -396,6 +398,66 @@ export async function lookupTweet(tweetIdOrUrl: string): Promise<TweetInfo> {
     likeCount: raw.tweet.likeCount,
     author: raw.author,
   }
+}
+
+// ── Personality DNA ──
+
+export interface PersonalityDNA {
+  identity: {
+    archetype: string
+    worldview: string
+    expertise: string[]
+  }
+  voice: {
+    toneSpectrum: string
+    openingStyle: string
+    closingStyle: string
+    signaturePhrases: string[]
+    humorStyle: string
+  }
+  reactions: {
+    toGoodNews: string
+    toBadNews: string
+    toControversy: string
+  }
+  boundaries: {
+    neverDoes: string[]
+    alwaysDoes: string[]
+  }
+  personalityTraits: {
+    formality: number
+    humor: number
+    controversy: number
+    empathy: number
+    authenticity: number
+  }
+  topicProfiles?: {
+    topic: string
+    tone: string
+    behavior: string
+    typicalReaction: string
+  }[]
+  contextualBehavior?: {
+    whenHappy: string
+    whenAngry: string
+    whenBored: string
+  }
+}
+
+/** Extract personality DNA from tweets via Gemini */
+export async function analyzePersonality(tweets: string[]): Promise<{ dna: PersonalityDNA; geminiUsage: { promptTokens: number; completionTokens: number; totalTokens: number; calls: number } }> {
+  const res = await fetch('/api/analyze-personality', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tweets }),
+  })
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.error || 'DNA analizi başarısız')
+  }
+
+  return res.json()
 }
 
 // ── Account & Usage ──
