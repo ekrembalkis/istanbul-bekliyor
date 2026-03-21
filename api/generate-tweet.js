@@ -72,7 +72,7 @@ export default async function handler(req, res) {
 
     // Length rule
     let lengthRule
-    if (lengthHint === 'kisa') lengthRule = '50-100 karakter arasi, kisa ve keskin'
+    if (lengthHint === 'kisa') lengthRule = '60-120 karakter arasi, kisa ve keskin (50den kisa olmasin)'
     else if (lengthHint === 'uzun') lengthRule = '200-280 karakter arasi, detayli'
     else if (lengthHint === 'normal') lengthRule = '100-200 karakter arasi'
     else lengthRule = `Ortalama uzunluk ${avgLen} karakter, 50-150 arasi tut`
@@ -101,12 +101,14 @@ QUOTE EDILECEK TWEET (@${quoteTweetAuthor}):
 
 ${count} farkli quote tweet yaz. Her biri farkli bir aci olsun. Sadece kendi tweet metinlerini yaz (quote edilen tweeti tekrarlama). Her tweeti yeni satirda numara ile yaz.`
     } else if (mode === 'reply') {
-      modeInstruction = `ASAGIDAKI TWEET'E REPLY YAZ. Kisa, dogal, stiline uygun cevap ver.
+      modeInstruction = `ASAGIDAKI TWEET'E REPLY YAZ. Dogal, stiline uygun, icerikli cevap ver.
 
 REPLY YAZILACAK TWEET (@${quoteTweetAuthor}):
 "${quoteTweetText}"
 
-${count} farkli reply yaz. Kisa olsun (30-120 karakter). Her birini yeni satirda numara ile yaz.`
+ONEMLI: Her reply EN AZ 50 karakter olmali. Cok kisa bos laflar yazma (ornegin sadece "helal" veya "aq" gibi). Icerikli, anlamli ama dogal reply yaz. 50-150 karakter arasi ideal.
+
+${count} farkli reply yaz. Her birini yeni satirda numara ile yaz.`
     } else if (mode === 'thread') {
       modeInstruction = `BU KONUDA 4-8 TWEET'LIK THREAD YAZ.
 
