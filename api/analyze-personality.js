@@ -146,6 +146,61 @@ Once tweetleri konularina gore grupla, sonra her konudaki davranisi analiz et.
 }
 
 SADECE JSON dondur.`
+
+    } else if (approach === 4) {
+      // APPROACH 4: HYBRID (1+3) — Full DNA + topic profiles in single call
+      prompt = `Bu ${tweets.length} tweet ayni kisiye ait. Hem genel kisilik DNA'sini cikar, hem de konu bazli davranis profillerini olustur.
+
+TWEETLER:
+${numberedTweets}
+
+Asagidaki JSON yapisini eksiksiz doldur. Turkce yaz.
+
+{
+  "identity": {
+    "archetype": "bu kisi ne tip biri, 3-5 kelime",
+    "worldview": "dunya gorusu, neye inanir, neyi savunur, hangi tarafta",
+    "expertise": ["en cok konustugu 3 alan"]
+  },
+  "voice": {
+    "toneSpectrum": "ana ses tonu",
+    "openingStyle": "tweetlere nasil baslar",
+    "closingStyle": "tweetleri nasil bitirir",
+    "signaturePhrases": ["en az 5 imza kelime/kalip"],
+    "humorStyle": "mizah tarzi"
+  },
+  "reactions": {
+    "toGoodNews": "iyi habere nasil tepki verir",
+    "toBadNews": "kotu habere nasil tepki verir",
+    "toControversy": "polemige nasil tepki verir"
+  },
+  "boundaries": {
+    "neverDoes": ["asla yapmadiglari, en az 3 madde"],
+    "alwaysDoes": ["her zaman yaptiklari, en az 3 madde"]
+  },
+  "personalityTraits": {
+    "formality": "0-100",
+    "humor": "0-100",
+    "controversy": "0-100",
+    "empathy": "0-100",
+    "authenticity": "0-100"
+  },
+  "topicProfiles": [
+    {
+      "topic": "konu adi",
+      "tone": "bu konudaki ses tonu",
+      "behavior": "bu konuda nasil davranir, 1-2 cumle",
+      "typicalReaction": "bu konuda bir haber/olay olunca nasil tepki verir"
+    }
+  ],
+  "contextualBehavior": {
+    "whenHappy": "mutlu olunca ne yapar",
+    "whenAngry": "sinirli olunca ne yapar",
+    "whenBored": "sikildigi zaman ne yapar"
+  }
+}
+
+SADECE JSON dondur, aciklama ekleme.`
     }
 
     const geminiRes = await fetch(
