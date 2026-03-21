@@ -226,8 +226,9 @@ export default function StyleClone() {
   const loadTopicSuggestions = async () => {
     setLoadingTopics(true)
     try {
-      const radarFn = async (path: string) => {
+      const searchFn = async (query: string) => {
         const IS_DEV = import.meta.env.DEV
+        const path = `/x/tweets/search?q=${encodeURIComponent(query)}&limit=10&queryType=Top`
         if (IS_DEV) {
           const res = await fetch(`https://xquik.com/api/v1${path}`, {
             headers: { 'x-api-key': import.meta.env.VITE_XQUIK_API_KEY || '' }
@@ -237,7 +238,7 @@ export default function StyleClone() {
         const res = await fetch(`/api/xquik?path=${encodeURIComponent(path)}`)
         return res.json()
       }
-      const suggestions = await getTopicSuggestions(radarFn, currentStyle)
+      const suggestions = await getTopicSuggestions(null, currentStyle, searchFn)
       setTopicSuggestions(suggestions)
     } catch { /* optional */ }
     setLoadingTopics(false)
@@ -690,7 +691,7 @@ export default function StyleClone() {
                           onClick={() => setComposeTopic(s.title)}
                           className={`text-[10px] px-2 py-1 rounded-lg border transition-all hover:scale-105 ${
                             s.source === 'campaign' ? 'bg-brand-red/10 text-brand-red border-brand-red/20' :
-                            s.source === 'radar' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20' :
+                            s.source === 'live' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20' :
                             'bg-slate-50 dark:bg-white/[0.04] text-slate-500 dark:text-slate-400 border-slate-200 dark:border-white/[0.08]'
                           }`}
                           title={s.reason}
