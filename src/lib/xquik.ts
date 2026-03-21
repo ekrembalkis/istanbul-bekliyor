@@ -385,7 +385,16 @@ export async function lookupTweet(tweetIdOrUrl: string): Promise<TweetInfo> {
   // Extract ID from URL if needed
   const idMatch = tweetIdOrUrl.match(/status\/(\d+)/)
   const tweetId = idMatch ? idMatch[1] : tweetIdOrUrl.replace(/\D/g, '')
-  return api<TweetInfo>(`/x/tweets/${tweetId}`)
+  if (!tweetId) throw new Error('Geçersiz tweet URL veya ID')
+
+  const raw = await api<{ tweet: { id: string; text: string; likeCount?: number }; author?: { username: string; name?: string } }>(`/x/tweets/${tweetId}`)
+
+  return {
+    id: raw.tweet.id,
+    text: raw.tweet.text,
+    likeCount: raw.tweet.likeCount,
+    author: raw.author,
+  }
 }
 
 // ── Helpers ──

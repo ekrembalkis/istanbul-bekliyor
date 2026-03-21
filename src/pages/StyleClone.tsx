@@ -60,6 +60,7 @@ export default function StyleClone() {
   const [quoteTweetUrl, setQuoteTweetUrl] = useState('')
   const [quoteTweetText, setQuoteTweetText] = useState('')
   const [quoteTweetAuthor, setQuoteTweetAuthor] = useState('')
+  const [fetchingQuote, setFetchingQuote] = useState(false)
   const [tweetCount, setTweetCount] = useState(3)
   const [lengthHint, setLengthHint] = useState('')
   const [guidance, setGuidance] = useState<ComposeRefineResult | null>(null)
@@ -202,13 +203,18 @@ export default function StyleClone() {
   // ── Fetch quote/reply target tweet ──
   const handleFetchQuoteTweet = async () => {
     if (!quoteTweetUrl.trim()) return
+    setFetchingQuote(true)
+    setError('')
+    setQuoteTweetText('')
+    setQuoteTweetAuthor('')
     try {
       const tweet = await lookupTweet(quoteTweetUrl)
       setQuoteTweetText(tweet.text || '')
       setQuoteTweetAuthor(tweet.author?.username || '')
     } catch (e: any) {
-      setError('Tweet bulunamadı:' + e.message)
+      setError('Tweet bulunamadı: ' + e.message)
     }
+    setFetchingQuote(false)
   }
 
   // ── Auto Generate Tweet ──
@@ -742,7 +748,9 @@ export default function StyleClone() {
                         placeholder="Tweet URL yapistir..."
                         className="flex-1 input-field px-3 py-2 text-sm text-slate-700 dark:text-slate-200"
                       />
-                      <button onClick={handleFetchQuoteTweet} className="btn text-xs px-3">Çek</button>
+                      <button onClick={handleFetchQuoteTweet} disabled={fetchingQuote} className="btn text-xs px-3 disabled:opacity-50">
+                        {fetchingQuote ? '...' : 'Çek'}
+                      </button>
                     </div>
                     {quoteTweetText && (
                       <div className="mt-2 p-3 bg-slate-50 dark:bg-white/[0.03] rounded-lg border border-slate-100 dark:border-white/[0.06] text-xs text-slate-500 dark:text-slate-400">
