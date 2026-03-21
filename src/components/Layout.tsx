@@ -26,16 +26,8 @@ export default function Layout() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <NavLink to="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 bg-brand-red rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
-                <svg width="18" height="18" viewBox="0 0 60 60" fill="none">
-                  <path d="M15 8 L45 8 L45 12 L33 28 L33 32 L45 48 L45 52 L15 52 L15 48 L27 32 L27 28 L15 12 Z" fill="white" stroke="white" strokeWidth="1.5" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <div className="leading-none">
-                <span className="text-[15px] font-bold tracking-tight text-slate-850 dark:text-white">İSTANBUL</span>
-                <span className="text-brand-red font-bold text-[15px]">.</span>
-                <span className="text-brand-red text-[15px] font-bold tracking-tight">BEKLİYOR</span>
-              </div>
+              <img src="/logo.png" alt="İstanbul Bekliyor" className="w-9 h-9 rounded-lg shadow-sm group-hover:shadow-md transition-shadow" />
+              <span className="text-[15px] font-bold tracking-tight text-slate-800 dark:text-white">İstanbul Bekliyor</span>
             </NavLink>
 
             {/* Desktop Nav */}
