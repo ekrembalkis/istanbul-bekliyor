@@ -26,51 +26,109 @@ const SEARCH_QUERIES = [
   'tutuklu OR mahkeme OR "ibb davası" lang:tr',
 ]
 
+/** Extract a short topic (3-6 words) from tweet text */
+function extractTopic(text: string): string | null {
+  const clean = text
+    .replace(/https?:\/\/\S+/g, '')
+    .replace(/@\S+/g, '')
+    .replace(/#\S+/g, '')
+    .replace(/RT\s+/g, '')
+    .replace(/["""'']/g, '')
+    .trim()
+
+  // Try known patterns to extract short topic
+  const patterns: RegExp[] = [
+    // "X hakkında Y" → "X hakkında Y"
+    /(\S+\s+hakkında\s+\S+(?:\s+\S+)?)/i,
+    // "X davası" → "X davası"
+    /([\wçğıöşüÇĞİÖŞÜ]+\s+davası)/i,
+    // "X tutuklandı/tutuklanması" → topic around tutuklama
+    /([\wçğıöşüÇĞİÖŞÜ]+\s+tutuklan\S*)/i,
+    // "X'in Y'si" → proper noun topic
+    /([\wçğıöşüÇĞİÖŞÜ]+['']?[iı]n\s+[\wçğıöşüÇĞİÖŞÜ]+['']?[iısü])/i,
+  ]
+
+  for (const pat of patterns) {
+    const match = clean.match(pat)
+    if (match && match[1].length > 5 && match[1].length < 40) {
+      return match[1].trim()
+    }
+  }
+
+  // Fallback: first 4-6 meaningful words
+  const words = clean.split(/\s+/).filter(w => w.length > 2)
+  if (words.length >= 3) {
+    const topic = words.slice(0, 5).join(' ')
+    if (topic.length > 10 && topic.length < 50) return topic
+  }
+
+  return null
+}
+
+/** Group tweets by topic similarity and return best per group */
+function groupAndLabel(tweets: (SearchTweet & { topic: string })[]): TopicSuggestion[] {
+  // Simple grouping: if two topics share 2+ words, they're the same topic
+  const groups: { topic: string; tweets: typeof tweets }[] = []
+
+  for (const t of tweets) {
+    const tWords = new Set(t.topic.toLowerCase().split(/\s+/))
+    let matched = false
+    for (const g of groups) {
+      const gWords = new Set(g.topic.toLowerCase().split(/\s+/))
+      const overlap = [...tWords].filter(w => gWords.has(w) && w.length > 3).length
+      if (overlap >= 2) {
+        g.tweets.push(t)
+        matched = true
+        break
+      }
+    }
+    if (!matched) {
+      groups.push({ topic: t.topic, tweets: [t] })
+    }
+  }
+
+  return groups
+    .sort((a, b) => {
+      const aMax = Math.max(...a.tweets.map(t => t.likeCount || 0))
+      const bMax = Math.max(...b.tweets.map(t => t.likeCount || 0))
+      return bMax - aMax
+    })
+    .slice(0, 5)
+    .map(g => {
+      const best = g.tweets.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0))[0]
+      return {
+        title: g.topic,
+        source: 'live' as const,
+        relevance: Math.min(95, 60 + Math.round((best.likeCount || 0) / 500)),
+        reason: `${g.tweets.length} tweet · ${(best.likeCount || 0).toLocaleString()} begeni`,
+      }
+    })
+}
+
 async function fetchLiveTopics(
   searchFn: (query: string) => Promise<{ tweets: SearchTweet[] }>
 ): Promise<TopicSuggestion[]> {
-  const suggestions: TopicSuggestion[] = []
-  const seen = new Set<string>()
+  const allWithTopics: (SearchTweet & { topic: string })[] = []
 
   for (const query of SEARCH_QUERIES) {
     try {
       const data = await searchFn(query)
       const tweets = (data.tweets || [])
-        .filter(t => (t.likeCount || 0) > 500) // only high-engagement
-        .slice(0, 3)
+        .filter(t => (t.likeCount || 0) > 300)
+        .slice(0, 5)
 
       for (const tweet of tweets) {
-        // Extract a usable topic from the tweet (first meaningful sentence)
-        const clean = tweet.text
-          .replace(/https?:\/\/\S+/g, '')
-          .replace(/@\S+/g, '')
-          .replace(/#\S+/g, '')
-          .replace(/RT\s+/g, '')
-          .trim()
-
-        const fragment = clean.split(/[.\n!]/).filter(s => s.trim().length > 20)[0]?.trim()
-        if (!fragment) continue
-
-        // Truncate to reasonable topic length
-        const topic = fragment.length > 80 ? fragment.substring(0, 77) + '...' : fragment
-
-        const key = topic.toLowerCase().substring(0, 30)
-        if (seen.has(key)) continue
-        seen.add(key)
-
-        suggestions.push({
-          title: topic,
-          source: 'live',
-          relevance: Math.min(95, 60 + Math.round((tweet.likeCount || 0) / 500)),
-          reason: `${(tweet.likeCount || 0).toLocaleString()} begeni · @${tweet.author?.username || '?'}`,
-        })
+        const topic = extractTopic(tweet.text)
+        if (topic) {
+          allWithTopics.push({ ...tweet, topic })
+        }
       }
     } catch {
-      // Search may require subscription — skip silently
+      // Search may require subscription
     }
   }
 
-  return suggestions.sort((a, b) => b.relevance - a.relevance).slice(0, 5)
+  return groupAndLabel(allWithTopics)
 }
 
 // ── Campaign Theme (today) ──
@@ -89,7 +147,7 @@ function getCampaignTopic(): TopicSuggestion {
 // ── Combined Suggestions ──
 
 export async function getTopicSuggestions(
-  _apiFn: unknown, // kept for interface compat, not used
+  _apiFn: unknown,
   _currentStyle: StyleProfile | null,
   searchFn?: (query: string) => Promise<{ tweets: SearchTweet[] }>
 ): Promise<TopicSuggestion[]> {
