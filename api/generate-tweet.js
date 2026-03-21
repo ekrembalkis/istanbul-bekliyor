@@ -70,16 +70,20 @@ export default async function handler(req, res) {
       ctaRule = 'Soru isareti ile bitir ki yorum gelsin'
     }
 
-    // Length rule
-    let lengthRule
-    if (lengthHint === 'kisa') lengthRule = '60-120 karakter arasi, kisa ve keskin (50den kisa olmasin)'
-    else if (lengthHint === 'uzun') lengthRule = '200-280 karakter arasi, detayli'
-    else if (lengthHint === 'normal') lengthRule = '100-200 karakter arasi'
-    else lengthRule = `Ortalama uzunluk ${avgLen} karakter, 50-150 arasi tut`
+    // Length rule — aggressive enforcement
+    let lengthBlock
+    if (lengthHint === 'kisa') {
+      lengthBlock = '\n!!! KRITIK UZUNLUK KURALI !!!\nHer tweet MUTLAKA 60 ile 120 karakter arasinda olmali. 60dan KISA tweet KABUL EDILMEZ. Gerekirse iki cumle yaz.'
+    } else if (lengthHint === 'uzun') {
+      lengthBlock = '\n!!! KRITIK UZUNLUK KURALI !!!\nHer tweet MUTLAKA 200 ile 270 karakter arasinda olmali. 200den KISA tweet KABUL EDILMEZ. 280i GECME. Gerekirse 3-4 cumle yaz, detay ekle, ama stili koru.'
+    } else if (lengthHint === 'normal') {
+      lengthBlock = '\n!!! KRITIK UZUNLUK KURALI !!!\nHer tweet MUTLAKA 100 ile 200 karakter arasinda olmali. 100den KISA tweet KABUL EDILMEZ. Gerekirse iki cumle yaz, detay ekle.'
+    } else {
+      lengthBlock = `\nUzunluk: Ortalama ${avgLen} karakter, 50-150 arasi tut.`
+    }
 
     const styleRules = [
       startsLower > styleTweets.length / 2 ? 'MUTLAKA kucuk harfle basla' : null,
-      lengthRule,
       usesSlang ? 'Argo kullan (amk, aq, falan, valla, ya) dogal sekilde' : 'Argo kullanma, temiz dil',
       hasEmoji ? null : 'ASLA emoji kullanma',
       'ASLA hashtag kullanma',
@@ -140,6 +144,7 @@ ${numberedExamples}
 
 STIL DNA KURALLARI:
 - ${styleRules}
+${lengthBlock}
 
 X ALGORITMASI KURALLARI:
 - Asiri noktalama kullanma
@@ -172,7 +177,14 @@ ${modeInstruction}`
     const tweets = rawText
       .split('\n')
       .map(line => line.replace(/^\d+[\.\)]\s*/, '').trim())
-      .filter(line => line.length > 20 && !line.toLowerCase().startsWith('tamam') && !line.toLowerCase().startsWith('iste'))
+      .filter(line => line.length > 20
+        && !line.toLowerCase().startsWith('tamam')
+        && !line.toLowerCase().startsWith('iste')
+        && !line.toLowerCase().startsWith('tabi')
+        && !line.toLowerCase().includes('stilinde')
+        && !line.toLowerCase().includes('tweet:')
+        && !line.toLowerCase().includes('yazıyorum')
+      )
 
     if (tweets.length === 0) {
       return res.status(500).json({ error: 'Generation failed', raw: rawText })
