@@ -319,24 +319,32 @@ export interface GenerateResult {
 /** Generate tweets in a given style using Gemini + score loop */
 export async function generateTweet(opts: {
   styleUsername: string
-  topic: string
+  topic?: string
   tone?: string
   goal?: string
   count?: number
   cloneMode?: boolean
   topicContext?: string
+  mode?: 'tweet' | 'quote' | 'reply' | 'thread'
+  quoteTweetText?: string
+  quoteTweetAuthor?: string
+  lengthHint?: string
 }): Promise<GenerateResult> {
   const res = await fetch('/api/generate-tweet', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       styleUsername: opts.styleUsername.replace('@', ''),
-      topic: opts.topic,
+      topic: opts.topic || '',
       tone: opts.tone || 'sarkastik, samimi',
       goal: opts.goal || 'engagement',
       count: opts.count || 3,
       cloneMode: opts.cloneMode ?? true,
       topicContext: opts.topicContext,
+      mode: opts.mode || 'tweet',
+      quoteTweetText: opts.quoteTweetText,
+      quoteTweetAuthor: opts.quoteTweetAuthor,
+      lengthHint: opts.lengthHint,
     }),
   })
 
@@ -361,6 +369,23 @@ export interface RadarItem {
 /** Fetch trending topics from radar */
 export async function getRadarTopics(region = 'TR', hours = 24, limit = 15): Promise<{ items: RadarItem[] }> {
   return api<{ items: RadarItem[] }>(`/radar?region=${region}&hours=${hours}&limit=${limit}`)
+}
+
+// ── Tweet Lookup ──
+
+export interface TweetInfo {
+  id: string
+  text: string
+  likeCount?: number
+  author?: { username: string; name?: string }
+}
+
+/** Fetch a tweet by ID or URL */
+export async function lookupTweet(tweetIdOrUrl: string): Promise<TweetInfo> {
+  // Extract ID from URL if needed
+  const idMatch = tweetIdOrUrl.match(/status\/(\d+)/)
+  const tweetId = idMatch ? idMatch[1] : tweetIdOrUrl.replace(/\D/g, '')
+  return api<TweetInfo>(`/x/tweets/${tweetId}`)
 }
 
 // ── Helpers ──

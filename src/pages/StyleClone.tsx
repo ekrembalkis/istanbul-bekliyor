@@ -6,7 +6,7 @@ import {
   getSavedDrafts, saveDraft, deleteDraft,
   startDeepAnalysis, getExtractionJob, getAllExtractionResults, saveCuratedStyle,
   createMonitor, listMonitors, deleteMonitor, createWebhook, listWebhooks,
-  generateTweet, getRadarTopics,
+  generateTweet, getRadarTopics, lookupTweet,
 } from '../lib/xquik'
 import type { StyleProfile, XUser, Draft, ScoreResult, ComposeRefineResult, Monitor, GeneratedTweet } from '../lib/xquik'
 import { getLibrary, saveEntry, togglePin, incrementGenerated, addTopic, CATEGORIES } from '../lib/styleLibrary'
@@ -56,6 +56,12 @@ export default function StyleClone() {
   const [composeGoal, setComposeGoal] = useState('engagement')
   const [composeDraft, setComposeDraft] = useState('')
   const [cloneMode, setCloneMode] = useState(true)
+  const [composeMode, setComposeMode] = useState<'tweet' | 'quote' | 'reply' | 'thread'>('tweet')
+  const [quoteTweetUrl, setQuoteTweetUrl] = useState('')
+  const [quoteTweetText, setQuoteTweetText] = useState('')
+  const [quoteTweetAuthor, setQuoteTweetAuthor] = useState('')
+  const [tweetCount, setTweetCount] = useState(3)
+  const [lengthHint, setLengthHint] = useState('')
   const [guidance, setGuidance] = useState<ComposeRefineResult | null>(null)
   const [scoreResult, setScoreResult] = useState<ScoreResult | null>(null)
   const [loading, setLoading] = useState(false)
@@ -193,9 +199,25 @@ export default function StyleClone() {
     }
   }
 
+  // ── Fetch quote/reply target tweet ──
+  const handleFetchQuoteTweet = async () => {
+    if (!quoteTweetUrl.trim()) return
+    try {
+      const tweet = await lookupTweet(quoteTweetUrl)
+      setQuoteTweetText(tweet.text || '')
+      setQuoteTweetAuthor(tweet.author?.username || '')
+    } catch (e: any) {
+      setError('Tweet bulunamadi: ' + e.message)
+    }
+  }
+
   // ── Auto Generate Tweet ──
   const handleAutoGenerate = async () => {
-    if (!composeStyle || !composeTopic.trim()) return
+    if (!composeStyle) return
+    if (composeMode === 'tweet' && !composeTopic.trim()) return
+    if ((composeMode === 'quote' || composeMode === 'reply') && !quoteTweetText) return
+    if (composeMode === 'thread' && !composeTopic.trim()) return
+
     setGenerating(true)
     setError('')
     setGeneratedTweets([])
@@ -206,9 +228,13 @@ export default function StyleClone() {
         topic: composeTopic,
         tone: composeTone,
         goal: composeGoal,
-        count: 3,
+        count: composeMode === 'thread' ? 1 : tweetCount,
         cloneMode,
         topicContext: topicContext || undefined,
+        mode: composeMode,
+        quoteTweetText: quoteTweetText || undefined,
+        quoteTweetAuthor: quoteTweetAuthor || undefined,
+        lengthHint: lengthHint || undefined,
       })
       setGeneratedTweets(result.tweets)
       incrementGenerated(composeStyle)
@@ -642,73 +668,175 @@ export default function StyleClone() {
             <div className="card p-6">
               <div className="text-[10px] font-bold text-slate-400 tracking-widest mb-4">ADIM 01 — YAPILANDIRMA</div>
               <div className="space-y-3">
+                {/* Mode tabs */}
+                <div className="flex gap-1 p-1 bg-slate-100 dark:bg-white/[0.04] rounded-lg">
+                  {([
+                    { key: 'tweet' as const, label: 'Tweet' },
+                    { key: 'quote' as const, label: 'Quote' },
+                    { key: 'reply' as const, label: 'Reply' },
+                    { key: 'thread' as const, label: 'Thread' },
+                  ]).map(m => (
+                    <button
+                      key={m.key}
+                      onClick={() => setComposeMode(m.key)}
+                      className={`flex-1 text-[10px] py-1.5 rounded-md font-medium transition-all ${
+                        composeMode === m.key
+                          ? 'bg-white dark:bg-dark-card text-slate-700 dark:text-white shadow-sm'
+                          : 'text-slate-400 hover:text-slate-600'
+                      }`}
+                    >
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Style selector */}
                 <div>
-                  <label className="text-[10px] font-bold text-slate-400 tracking-wider block mb-1.5">KLONLANACAK STİL</label>
+                  <label className="text-[10px] font-bold text-slate-400 tracking-wider block mb-1.5">KLONLANACAK STIL</label>
                   <select
                     value={composeStyle}
                     onChange={e => setComposeStyle(e.target.value)}
                     className="w-full input-field px-3 py-2 text-sm text-slate-700 dark:text-slate-200"
                   >
-                    <option value="">Stil seç...</option>
+                    <option value="">Stil sec...</option>
                     {styles.map(s => (
                       <option key={s.xUsername} value={s.xUsername}>@{s.xUsername} ({s.tweetCount} tweet)</option>
                     ))}
                   </select>
                 </div>
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-[10px] font-bold text-slate-400 tracking-wider">KONU</label>
-                    <button
-                      onClick={loadTopicSuggestions}
-                      disabled={loadingTopics}
-                      className="text-[10px] text-blue-500 hover:text-blue-600 dark:text-blue-400 transition-colors"
-                    >
-                      {loadingTopics ? 'Yukleniyor...' : 'Konu oner'}
-                    </button>
-                  </div>
-                  <input
-                    type="text"
-                    value={composeTopic}
-                    onChange={e => setComposeTopic(e.target.value)}
-                    placeholder="İstanbul bekliyor, özgürlük, demokrasi..."
-                    className="w-full input-field px-3 py-2 text-sm text-slate-700 dark:text-slate-200"
-                  />
-                  {topicSuggestions.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {topicSuggestions.map((s, i) => (
-                        <button
-                          key={i}
-                          onClick={() => { setComposeTopic(s.title); setTopicContext(s.context || '') }}
-                          className={`text-[10px] px-2 py-1 rounded-lg border transition-all hover:scale-105 ${
-                            s.source === 'campaign' ? 'bg-brand-red/10 text-brand-red border-brand-red/20' :
-                            s.source === 'live' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20' :
-                            'bg-slate-50 dark:bg-white/[0.04] text-slate-500 dark:text-slate-400 border-slate-200 dark:border-white/[0.08]'
-                          }`}
-                          title={s.reason}
-                        >
-                          {s.title}
-                        </button>
-                      ))}
+
+                {/* Quote/Reply: tweet URL input */}
+                {(composeMode === 'quote' || composeMode === 'reply') && (
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 tracking-wider block mb-1.5">
+                      {composeMode === 'quote' ? 'QUOTE EDILECEK TWEET' : 'REPLY YAZILACAK TWEET'}
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={quoteTweetUrl}
+                        onChange={e => setQuoteTweetUrl(e.target.value)}
+                        placeholder="Tweet URL yapistir..."
+                        className="flex-1 input-field px-3 py-2 text-sm text-slate-700 dark:text-slate-200"
+                      />
+                      <button onClick={handleFetchQuoteTweet} className="btn text-xs px-3">Cek</button>
                     </div>
-                  )}
-                </div>
-                <div className="grid grid-cols-2 gap-3">
+                    {quoteTweetText && (
+                      <div className="mt-2 p-3 bg-slate-50 dark:bg-white/[0.03] rounded-lg border border-slate-100 dark:border-white/[0.06] text-xs text-slate-500 dark:text-slate-400">
+                        <span className="font-semibold text-slate-600 dark:text-slate-300">@{quoteTweetAuthor}:</span> {quoteTweetText.substring(0, 150)}{quoteTweetText.length > 150 ? '...' : ''}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Topic (tweet + thread modes) */}
+                {(composeMode === 'tweet' || composeMode === 'thread') && (
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-[10px] font-bold text-slate-400 tracking-wider">KONU</label>
+                      <button
+                        onClick={loadTopicSuggestions}
+                        disabled={loadingTopics}
+                        className="text-[10px] text-blue-500 hover:text-blue-600 dark:text-blue-400 transition-colors"
+                      >
+                        {loadingTopics ? 'Yukleniyor...' : 'Konu oner'}
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={composeTopic}
+                      onChange={e => setComposeTopic(e.target.value)}
+                      placeholder="Istanbul bekliyor, ozgurluk, demokrasi..."
+                      className="w-full input-field px-3 py-2 text-sm text-slate-700 dark:text-slate-200"
+                    />
+                    {topicSuggestions.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {topicSuggestions.map((s, i) => (
+                          <button
+                            key={i}
+                            onClick={() => { setComposeTopic(s.title); setTopicContext(s.context || '') }}
+                            className={`text-[10px] px-2 py-1 rounded-lg border transition-all hover:scale-105 ${
+                              s.source === 'campaign' ? 'bg-brand-red/10 text-brand-red border-brand-red/20' :
+                              s.source === 'live' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20' :
+                              'bg-slate-50 dark:bg-white/[0.04] text-slate-500 dark:text-slate-400 border-slate-200 dark:border-white/[0.08]'
+                            }`}
+                            title={s.reason}
+                          >
+                            {s.title}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Ton + Hedef + Count row */}
+                <div className="grid grid-cols-3 gap-2">
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 tracking-wider block mb-1.5">TON</label>
-                    <input type="text" value={composeTone} onChange={e => setComposeTone(e.target.value)}
-                      className="w-full input-field px-3 py-2 text-sm text-slate-700 dark:text-slate-200" />
+                    <select value={composeTone} onChange={e => setComposeTone(e.target.value)}
+                      className="w-full input-field px-2 py-2 text-xs text-slate-700 dark:text-slate-200">
+                      <option value="duygusal, umut dolu">Umutlu</option>
+                      <option value="sarkastik, keskin">Sarkastik</option>
+                      <option value="ofkeli, isyankar">Ofkeli</option>
+                      <option value="siirsel, duygusal">Siirsel</option>
+                      <option value="samimi, sokak agzi">Samimi</option>
+                      <option value="ciddi, resmi">Resmi</option>
+                    </select>
                   </div>
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 tracking-wider block mb-1.5">HEDEF</label>
                     <select value={composeGoal} onChange={e => setComposeGoal(e.target.value)}
-                      className="w-full input-field px-3 py-2 text-sm text-slate-700 dark:text-slate-200">
-                      <option value="engagement">Etkileşim</option>
-                      <option value="followers">Takipçi</option>
+                      className="w-full input-field px-2 py-2 text-xs text-slate-700 dark:text-slate-200">
+                      <option value="engagement">Etkilesim</option>
+                      <option value="followers">Takipci</option>
                       <option value="authority">Otorite</option>
                       <option value="conversation">Sohbet</option>
                     </select>
                   </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 tracking-wider block mb-1.5">
+                      {composeMode === 'thread' ? 'TWEET' : 'ADET'}
+                    </label>
+                    {composeMode === 'thread' ? (
+                      <div className="input-field px-2 py-2 text-xs text-slate-400 text-center">4-8</div>
+                    ) : (
+                      <select value={tweetCount} onChange={e => setTweetCount(Number(e.target.value))}
+                        className="w-full input-field px-2 py-2 text-xs text-slate-700 dark:text-slate-200">
+                        {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                          <option key={n} value={n}>{n}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
                 </div>
+
+                {/* Format hint (only when no style or campaign mode) */}
+                {composeMode === 'tweet' && (
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 tracking-wider block mb-1.5">UZUNLUK</label>
+                    <div className="flex gap-1.5">
+                      {[
+                        { value: '', label: 'Otomatik' },
+                        { value: 'kisa', label: 'Kisa' },
+                        { value: 'normal', label: 'Normal' },
+                        { value: 'uzun', label: 'Uzun' },
+                      ].map(f => (
+                        <button
+                          key={f.value}
+                          onClick={() => setLengthHint(f.value)}
+                          className={`flex-1 text-[10px] py-1.5 rounded-md border transition-all ${
+                            lengthHint === f.value
+                              ? 'bg-brand-red/10 text-brand-red border-brand-red/20 font-bold'
+                              : 'text-slate-400 border-slate-200 dark:border-white/10 hover:text-slate-600'
+                          }`}
+                        >
+                          {f.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center justify-between py-2">
                   <label className="text-[10px] font-bold text-slate-400 tracking-wider">URETIM MODU</label>
                   <div className="flex items-center gap-2">

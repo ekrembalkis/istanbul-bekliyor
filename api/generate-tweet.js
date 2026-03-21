@@ -19,11 +19,14 @@ export default async function handler(req, res) {
   const {
     styleUsername, topic,
     tone = 'sarkastik, samimi', goal = 'engagement',
-    count = 3, cloneMode = true, topicContext = ''
+    count = 3, cloneMode = true, topicContext = '',
+    mode = 'tweet', // tweet | quote | reply | thread
+    quoteTweetText = '', quoteTweetAuthor = '',
+    lengthHint = '', // kisa | normal | uzun | (empty = style-based)
   } = req.body
 
-  if (!styleUsername || !topic) {
-    return res.status(400).json({ error: 'styleUsername and topic are required' })
+  if (!styleUsername || (!topic && !quoteTweetText)) {
+    return res.status(400).json({ error: 'styleUsername and topic (or quoteTweetText) are required' })
   }
 
   try {
@@ -67,9 +70,16 @@ export default async function handler(req, res) {
       ctaRule = 'Soru isareti ile bitir ki yorum gelsin'
     }
 
+    // Length rule
+    let lengthRule
+    if (lengthHint === 'kisa') lengthRule = '50-100 karakter arasi, kisa ve keskin'
+    else if (lengthHint === 'uzun') lengthRule = '200-280 karakter arasi, detayli'
+    else if (lengthHint === 'normal') lengthRule = '100-200 karakter arasi'
+    else lengthRule = `Ortalama uzunluk ${avgLen} karakter, 50-150 arasi tut`
+
     const styleRules = [
       startsLower > styleTweets.length / 2 ? 'MUTLAKA kucuk harfle basla' : null,
-      `Ortalama uzunluk ${avgLen} karakter, 50-150 arasi tut`,
+      lengthRule,
       usesSlang ? 'Argo kullan (amk, aq, falan, valla, ya) dogal sekilde' : 'Argo kullanma, temiz dil',
       hasEmoji ? null : 'ASLA emoji kullanma',
       'ASLA hashtag kullanma',
@@ -78,9 +88,49 @@ export default async function handler(req, res) {
       'Link koyma',
     ].filter(Boolean).join('\n- ')
 
-    // 4. Build prompt
+    // 4. Build prompt based on mode
     const numberedExamples = styleTweets.map((t, i) => `${i + 1}. ${t}`).join('\n')
     const modeLabel = cloneMode ? 'BIREBIR KLON — stili ASLA bozma' : 'OPTIMIZE — stili koru ama algoritmaya uy'
+
+    let modeInstruction
+    if (mode === 'quote') {
+      modeInstruction = `ASAGIDAKI TWEET'E QUOTE TWEET YAZ. Kendi stilinde yorum/tepki ver.
+
+QUOTE EDILECEK TWEET (@${quoteTweetAuthor}):
+"${quoteTweetText}"
+
+${count} farkli quote tweet yaz. Her biri farkli bir aci olsun. Sadece kendi tweet metinlerini yaz (quote edilen tweeti tekrarlama). Her tweeti yeni satirda numara ile yaz.`
+    } else if (mode === 'reply') {
+      modeInstruction = `ASAGIDAKI TWEET'E REPLY YAZ. Kisa, dogal, stiline uygun cevap ver.
+
+REPLY YAZILACAK TWEET (@${quoteTweetAuthor}):
+"${quoteTweetText}"
+
+${count} farkli reply yaz. Kisa olsun (30-120 karakter). Her birini yeni satirda numara ile yaz.`
+    } else if (mode === 'thread') {
+      modeInstruction = `BU KONUDA 4-8 TWEET'LIK THREAD YAZ.
+
+KONU: ${topic}
+${topicContext ? `\nGUNDEM BAGLAMI:\n${topicContext}\n` : ''}
+TON: ${tone}
+
+Thread kurallari:
+- Ilk tweet hook olmali (dikkat cekici giris)
+- Her tweet kendi basina da anlamli olmali
+- Son tweet guclu kapaniis + soru
+- Her tweet 50-250 karakter
+- Thread akisi mantikli, birbirini takip etsin
+
+Sadece tweet metinlerini yaz. Her tweeti "1/" "2/" gibi numara ile baslat.`
+    } else {
+      modeInstruction = `KONU: ${topic}
+${topicContext ? `\nGUNDEM BAGLAMI (bu konu hakkinda simdi X'te konusulanlar):\n${topicContext}\n\nYukaridaki baglamdan ilham al ama KOPYALAMA. Kendi stilinde yeni icerik uret.\n` : ''}
+TON: ${tone}
+HEDEF: ${goal}
+
+Bu stilde ${count} farkli tweet yaz. Her biri farkli bir aci olsun. Sadece tweet metinlerini yaz. Her tweeti yeni satirda numara ile yaz. Baska hicbir sey yazma.`
+    }
+
     const prompt = `Sen bir Turkce tweet yazarisin. MOD: ${modeLabel}. Verilen kisinin tarzinda tweet yazacaksin.
 
 STIL ORNEKLERI (@${styleUsername}):
@@ -90,17 +140,11 @@ STIL DNA KURALLARI:
 - ${styleRules}
 
 X ALGORITMASI KURALLARI:
-- 50-280 karakter arasi optimal
-- Medya eklenecek (photo)
+- ${mode === 'reply' ? '30-150' : '50-280'} karakter arasi optimal
 - Asiri noktalama kullanma
-- Yeterli icerik/substance olmali (cok kisa olmasin)
+${mode !== 'reply' ? '- Yeterli icerik/substance olmali (cok kisa olmasin)' : ''}
 
-KONU: ${topic}
-${topicContext ? `\nGUNDEM BAGLAMI (bu konu hakkinda simdi X'te konusulanlar):\n${topicContext}\n\nYukaridaki baglamdan ilham al ama KOPYALAMA. Kendi stilinde yeni icerik uret.\n` : ''}
-TON: ${tone}
-HEDEF: ${goal}
-
-Bu stilde ${count} farkli tweet yaz. Her biri farkli bir aci olsun. Sadece tweet metinlerini yaz. Her tweeti yeni satirda numara ile yaz. Baska hicbir sey yazma.`
+${modeInstruction}`
 
     // 5. Generate with Gemini
     const geminiRes = await fetch(
