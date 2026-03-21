@@ -3,6 +3,7 @@
     { "source": "/api/xquik", "destination": "/api/xquik" },
     { "source": "/api/image-proxy", "destination": "/api/image-proxy" },
     { "source": "/api/style-webhook", "destination": "/api/style-webhook" },
+    { "source": "/api/generate-tweet", "destination": "/api/generate-tweet" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }

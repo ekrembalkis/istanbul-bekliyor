@@ -6,8 +6,13 @@ import {
   getSavedDrafts, saveDraft, deleteDraft,
   startDeepAnalysis, getExtractionJob, getAllExtractionResults, saveCuratedStyle,
   createMonitor, listMonitors, deleteMonitor, createWebhook, listWebhooks,
+  generateTweet, getRadarTopics,
 } from '../lib/xquik'
-import type { StyleProfile, XUser, Draft, ScoreResult, ComposeRefineResult, Monitor } from '../lib/xquik'
+import type { StyleProfile, XUser, Draft, ScoreResult, ComposeRefineResult, Monitor, GeneratedTweet } from '../lib/xquik'
+import { getLibrary, saveEntry, togglePin, incrementGenerated, addTopic, CATEGORIES } from '../lib/styleLibrary'
+import type { StyleLibraryEntry } from '../lib/styleLibrary'
+import { getTopicSuggestions } from '../lib/topicSuggestor'
+import type { TopicSuggestion } from '../lib/topicSuggestor'
 
 type Tab = 'analyze' | 'compose' | 'drafts'
 
@@ -28,6 +33,17 @@ export default function StyleClone() {
   const [deepProgress, setDeepProgress] = useState<string | null>(null)
   const [monitors, setMonitors] = useState<Monitor[]>([])
 
+  // ── Library ──
+  const [library, setLibrary] = useState<StyleLibraryEntry[]>([])
+
+  // ── Auto Generation ──
+  const [generating, setGenerating] = useState(false)
+  const [generatedTweets, setGeneratedTweets] = useState<GeneratedTweet[]>([])
+
+  // ── Topic Suggestions ──
+  const [topicSuggestions, setTopicSuggestions] = useState<TopicSuggestion[]>([])
+  const [loadingTopics, setLoadingTopics] = useState(false)
+
   // ── Manual ──
   const [manualTweets, setManualTweets] = useState('')
   const [showManual, setShowManual] = useState(false)
@@ -45,9 +61,10 @@ export default function StyleClone() {
   // ── Drafts ──
   const [drafts, setDrafts] = useState<Draft[]>([])
 
-  // Load styles, drafts, and monitors on mount
+  // Load styles, drafts, monitors, and library on mount
   useEffect(() => {
     setDrafts(getSavedDrafts())
+    setLibrary(getLibrary())
     if (apiReady) {
       listStyles().then(res => {
         const s = res.styles || []
@@ -110,6 +127,7 @@ export default function StyleClone() {
 
       const style = await saveCuratedStyle(clean, allTweets)
       setCurrentStyle(style)
+      ensureLibraryEntry(clean)
 
       // 5. Refresh styles list
       listStyles().then(res => setStyles(res.styles || [])).catch(() => {})
@@ -170,6 +188,65 @@ export default function StyleClone() {
           await createWebhook(webhookUrl)
         }
       } catch (e: any) { setError(e.message) }
+    }
+  }
+
+  // ── Auto Generate Tweet ──
+  const handleAutoGenerate = async () => {
+    if (!composeStyle || !composeTopic.trim()) return
+    setGenerating(true)
+    setError('')
+    setGeneratedTweets([])
+
+    try {
+      const result = await generateTweet({
+        styleUsername: composeStyle,
+        topic: composeTopic,
+        tone: composeTone,
+        goal: composeGoal,
+        count: 3,
+      })
+      setGeneratedTweets(result.tweets)
+      incrementGenerated(composeStyle)
+      addTopic(composeStyle, composeTopic)
+      setLibrary(getLibrary())
+
+      // Auto-fill first passing tweet into draft
+      const passing = result.tweets.find(t => t.score?.passed)
+      if (passing) setComposeDraft(passing.tweet)
+    } catch (e: any) {
+      setError(e.message || 'Tweet uretimi basarisiz')
+    }
+    setGenerating(false)
+  }
+
+  // ── Load Topic Suggestions ──
+  const loadTopicSuggestions = async () => {
+    setLoadingTopics(true)
+    try {
+      const radarFn = async (path: string) => {
+        const IS_DEV = import.meta.env.DEV
+        if (IS_DEV) {
+          const res = await fetch(`https://xquik.com/api/v1${path}`, {
+            headers: { 'x-api-key': import.meta.env.VITE_XQUIK_API_KEY || '' }
+          })
+          return res.json()
+        }
+        const res = await fetch(`/api/xquik?path=${encodeURIComponent(path)}`)
+        return res.json()
+      }
+      const suggestions = await getTopicSuggestions(radarFn, currentStyle)
+      setTopicSuggestions(suggestions)
+    } catch { /* optional */ }
+    setLoadingTopics(false)
+  }
+
+  // ── Library: save entry when style is analyzed ──
+  const ensureLibraryEntry = (uname: string) => {
+    const existing = library.find(e => e.username === uname)
+    if (!existing) {
+      saveEntry({ username: uname })
+      setLibrary(getLibrary())
     }
   }
 
@@ -508,8 +585,16 @@ export default function StyleClone() {
                           </div>
                         )}
                         <div>
-                          <div className="text-sm font-semibold text-slate-700 dark:text-slate-200">@{style.xUsername}</div>
-                          <div className="text-[10px] text-slate-400">{style.tweetCount} tweet · {new Date(style.fetchedAt).toLocaleDateString('tr-TR')}</div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">@{style.xUsername}</span>
+                            {library.find(e => e.username === style.xUsername)?.isPinned && (
+                              <span className="text-[9px] text-brand-gold">*</span>
+                            )}
+                          </div>
+                          <div className="text-[10px] text-slate-400">
+                            {style.tweetCount} tweet
+                            {(() => { const le = library.find(e => e.username === style.xUsername); return le?.generatedCount ? ` · ${le.generatedCount} uretim` : '' })()}
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5">
@@ -571,7 +656,16 @@ export default function StyleClone() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-slate-400 tracking-wider block mb-1.5">KONU</label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[10px] font-bold text-slate-400 tracking-wider">KONU</label>
+                    <button
+                      onClick={loadTopicSuggestions}
+                      disabled={loadingTopics}
+                      className="text-[10px] text-blue-500 hover:text-blue-600 dark:text-blue-400 transition-colors"
+                    >
+                      {loadingTopics ? 'Yukleniyor...' : 'Konu oner'}
+                    </button>
+                  </div>
                   <input
                     type="text"
                     value={composeTopic}
@@ -579,6 +673,24 @@ export default function StyleClone() {
                     placeholder="İstanbul bekliyor, özgürlük, demokrasi..."
                     className="w-full input-field px-3 py-2 text-sm text-slate-700 dark:text-slate-200"
                   />
+                  {topicSuggestions.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {topicSuggestions.map((s, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setComposeTopic(s.title)}
+                          className={`text-[10px] px-2 py-1 rounded-lg border transition-all hover:scale-105 ${
+                            s.source === 'campaign' ? 'bg-brand-red/10 text-brand-red border-brand-red/20' :
+                            s.source === 'radar' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20' :
+                            'bg-slate-50 dark:bg-white/[0.04] text-slate-500 dark:text-slate-400 border-slate-200 dark:border-white/[0.08]'
+                          }`}
+                          title={s.reason}
+                        >
+                          {s.title}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -597,13 +709,27 @@ export default function StyleClone() {
                     </select>
                   </div>
                 </div>
-                <button
-                  onClick={handleGetGuidance}
-                  disabled={loading || !composeTopic.trim() || !composeStyle}
-                  className="btn btn-primary w-full justify-center disabled:opacity-50"
-                >
-                  {loading ? 'Rehber alınıyor...' : 'Yazım Rehberini Al'}
-                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={handleGetGuidance}
+                    disabled={loading || !composeTopic.trim() || !composeStyle}
+                    className="btn w-full justify-center disabled:opacity-50 text-xs"
+                  >
+                    {loading ? 'Rehber...' : 'Rehber Al'}
+                  </button>
+                  <button
+                    onClick={handleAutoGenerate}
+                    disabled={generating || !composeTopic.trim() || !composeStyle}
+                    className="btn btn-primary w-full justify-center disabled:opacity-50 text-xs"
+                  >
+                    {generating ? (
+                      <span className="flex items-center gap-1.5">
+                        <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" /><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" /></svg>
+                        Uretiyor...
+                      </span>
+                    ) : 'Otomatik Uret'}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -708,6 +834,43 @@ export default function StyleClone() {
                     X'te Paylaş →
                   </a>
                 )}
+              </div>
+            )}
+
+            {/* Generated Tweets */}
+            {generatedTweets.length > 0 && (
+              <div className="card p-6">
+                <div className="text-[10px] font-bold text-slate-400 tracking-widest mb-4">URETILEN TWEETLER</div>
+                <div className="space-y-3">
+                  {generatedTweets.map((gt, i) => (
+                    <div key={i} className={`p-4 rounded-xl border ${
+                      gt.score?.passed
+                        ? 'bg-emerald-50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20'
+                        : 'bg-slate-50 dark:bg-white/[0.03] border-slate-100 dark:border-white/[0.06]'
+                    }`}>
+                      <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-line">{gt.tweet}</p>
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center gap-2">
+                          {gt.score && (
+                            <span className={`text-[10px] font-bold ${gt.score.passed ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                              {gt.score.count}/{gt.score.total}
+                            </span>
+                          )}
+                          <span className="text-[10px] text-slate-400">{gt.tweet.length} chr · {gt.attempts} deneme</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <CopyBtn text={gt.tweet} />
+                          <button
+                            onClick={() => setComposeDraft(gt.tweet)}
+                            className="btn text-[10px] py-1 px-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10"
+                          >
+                            Duzenle
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

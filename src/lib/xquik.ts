@@ -299,6 +299,65 @@ export async function deleteWebhook(id: string): Promise<void> {
   await api(`/webhooks/${id}`, { method: 'DELETE' })
 }
 
+// ── Auto Tweet Generation ──
+
+export interface GeneratedTweet {
+  tweet: string
+  score: { passed: boolean; count: number; total: number } | null
+  attempts: number
+}
+
+export interface GenerateResult {
+  style: string
+  topic: string
+  tone: string
+  goal: string
+  tweets: GeneratedTweet[]
+}
+
+/** Generate tweets in a given style using Gemini + score loop */
+export async function generateTweet(opts: {
+  styleUsername: string
+  topic: string
+  tone?: string
+  goal?: string
+  count?: number
+}): Promise<GenerateResult> {
+  const res = await fetch('/api/generate-tweet', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      styleUsername: opts.styleUsername.replace('@', ''),
+      topic: opts.topic,
+      tone: opts.tone || 'sarkastik, samimi',
+      goal: opts.goal || 'engagement',
+      count: opts.count || 3,
+    }),
+  })
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }))
+    throw new Error(err.error || `Generate failed: ${res.status}`)
+  }
+
+  return res.json()
+}
+
+// ── Radar (Trending Topics) ──
+
+export interface RadarItem {
+  title: string
+  source: string
+  score: number
+  category: string
+  region: string
+}
+
+/** Fetch trending topics from radar */
+export async function getRadarTopics(region = 'TR', hours = 24, limit = 15): Promise<{ items: RadarItem[] }> {
+  return api<{ items: RadarItem[] }>(`/radar?region=${region}&hours=${hours}&limit=${limit}`)
+}
+
 // ── Helpers ──
 
 /** Validate X username format: 1-15 chars, only [A-Za-z0-9_] */
