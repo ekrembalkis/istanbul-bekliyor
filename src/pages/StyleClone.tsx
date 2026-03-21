@@ -14,7 +14,8 @@ import type { StyleLibraryEntry } from '../lib/styleLibrary'
 import { getTopicSuggestions, TOPIC_CATEGORIES } from '../lib/topicSuggestor'
 import type { TopicSuggestion, TopicCategory } from '../lib/topicSuggestor'
 import { trackGeminiUsage } from '../lib/costTracker'
-import { checkCampaignRules, getScoreColor, getScoreBg } from '../lib/utils'
+import { checkCampaignRules, getScoreColor, getScoreBg, getDayCount } from '../lib/utils'
+import { getDayPlan } from '../data/campaign'
 import { scoreDraft } from '../lib/xquik'
 
 type Tab = 'analyze' | 'compose' | 'drafts'
@@ -46,6 +47,8 @@ export default function StyleClone() {
   // ── Topic Suggestions ──
   const [topicSuggestions, setTopicSuggestions] = useState<TopicSuggestion[]>([])
   const [topicContext, setTopicContext] = useState('')
+  const [userHint, setUserHint] = useState('')
+  const [showHint, setShowHint] = useState(false)
   const [loadingTopics, setLoadingTopics] = useState(false)
   const [expandedTopic, setExpandedTopic] = useState<number | null>(null)
   const [topicCategory, setTopicCategory] = useState<TopicCategory>('siyaset')
@@ -267,6 +270,18 @@ export default function StyleClone() {
     try {
       // Get personality DNA from library if available
       const styleDNA = library.find(e => e.username === composeStyle)?.personalityDNA
+
+      // Build merged context: campaign day (only for campaign account) + topic suggestions + user hint
+      const contextParts: string[] = []
+      if (composeStyle === 'istbekliyor') {
+        const day = getDayCount()
+        const plan = getDayPlan(day)
+        contextParts.push(`Kampanya gunü: GÜN ${day}, tema: ${plan.theme}, sahne: ${plan.scene}`)
+      }
+      if (topicContext) contextParts.push(topicContext)
+      if (userHint.trim()) contextParts.push(`Kullanıcı notu: ${userHint.trim()}`)
+      const mergedContext = contextParts.join('\n')
+
       const result = await generateTweet({
         styleUsername: composeStyle,
         topic: composeTopic,
@@ -274,7 +289,7 @@ export default function StyleClone() {
         goal: composeGoal,
         count: tweetCount,
         cloneMode,
-        topicContext: topicContext || undefined,
+        topicContext: mergedContext || undefined,
         mode: composeMode,
         quoteTweetText: quoteTweetText || undefined,
         quoteTweetAuthor: quoteTweetAuthor || undefined,
@@ -957,6 +972,28 @@ export default function StyleClone() {
                         )}
                       </div>
                     )}
+
+                    {/* User hint — optional context/direction for generation */}
+                    <div className="mt-2">
+                      <button
+                        onClick={() => setShowHint(!showHint)}
+                        className="text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors flex items-center gap-1"
+                      >
+                        <span className={`transition-transform ${showHint ? 'rotate-90' : ''}`}>▸</span>
+                        {showHint ? 'İpucu gizle' : 'İpucu ekle (opsiyonel)'}
+                        {userHint.trim() && !showHint && <span className="w-1.5 h-1.5 rounded-full bg-brand-red" />}
+                      </button>
+                      {showHint && (
+                        <textarea
+                          value={userHint}
+                          onChange={e => setUserHint(e.target.value)}
+                          placeholder="Tweet'in konusuna dair detay yaz... Örn: 'yağmurlu bir akşam, vapurda eve dönüş, camdan dışarı bakmak'"
+                          rows={2}
+                          maxLength={280}
+                          className="w-full input-field px-3 py-2 text-xs text-slate-700 dark:text-slate-200 mt-1.5 resize-none"
+                        />
+                      )}
+                    </div>
                   </div>
                 )}
 
