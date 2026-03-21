@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { CopyBtn } from '../components/CopyBtn'
 import {
   hasApiKey, analyzeStyle, listStyles, getStyleFromAPI, deleteStyleFromAPI, saveCustomStyle,
-  composeRefine, scoreDraft, lookupUser, isValidXUsername, proxyImageUrl,
+  composeRefine, lookupUser, isValidXUsername, proxyImageUrl,
   getSavedDrafts, saveDraft, deleteDraft,
   startDeepAnalysis, getExtractionJob, getAllExtractionResults, saveCuratedStyle,
   createMonitor, listMonitors, deleteMonitor, createWebhook, listWebhooks,
@@ -54,7 +54,6 @@ export default function StyleClone() {
   const [composeStyle, setComposeStyle] = useState('')
   const [composeTone, setComposeTone] = useState('duygusal, umut dolu')
   const [composeGoal, setComposeGoal] = useState('engagement')
-  const [composeDraft, setComposeDraft] = useState('')
   const [cloneMode, setCloneMode] = useState(true)
   const [composeMode, setComposeMode] = useState<'tweet' | 'quote' | 'reply' | 'thread'>('tweet')
   const [quoteTweetUrl, setQuoteTweetUrl] = useState('')
@@ -246,10 +245,6 @@ export default function StyleClone() {
       incrementGenerated(composeStyle)
       addTopic(composeStyle, composeTopic)
       setLibrary(getLibrary())
-
-      // Auto-fill first passing tweet into draft
-      const passing = result.tweets.find(t => t.score?.passed)
-      if (passing) setComposeDraft(passing.tweet)
     } catch (e: any) {
       setError(e.message || 'Tweet üretimi başarısız')
     }
@@ -329,33 +324,6 @@ export default function StyleClone() {
         styleUsername: composeStyle,
       })
       setGuidance(result)
-    } catch (e: any) {
-      setError(e.message)
-    }
-    setLoading(false)
-  }
-
-  // ── Compose: Score draft ──
-  const handleScore = async () => {
-    if (!composeDraft.trim()) return
-    setLoading(true)
-    setError('')
-
-    try {
-      const result = await scoreDraft(composeDraft)
-      setScoreResult(result)
-
-      // Auto-save draft
-      saveDraft({
-        id: `draft_${Date.now()}`,
-        text: composeDraft,
-        topic: composeTopic,
-        styleUsername: composeStyle,
-        score: result.passedCount,
-        scoreChecklist: result.checklist,
-        createdAt: new Date().toISOString()
-      })
-      setDrafts(getSavedDrafts())
     } catch (e: any) {
       setError(e.message)
     }
@@ -920,68 +888,6 @@ export default function StyleClone() {
               </div>
             </div>
 
-            {/* Guidance + Draft */}
-            <div className="card p-6">
-              <div className="text-[10px] font-bold text-slate-400 tracking-widest mb-4">ADIM 02 — TASLAK YAZ</div>
-
-              {guidance && (
-                <div className="space-y-3 mb-4">
-                  {guidance.examplePatterns && guidance.examplePatterns.length > 0 && (
-                    <details open className="group">
-                      <summary className="text-xs font-semibold text-blue-500 dark:text-blue-400 cursor-pointer">
-                        Örnek Kalıplar ({guidance.examplePatterns.length})
-                      </summary>
-                      <div className="mt-2 space-y-2">
-                        {guidance.examplePatterns.map((p, i) => (
-                          <div key={i} className="bg-slate-50 dark:bg-white/[0.03] rounded-lg p-2.5 text-[11px] border border-slate-100 dark:border-white/[0.06]">
-                            <div className="font-medium text-slate-600 dark:text-slate-300">{p.description}</div>
-                            <div className="text-slate-400 font-mono mt-0.5">{p.pattern}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </details>
-                  )}
-
-                  {guidance.compositionGuidance && (
-                    <details className="group">
-                      <summary className="text-xs font-semibold text-brand-gold cursor-pointer">
-                        Kompozisyon Kuralları ({guidance.compositionGuidance.length})
-                      </summary>
-                      <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
-                        {guidance.compositionGuidance.slice(0, 10).map((g, i) => (
-                          <div key={i} className="text-[11px] text-slate-400 flex gap-2">
-                            <span className="text-brand-gold flex-shrink-0">•</span><span>{g}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </details>
-                  )}
-                </div>
-              )}
-
-              <textarea
-                value={composeDraft}
-                onChange={e => setComposeDraft(e.target.value)}
-                rows={6}
-                className="w-full input-field p-3 text-sm text-slate-700 dark:text-slate-200 leading-relaxed resize-none"
-                placeholder="Klonlanan stilde tweet taslağını yaz..."
-              />
-              <div className="flex items-center justify-between mt-2">
-                <span className={`text-xs font-mono ${composeDraft.length > 280 ? 'text-red-500' : 'text-slate-400'}`}>
-                  {composeDraft.length}/280
-                </span>
-                <div className="flex gap-2">
-                  <CopyBtn text={composeDraft} label="Kopyala" />
-                  <button
-                    onClick={handleScore}
-                    disabled={loading || !composeDraft.trim()}
-                    className="btn btn-primary text-xs py-1.5 disabled:opacity-50"
-                  >
-                    {loading ? 'Kontrol ediliyor...' : '11 Kontrol Testi'}
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Right: Score + Reference */}
@@ -1069,12 +975,6 @@ export default function StyleClone() {
                           </div>
                           <div className="flex items-center gap-1.5">
                             <CopyBtn text={gt.tweet} />
-                            <button
-                              onClick={() => setComposeDraft(gt.tweet)}
-                              className="btn text-[10px] py-1 px-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10"
-                            >
-                              Düzenle
-                            </button>
                           </div>
                         </div>
                         {hasStyleOverride && (
@@ -1107,8 +1007,7 @@ export default function StyleClone() {
                   { n: '01', t: 'Kullanıcı adı gir', d: 'Xquik otomatik tweetleri çeker' },
                   { n: '02', t: 'Stil profili oluşur', d: 'Uzunluk, ton, kalıp analizi' },
                   { n: '03', t: 'Konu + ton seç', d: 'Rehber ve kalıpları al' },
-                  { n: '04', t: 'Taslak yaz', d: 'Klonlanan stilde oluştur' },
-                  { n: '05', t: '11 kontrol testi', d: 'Tüm geçerse X\'te paylaş' },
+                  { n: '04', t: 'Otomatik üret', d: '11 kontrol testi ile skorlanmış tweetler' },
                 ].map(s => (
                   <div key={s.n} className="flex gap-3 items-start p-2">
                     <span className="w-6 h-6 rounded-md bg-brand-red/10 text-brand-red text-[10px] font-bold flex items-center justify-center flex-shrink-0">{s.n}</span>
