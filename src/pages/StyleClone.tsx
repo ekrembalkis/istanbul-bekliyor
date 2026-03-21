@@ -470,17 +470,24 @@ export default function StyleClone() {
                 <div className="card p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      {userInfo?.profilePicture ? (
-                        <img src={proxyImageUrl(userInfo.profilePicture)} alt="" className="w-12 h-12 rounded-full object-cover" />
-                      ) : (
-                        <div className="w-12 h-12 rounded-full bg-brand-red/10 flex items-center justify-center text-brand-red font-bold text-lg">
-                          {currentStyle.xUsername[0]?.toUpperCase()}
-                        </div>
-                      )}
+                      {(() => {
+                        const pic = userInfo?.profilePicture || userCache[currentStyle.xUsername]?.profilePicture
+                        return pic ? (
+                          <img src={proxyImageUrl(pic)} alt="" className="w-12 h-12 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-brand-red/10 flex items-center justify-center text-brand-red font-bold text-lg">
+                            {currentStyle.xUsername[0]?.toUpperCase()}
+                          </div>
+                        )
+                      })()}
                       <div>
                         <h3 className="font-bold text-slate-700 dark:text-slate-200">@{currentStyle.xUsername}</h3>
-                        {userInfo && <div className="text-xs text-slate-400">{userInfo.name} · {userInfo.followers?.toLocaleString()} takipçi</div>}
-                        {!userInfo && <div className="text-xs text-slate-400">{currentStyle.tweetCount} tweet analiz edildi</div>}
+                        {(userInfo || userCache[currentStyle.xUsername]) && (
+                          <div className="text-xs text-slate-400">
+                            {(userInfo || userCache[currentStyle.xUsername])?.name} · {(userInfo || userCache[currentStyle.xUsername])?.followers?.toLocaleString()} takipçi
+                          </div>
+                        )}
+                        {!userInfo && !userCache[currentStyle.xUsername] && <div className="text-xs text-slate-400">{currentStyle.tweetCount} tweet analiz edildi</div>}
                       </div>
                     </div>
                     <button
