@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   const {
     styleUsername, topic,
     tone = 'sarkastik, samimi', goal = 'engagement',
-    count = 3, cloneMode = true
+    count = 3, cloneMode = true, topicContext = ''
   } = req.body
 
   if (!styleUsername || !topic) {
@@ -96,6 +96,7 @@ X ALGORITMASI KURALLARI:
 - Yeterli icerik/substance olmali (cok kisa olmasin)
 
 KONU: ${topic}
+${topicContext ? `\nGUNDEM BAGLAMI (bu konu hakkinda simdi X'te konusulanlar):\n${topicContext}\n\nYukaridaki baglamdan ilham al ama KOPYALAMA. Kendi stilinde yeni icerik uret.\n` : ''}
 TON: ${tone}
 HEDEF: ${goal}
 

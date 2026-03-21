@@ -42,6 +42,7 @@ export default function StyleClone() {
 
   // ── Topic Suggestions ──
   const [topicSuggestions, setTopicSuggestions] = useState<TopicSuggestion[]>([])
+  const [topicContext, setTopicContext] = useState('')
   const [loadingTopics, setLoadingTopics] = useState(false)
 
   // ── Manual ──
@@ -207,6 +208,7 @@ export default function StyleClone() {
         goal: composeGoal,
         count: 3,
         cloneMode,
+        topicContext: topicContext || undefined,
       })
       setGeneratedTweets(result.tweets)
       incrementGenerated(composeStyle)
@@ -688,7 +690,7 @@ export default function StyleClone() {
                       {topicSuggestions.map((s, i) => (
                         <button
                           key={i}
-                          onClick={() => setComposeTopic(s.title)}
+                          onClick={() => { setComposeTopic(s.title); setTopicContext(s.context || '') }}
                           className={`text-[10px] px-2 py-1 rounded-lg border transition-all hover:scale-105 ${
                             s.source === 'campaign' ? 'bg-brand-red/10 text-brand-red border-brand-red/20' :
                             s.source === 'live' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20' :

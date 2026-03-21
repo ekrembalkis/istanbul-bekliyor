@@ -324,6 +324,7 @@ export async function generateTweet(opts: {
   goal?: string
   count?: number
   cloneMode?: boolean
+  topicContext?: string
 }): Promise<GenerateResult> {
   const res = await fetch('/api/generate-tweet', {
     method: 'POST',
@@ -335,6 +336,7 @@ export async function generateTweet(opts: {
       goal: opts.goal || 'engagement',
       count: opts.count || 3,
       cloneMode: opts.cloneMode ?? true,
+      topicContext: opts.topicContext,
     }),
   })
 

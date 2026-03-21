@@ -9,6 +9,7 @@ export interface TopicSuggestion {
   source: 'live' | 'campaign'
   relevance: number
   reason: string
+  context?: string  // full tweet texts for Gemini context
 }
 
 // ── X Tweet Search: Real-time trending topics ──
@@ -95,12 +96,19 @@ function groupAndLabel(tweets: (SearchTweet & { topic: string })[]): TopicSugges
     })
     .slice(0, 5)
     .map(g => {
-      const best = g.tweets.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0))[0]
+      const sorted = g.tweets.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0))
+      const best = sorted[0]
+      // Build context: top 3 tweets in this topic group (full text for Gemini)
+      const context = sorted.slice(0, 3)
+        .map(t => t.text.replace(/https?:\/\/\S+/g, '').trim())
+        .filter(t => t.length > 20)
+        .join('\n---\n')
       return {
         title: g.topic,
         source: 'live' as const,
         relevance: Math.min(95, 60 + Math.round((best.likeCount || 0) / 500)),
         reason: `${g.tweets.length} tweet · ${(best.likeCount || 0).toLocaleString()} begeni`,
+        context,
       }
     })
 }
