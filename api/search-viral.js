@@ -21,7 +21,9 @@ export default async function handler(req, res) {
   if (!XQUIK_KEY) return res.status(500).json({ error: 'XQUIK_API_KEY not configured' })
 
   const { category = 'siyaset', limit = '8' } = req.query || {}
-  const query = CATEGORY_QUERIES[category] || CATEGORY_QUERIES.siyaset
+  const today = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
+  const baseQuery = CATEGORY_QUERIES[category] || CATEGORY_QUERIES.siyaset
+  const query = `${baseQuery} since:${today}`
   const maxResults = Math.min(parseInt(limit) || 8, 20)
 
   try {
@@ -37,7 +39,7 @@ export default async function handler(req, res) {
 
     const data = await searchRes.json()
     const tweets = (data.tweets || [])
-      .filter(t => (t.likeCount || 0) > 50 && t.text && t.text.length > 20)
+      .filter(t => (t.likeCount || 0) > 10 && t.text && t.text.length > 20)
       .sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0))
       .slice(0, maxResults)
       .map(t => ({
