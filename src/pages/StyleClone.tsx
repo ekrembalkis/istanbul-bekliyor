@@ -690,19 +690,42 @@ export default function StyleClone() {
                   ))}
                 </div>
 
-                {/* Style selector */}
+                {/* Style selector with profile pics */}
                 <div>
                   <label className="text-[10px] font-bold text-slate-400 tracking-wider block mb-1.5">KLONLANACAK STİL</label>
-                  <select
-                    value={composeStyle}
-                    onChange={e => setComposeStyle(e.target.value)}
-                    className="w-full input-field px-3 py-2 text-sm text-slate-700 dark:text-slate-200"
-                  >
-                    <option value="">Stil seç...</option>
-                    {styles.map(s => (
-                      <option key={s.xUsername} value={s.xUsername}>@{s.xUsername} ({s.tweetCount} tweet)</option>
-                    ))}
-                  </select>
+                  {styles.length === 0 ? (
+                    <div className="input-field px-3 py-2.5 text-sm text-slate-400">Önce bir profil analiz et</div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {styles.filter(s => isValidXUsername(s.xUsername)).map(s => {
+                        const pic = userCache[s.xUsername]?.profilePicture
+                        const isSelected = composeStyle === s.xUsername
+                        return (
+                          <button
+                            key={s.xUsername}
+                            onClick={() => setComposeStyle(isSelected ? '' : s.xUsername)}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all ${
+                              isSelected
+                                ? 'bg-brand-red/10 border-brand-red/30 ring-2 ring-brand-red/20'
+                                : 'bg-slate-50 dark:bg-white/[0.03] border-slate-200 dark:border-white/[0.08] hover:border-slate-300 dark:hover:border-white/[0.15]'
+                            }`}
+                          >
+                            {pic ? (
+                              <img src={proxyImageUrl(pic)} alt="" className="w-6 h-6 rounded-full object-cover" />
+                            ) : (
+                              <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-white/[0.08] flex items-center justify-center text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                                {s.xUsername[0]?.toUpperCase()}
+                              </div>
+                            )}
+                            <div className="text-left">
+                              <div className={`text-xs font-semibold ${isSelected ? 'text-brand-red' : 'text-slate-700 dark:text-slate-200'}`}>@{s.xUsername}</div>
+                              <div className="text-[10px] text-slate-400">{s.tweetCount} tweet</div>
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* Quote/Reply: tweet URL input */}
