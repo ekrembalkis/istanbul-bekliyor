@@ -379,20 +379,6 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* Supabase Config */}
-      <div className="card border-l-4 border-l-brand-gold p-6 bg-brand-gold-light dark:bg-brand-gold/5">
-        <h2 className="text-sm font-bold text-slate-600 dark:text-slate-300 mb-4 tracking-wider">SUPABASE YAPILANDIRMA</h2>
-        <div className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-          <code className="chip text-brand-red text-[10px]">.env</code> dosyasına ekle:
-        </div>
-        <div className="bg-white dark:bg-dark-card rounded-xl p-4 font-mono text-xs text-slate-500 dark:text-slate-400 leading-loose border border-brand-gold/15">
-          <div>VITE_SUPABASE_URL=https://[project-id].supabase.co</div>
-          <div>VITE_SUPABASE_ANON_KEY=eyJ...</div>
-        </div>
-        <div className="mt-3 text-xs text-slate-400">
-          SQL şeması: <code className="chip text-[10px]">supabase/schema.sql</code>
-        </div>
-      </div>
     </div>
   )
 }
