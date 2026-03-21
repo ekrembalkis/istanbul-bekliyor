@@ -213,6 +213,25 @@ ${modeInstruction}`
       let attempts = 0
       const tweetOverrides = [...styleOverrides]
 
+      // Thread pre-check: extend short tweets before scoring (Xquik accepts 50+ but thread needs 80+)
+      if (mode === 'thread' && currentDraft.length < 80) {
+        const extendPrompt = cloneMode && !styleUsesQuestion
+          ? `Bu tweeti ayni stilde ama daha uzun yaz (80-180 karakter arasi). Stili koru. Soru isareti KULLANMA. Anlami koru, detay ekle.\n\nOrijinal: "${currentDraft}"\n\nSadece yeni tweet metnini yaz.`
+          : `Bu tweeti ayni stilde ama daha uzun yaz (80-180 karakter arasi). Stili koru. Anlami koru, detay ekle.\n\nOrijinal: "${currentDraft}"\n\nSadece yeni tweet metnini yaz.`
+        const extRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
+          { method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: extendPrompt }] }], generationConfig: { temperature: 0.8, maxOutputTokens: 200 } }) }
+        )
+        if (extRes.ok) {
+          const extData = await extRes.json()
+          const extended = extData.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
+          if (extended && extended.length >= 80) {
+            currentDraft = extended.replace(/^\d+[\.\)\/]\s*/, '').replace(/^["']|["']$/g, '')
+          }
+        }
+      }
+
       while (attempts < 3) {
         attempts++
         const scoreRes = await fetch('https://xquik.com/api/v1/compose', {
