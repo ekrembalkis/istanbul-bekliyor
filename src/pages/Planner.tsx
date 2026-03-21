@@ -41,7 +41,7 @@ export default function Planner() {
 
   const algoScore = algoResult ? Math.round((algoResult.passedCount / algoResult.totalChecks) * 100) : 0
 
-  const activePrompt = generatedPrompt || plan.prompt
+  const activePrompt = generatedPrompt || ''
 
   const handleGeneratePrompt = async (mode: 'generate' | 'refine') => {
     setPromptLoading(true)
@@ -144,15 +144,8 @@ export default function Planner() {
 
           <div className="card p-5">
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <label className="text-[10px] font-bold text-brand-red tracking-wider">NANO BANANA PRO PROMPT</label>
-                {generatedPrompt && (
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-500/10 text-blue-500 border border-blue-200 dark:border-blue-500/20 font-bold">
-                    AI
-                  </span>
-                )}
-              </div>
-              <CopyBtn text={activePrompt} label="Kopyala" />
+              <label className="text-[10px] font-bold text-brand-red tracking-wider">NANO BANANA PRO PROMPT</label>
+              {activePrompt && <CopyBtn text={activePrompt} label="Kopyala" />}
             </div>
             <div className="bg-slate-50 dark:bg-white/[0.03] rounded-xl p-4 text-xs font-mono text-slate-500 dark:text-slate-400 leading-relaxed max-h-48 overflow-y-auto border border-slate-100 dark:border-white/[0.06]">
               {promptLoading ? (
@@ -160,7 +153,11 @@ export default function Planner() {
                   <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" /><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" /></svg>
                   Prompt üretiliyor...
                 </div>
-              ) : activePrompt}
+              ) : activePrompt ? activePrompt : (
+                <div className="text-center py-4 text-slate-300 dark:text-slate-500">
+                  "Prompt Üret" ile AI destekli prompt oluştur
+                </div>
+              )}
             </div>
             <div className="mt-3 flex items-center justify-between">
               <div className="flex gap-4 text-[10px] text-slate-400 font-mono">
@@ -179,19 +176,11 @@ export default function Planner() {
               </button>
               <button
                 onClick={() => handleGeneratePrompt('refine')}
-                disabled={promptLoading}
+                disabled={promptLoading || !activePrompt}
                 className="btn text-[10px] py-1.5 px-3 disabled:opacity-50"
               >
                 İyileştir
               </button>
-              {generatedPrompt && (
-                <button
-                  onClick={() => setGeneratedPrompt(null)}
-                  className="btn text-[10px] py-1.5 px-3 text-slate-400"
-                >
-                  Statik'e Dön
-                </button>
-              )}
             </div>
             {promptError && (
               <div className="mt-2 text-[10px] text-red-500">{promptError}</div>
