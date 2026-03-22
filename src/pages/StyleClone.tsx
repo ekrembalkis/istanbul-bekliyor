@@ -128,7 +128,7 @@ export default function StyleClone() {
     // 2. Start extraction job
     setDeepProgress('Derin analiz başlatılıyor (en iyi tweetler çekilecek)...')
     try {
-      const job = await startDeepAnalysis(clean, { minFaves: 50, language: 'tr', resultsLimit: 200 })
+      const job = await startDeepAnalysis(clean, { minFaves: 50, resultsLimit: 200 })
       setDeepProgress(`Extraction çalışıyor (job: ${job.id})...`)
 
       // 3. Poll until complete

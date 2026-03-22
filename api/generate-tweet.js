@@ -1,6 +1,143 @@
 // Serverless tweet generator: Gemini + Style DNA + Xquik Score Loop
 // POST /api/generate-tweet { styleUsername, topic, tone, goal, count, cloneMode }
 
+// ── Language detection heuristic (fallback when DNA has no language) ──
+function detectLanguage(tweets) {
+  const text = tweets.join(' ').toLowerCase()
+  const trChars = (text.match(/[çğıöşü]/g) || []).length
+  const trWords = (text.match(/\b(ve|bir|bu|da|de|ile|için|ama|çok|var|yok|ben|sen|biz|amk|aq|falan|valla)\b/g) || []).length
+  const enWords = (text.match(/\b(the|and|is|are|was|were|you|have|has|had|just|about|that|this|with|from|not|but|my|your)\b/g) || []).length
+  const arChars = (text.match(/[\u0600-\u06FF]/g) || []).length
+  if (arChars > text.length * 0.1) return 'ar'
+  if (trChars > 2 || trWords > enWords * 1.5) return 'tr'
+  if (enWords > 3) return 'en'
+  return 'en'
+}
+
+// ── Slang patterns per language ──
+const SLANG_PATTERNS = {
+  tr: /amk|aq|falan|valla|ya\b/i,
+  en: /lol|lmao|bruh|ngl|fr\b|tbh|smh|af\b|lowkey|highkey|deadass|imo/i,
+}
+
+// ── Lowercase start regex per language ──
+const LOWERCASE_REGEX = {
+  tr: /^[a-zçğıöşü]/,
+  _default: /^[a-z]/,
+}
+
+// ── Language-adaptive prompt templates ──
+const T = {
+  tr: {
+    system: 'Sen bir Turkce tweet yazarisin',
+    cloneLabel: 'BIREBIR KLON — stili ASLA bozma',
+    optimizeLabel: 'OPTIMIZE — stili koru ama algoritmaya uy',
+    lowercaseRule: 'MUTLAKA kucuk harfle basla',
+    slangRule: (patterns) => `Argo kullan (${patterns}) dogal sekilde`,
+    noSlang: 'Argo kullanma, temiz dil',
+    noEmoji: 'ASLA emoji kullanma',
+    noHashtag: 'ASLA hashtag kullanma',
+    noDash: 'ASLA em dash veya cift tire kullanma',
+    noLink: 'Link koyma',
+    ctaNo: 'Bu kisi ASLA soru isareti kullanmiyor. Soru isareti KOYMA. Cumleni acik birak veya nokta ile bitir.',
+    ctaYes: 'Soru isareti ile bitir ki yorum gelsin',
+    noPunctuation: 'Asiri noktalama kullanma',
+    substance: 'Yeterli icerik/substance olmali (cok kisa olmasin)',
+    lengthAvg: (avg) => `\nUzunluk: Ortalama ${avg} karakter, 50-150 arasi tut.`,
+    lengthShort: '\n!!! KRITIK UZUNLUK KURALI !!!\nHer tweet MUTLAKA 60 ile 120 karakter arasinda olmali. 60dan KISA tweet KABUL EDILMEZ. Gerekirse iki cumle yaz.',
+    lengthNormal: '\n!!! KRITIK UZUNLUK KURALI !!!\nHer tweet MUTLAKA 100 ile 200 karakter arasinda olmali. 100den KISA tweet KABUL EDILMEZ. Gerekirse iki cumle yaz, detay ekle.',
+    lengthLong: '\n!!! KRITIK UZUNLUK KURALI !!!\nHer tweet MUTLAKA 200 ile 270 karakter arasinda olmali. 200den KISA tweet KABUL EDILMEZ. 280i GECME. Gerekirse 3-4 cumle yaz, detay ekle, ama stili koru.',
+    styleHeader: 'STIL ORNEKLERI',
+    dnaHeader: 'KISILIK DNA (bu kisinin gercek kisiligi — tweetleri buna gore yaz)',
+    dnaArchetype: 'Arketip', dnaWorldview: 'Dunya gorusu', dnaExpertise: 'Uzmanlik',
+    dnaTone: 'Ses tonu', dnaOpening: 'Acilis tarzi', dnaClosing: 'Kapanis tarzi', dnaHumor: 'Mizah',
+    dnaReactions: 'Tepkiler', dnaGood: 'Iyi habere', dnaBad: 'Kotu habere', dnaControversy: 'Polemige',
+    dnaNever: 'Asla yapmaz', dnaAlways: 'Her zaman yapar',
+    dnaTopicBehavior: 'Konu bazli davranis',
+    dnaCogFilters: 'BILISSEL FILTRELER (bu kisi olaylari su prizmadan gorur)',
+    dnaNarrative: 'ANLATIM TEKNIKLERI (boyle yazar)',
+    dnaIrony: 'IRONI TEKNIKLERI (ironiyi boyle kullanir — DOGRUDAN sevinme veya kufur etme, bu teknikleri kullan)',
+    dnaIronyExamples: 'GERCEK IRONI ORNEKLERI (bu kisinin gercek tweetleri — bu tarzi taklit et)',
+    dnaHappy: 'Mutlu olunca', dnaAngry: 'Sinirli olunca',
+    dnaTraits: 'Kisilik skorlari',
+    styleRulesHeader: 'STIL DNA KURALLARI',
+    algoHeader: 'X ALGORITMASI KURALLARI',
+    tweetInstruction: (topic, ctx, tone, goal, count) =>
+      `KONU: ${topic}\n${ctx ? `\nGUNDEM BAGLAMI (bu konu hakkinda simdi X'te konusulanlar):\n${ctx}\n\nYukaridaki baglamdan ilham al ama KOPYALAMA. Kendi stilinde yeni icerik uret.\n` : ''}TON: ${tone}\nHEDEF: ${goal}\n\nBu stilde ${count} farkli tweet yaz. Her biri farkli bir aci olsun. Sadece tweet metinlerini yaz. Her tweeti yeni satirda numara ile yaz. Baska hicbir sey yazma.`,
+    quoteInstruction: (author, text, count) =>
+      `ASAGIDAKI TWEET'E QUOTE TWEET YAZ. Kendi stilinde yorum/tepki ver.\n\nQUOTE EDILECEK TWEET (@${author}):\n"${text}"\n\n${count} farkli quote tweet yaz. Her biri farkli bir aci olsun. Sadece kendi tweet metinlerini yaz (quote edilen tweeti tekrarlama). Her tweeti yeni satirda numara ile yaz.`,
+    replyInstruction: (author, text, count) =>
+      `ASAGIDAKI TWEET'E REPLY YAZ. Dogal, stiline uygun, icerikli cevap ver.\n\nREPLY YAZILACAK TWEET (@${author}):\n"${text}"\n\nONEMLI: Her reply EN AZ 50 karakter olmali. Cok kisa bos laflar yazma (ornegin sadece "helal" veya "aq" gibi). Icerikli, anlamli ama dogal reply yaz. 50-150 karakter arasi ideal.\n\n${count} farkli reply yaz. Her birini yeni satirda numara ile yaz.`,
+    threadInstruction: (topic, ctx, tone, ctaRule) =>
+      `BU KONUDA 5 TWEET'LIK THREAD (self-reply zinciri) YAZ.\n\nKONU: ${topic}\n${ctx ? `\nGUNDEM BAGLAMI:\n${ctx}\n` : ''}TON: ${tone}\n\nTHREAD YAPISI (her tweet oncekine REPLY olarak atilir):\n1. tweet — HOOK: Sarsici, provokatif veya surpriz acilis. Okuyucu "devamini okumam lazim" demeli.\n2. tweet — BAGLAM: Durumu acikla, olayi veya problemi ortaya koy. Somut detay ver.\n3. tweet — DERINLIK: Herkesin gormezden geldigi aciyi goster. Farkli bir perspektif sun.\n4. tweet — KANIT/DUYGU: Kisisel gozlem, somut ornek veya duygusal vurucu bir cumle.\n5. tweet — KAPANIIS: Guclu son cumle. ${ctaRule}\n\nKURALLAR:\n- HER tweet tek basina okunsa bile anlamli ve guclu olmali\n- Her tweet FARKLI aci, farkli yaklasim\n- 80-220 karakter arasi\n- Klise, slogan ve bos motivasyon cumleleri YASAK (somut ol)\n\nSADECE 5 tweet yaz. Her tweeti "1/" "2/" gibi numara ile baslat. Baska hicbir sey yazma.`,
+    extendPrompt: (draft, noQ) => noQ
+      ? `Bu tweeti ayni stilde ama daha uzun yaz (80-180 karakter arasi). Stili koru. Soru isareti KULLANMA. Anlami koru, detay ekle.\n\nOrijinal: "${draft}"\n\nSadece yeni tweet metnini yaz.`
+      : `Bu tweeti ayni stilde ama daha uzun yaz (80-180 karakter arasi). Stili koru. Anlami koru, detay ekle.\n\nOrijinal: "${draft}"\n\nSadece yeni tweet metnini yaz.`,
+    fixShortPrompt: (draft, range, noQ) => noQ
+      ? `Bu tweeti ayni stilde ama daha uzun yaz (${range} arasi). Stili koru. Soru isareti KULLANMA.\n\nOrijinal: "${draft}"\n\nSadece yeni tweet metnini yaz.`
+      : `Bu tweeti ayni stilde ama daha uzun yaz (${range} arasi). Stili koru. Soru ile bitir.\n\nOrijinal: "${draft}"\n\nSadece yeni tweet metnini yaz.`,
+    garbageFilter: line => {
+      const l = line.toLowerCase()
+      return !l.startsWith('tamam') && !l.startsWith('iste') && !l.startsWith('tabi')
+        && !l.includes('stilinde') && !l.includes('tweet:') && !l.includes('yazıyorum')
+    },
+  },
+  _default: {
+    system: (lang) => `You are a tweet writer. Write ALL tweets in ${lang.toUpperCase()} language ONLY`,
+    cloneLabel: 'EXACT CLONE — NEVER break the style',
+    optimizeLabel: 'OPTIMIZE — keep style but fit the algorithm',
+    lowercaseRule: 'ALWAYS start with lowercase letter',
+    slangRule: (patterns) => `Use slang naturally (${patterns})`,
+    noSlang: 'Keep language clean, no slang',
+    noEmoji: 'NEVER use emoji',
+    noHashtag: 'NEVER use hashtags',
+    noDash: 'NEVER use em dash or double hyphen',
+    noLink: 'No links',
+    ctaNo: 'This person NEVER uses question marks. Do NOT use question marks. End with a period or leave open.',
+    ctaYes: 'End with a question mark to drive replies',
+    noPunctuation: 'Don\'t overuse punctuation',
+    substance: 'Must have enough substance (not too short)',
+    lengthAvg: (avg) => `\nLength: Average ${avg} characters, keep between 50-150.`,
+    lengthShort: '\n!!! CRITICAL LENGTH RULE !!!\nEvery tweet MUST be between 60 and 120 characters. Under 60 is NOT acceptable. Write two sentences if needed.',
+    lengthNormal: '\n!!! CRITICAL LENGTH RULE !!!\nEvery tweet MUST be between 100 and 200 characters. Under 100 is NOT acceptable. Add detail if needed.',
+    lengthLong: '\n!!! CRITICAL LENGTH RULE !!!\nEvery tweet MUST be between 200 and 270 characters. Under 200 is NOT acceptable. Do NOT exceed 280. Write 3-4 sentences, add detail, but keep the style.',
+    styleHeader: 'STYLE EXAMPLES',
+    dnaHeader: 'PERSONALITY DNA (this person\'s real personality — write tweets based on this)',
+    dnaArchetype: 'Archetype', dnaWorldview: 'Worldview', dnaExpertise: 'Expertise',
+    dnaTone: 'Tone', dnaOpening: 'Opening style', dnaClosing: 'Closing style', dnaHumor: 'Humor',
+    dnaReactions: 'Reactions', dnaGood: 'To good news', dnaBad: 'To bad news', dnaControversy: 'To controversy',
+    dnaNever: 'Never does', dnaAlways: 'Always does',
+    dnaTopicBehavior: 'Topic-based behavior',
+    dnaCogFilters: 'COGNITIVE FILTERS (how this person sees events)',
+    dnaNarrative: 'NARRATIVE TECHNIQUES (how they write)',
+    dnaIrony: 'IRONY TECHNIQUES (how they use irony — don\'t be direct, use these techniques)',
+    dnaIronyExamples: 'REAL IRONY EXAMPLES (this person\'s real tweets — imitate this style)',
+    dnaHappy: 'When happy', dnaAngry: 'When angry',
+    dnaTraits: 'Personality scores',
+    styleRulesHeader: 'STYLE DNA RULES',
+    algoHeader: 'X ALGORITHM RULES',
+    tweetInstruction: (topic, ctx, tone, goal, count) =>
+      `TOPIC: ${topic}\n${ctx ? `\nCONTEXT (what's being discussed on X right now):\n${ctx}\n\nDraw inspiration from context above but DON'T COPY. Create new content in your own style.\n` : ''}TONE: ${tone}\nGOAL: ${goal}\n\nWrite ${count} different tweets in this style. Each from a different angle. Only write the tweet texts. Number each tweet on a new line. Nothing else.`,
+    quoteInstruction: (author, text, count) =>
+      `WRITE A QUOTE TWEET for the tweet below. Give your reaction in your own style.\n\nTWEET TO QUOTE (@${author}):\n"${text}"\n\nWrite ${count} different quote tweets. Each from a different angle. Only write your own tweet texts (don't repeat the quoted tweet). Number each on a new line.`,
+    replyInstruction: (author, text, count) =>
+      `WRITE A REPLY to the tweet below. Natural, style-appropriate, meaningful response.\n\nTWEET TO REPLY TO (@${author}):\n"${text}"\n\nIMPORTANT: Each reply must be AT LEAST 50 characters. Don't write empty short replies. Write meaningful, natural replies. 50-150 characters ideal.\n\nWrite ${count} different replies. Number each on a new line.`,
+    threadInstruction: (topic, ctx, tone, ctaRule) =>
+      `WRITE A 5-TWEET THREAD (self-reply chain) ON THIS TOPIC.\n\nTOPIC: ${topic}\n${ctx ? `\nCONTEXT:\n${ctx}\n` : ''}TONE: ${tone}\n\nTHREAD STRUCTURE (each tweet is a reply to the previous):\n1. HOOK: Shocking, provocative or surprising opening. Reader must think "I need to read more."\n2. CONTEXT: Explain the situation, lay out the event or problem. Give concrete details.\n3. DEPTH: Show the angle everyone is ignoring. Offer a different perspective.\n4. PROOF/EMOTION: Personal observation, concrete example, or emotionally impactful sentence.\n5. CLOSING: Strong final line. ${ctaRule}\n\nRULES:\n- EVERY tweet must be meaningful and powerful on its own\n- Each tweet a DIFFERENT angle\n- 80-220 characters\n- Clichés, slogans and empty motivation FORBIDDEN (be concrete)\n\nWrite ONLY 5 tweets. Start each with "1/" "2/" etc. Nothing else.`,
+    extendPrompt: (draft, noQ) => noQ
+      ? `Rewrite this tweet in the same style but longer (80-180 characters). Keep the style. Do NOT use question marks. Keep the meaning, add detail.\n\nOriginal: "${draft}"\n\nWrite only the new tweet text.`
+      : `Rewrite this tweet in the same style but longer (80-180 characters). Keep the style. Keep the meaning, add detail.\n\nOriginal: "${draft}"\n\nWrite only the new tweet text.`,
+    fixShortPrompt: (draft, range, noQ) => noQ
+      ? `Rewrite this tweet in the same style but longer (${range}). Keep the style. Do NOT use question marks.\n\nOriginal: "${draft}"\n\nWrite only the new tweet text.`
+      : `Rewrite this tweet in the same style but longer (${range}). Keep the style. End with a question.\n\nOriginal: "${draft}"\n\nWrite only the new tweet text.`,
+    garbageFilter: line => {
+      const l = line.toLowerCase()
+      return !l.startsWith('okay') && !l.startsWith('sure') && !l.startsWith('here')
+        && !l.includes('in the style') && !l.includes('tweet:') && !l.includes('writing')
+    },
+  },
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
@@ -49,53 +186,61 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Not enough style data. Analyze the profile first.' })
     }
 
-    // 2. Analyze style characteristics
-    const avgLen = Math.round(styleTweets.reduce((s, t) => s + t.length, 0) / styleTweets.length)
-    const startsLower = styleTweets.filter(t => /^[a-zçğıöşü]/.test(t)).length
-    const usesSlang = styleTweets.some(t => /amk|aq|falan|valla|ya\b/i.test(t))
-    const hasEmoji = styleTweets.some(t => /[\u{1F300}-\u{1FAFF}]/u.test(t))
-    const questionRatio = styleTweets.filter(t => t.includes('?')).length / styleTweets.length
+    // 2. Detect language: DNA > heuristic
+    const lang = personalityDNA?.language || detectLanguage(styleTweets)
+    const t = T[lang] || T._default
+    const systemLine = typeof t.system === 'function' ? t.system(lang) : t.system
+
+    // 3. Analyze style characteristics
+    const avgLen = Math.round(styleTweets.reduce((s, tw) => s + tw.length, 0) / styleTweets.length)
+    const lcRegex = LOWERCASE_REGEX[lang] || LOWERCASE_REGEX._default
+    const startsLower = styleTweets.filter(tw => lcRegex.test(tw)).length
+    const slangRegex = SLANG_PATTERNS[lang] || SLANG_PATTERNS.en
+    const dnaSlang = (personalityDNA?.slangPatterns || []).join(', ')
+    const usesSlang = dnaSlang ? true : styleTweets.some(tw => slangRegex.test(tw))
+    const hasEmoji = styleTweets.some(tw => /[\u{1F300}-\u{1FAFF}]/u.test(tw))
+    const questionRatio = styleTweets.filter(tw => tw.includes('?')).length / styleTweets.length
     const styleUsesQuestion = questionRatio > 0.2
 
     // Style overrides: track which checks are skipped for style accuracy
     const styleOverrides = []
 
-    // 3. Build CTA rule based on mode + style
+    // 4. Build CTA rule based on mode + style
     let ctaRule
     if (cloneMode && !styleUsesQuestion) {
-      // Birebir Klon: style doesn't use ?, don't force it
-      ctaRule = 'Bu kisi ASLA soru isareti kullanmiyor. Soru isareti KOYMA. Cumleni acik birak veya nokta ile bitir.'
+      ctaRule = t.ctaNo
       styleOverrides.push('CTA: stil soru isareti kullanmiyor, atlanıyor')
     } else {
-      // Optimize mode or style naturally uses ?
-      ctaRule = 'Soru isareti ile bitir ki yorum gelsin'
+      ctaRule = t.ctaYes
     }
 
-    // Length rule — aggressive enforcement (thread mode has its own length rules in prompt)
+    // 5. Length rule
     let lengthBlock
     if (mode === 'thread') {
-      lengthBlock = '' // Thread prompt handles its own character limits (80-220)
+      lengthBlock = ''
     } else if (lengthHint === 'kisa') {
-      lengthBlock = '\n!!! KRITIK UZUNLUK KURALI !!!\nHer tweet MUTLAKA 60 ile 120 karakter arasinda olmali. 60dan KISA tweet KABUL EDILMEZ. Gerekirse iki cumle yaz.'
+      lengthBlock = t.lengthShort
     } else if (lengthHint === 'uzun') {
-      lengthBlock = '\n!!! KRITIK UZUNLUK KURALI !!!\nHer tweet MUTLAKA 200 ile 270 karakter arasinda olmali. 200den KISA tweet KABUL EDILMEZ. 280i GECME. Gerekirse 3-4 cumle yaz, detay ekle, ama stili koru.'
+      lengthBlock = t.lengthLong
     } else if (lengthHint === 'normal') {
-      lengthBlock = '\n!!! KRITIK UZUNLUK KURALI !!!\nHer tweet MUTLAKA 100 ile 200 karakter arasinda olmali. 100den KISA tweet KABUL EDILMEZ. Gerekirse iki cumle yaz, detay ekle.'
+      lengthBlock = t.lengthNormal
     } else {
-      lengthBlock = `\nUzunluk: Ortalama ${avgLen} karakter, 50-150 arasi tut.`
+      lengthBlock = t.lengthAvg(avgLen)
     }
 
+    // 6. Build style rules
+    const slangDisplay = dnaSlang || (lang === 'tr' ? 'amk, aq, falan, valla, ya' : 'lol, bruh, ngl, tbh')
     const styleRules = [
-      startsLower > styleTweets.length / 2 ? 'MUTLAKA kucuk harfle basla' : null,
-      usesSlang ? 'Argo kullan (amk, aq, falan, valla, ya) dogal sekilde' : 'Argo kullanma, temiz dil',
-      hasEmoji ? null : 'ASLA emoji kullanma',
-      'ASLA hashtag kullanma',
-      'ASLA em dash veya cift tire kullanma',
+      startsLower > styleTweets.length / 2 ? t.lowercaseRule : null,
+      usesSlang ? t.slangRule(slangDisplay) : t.noSlang,
+      hasEmoji ? null : t.noEmoji,
+      t.noHashtag,
+      t.noDash,
       ctaRule,
-      'Link koyma',
+      t.noLink,
     ].filter(Boolean).join('\n- ')
 
-    // 4. Build personality DNA block (if available)
+    // 7. Build personality DNA block (if available)
     let dnaBlock = ''
     if (personalityDNA) {
       const d = personalityDNA
@@ -109,106 +254,66 @@ export default async function handler(req, res) {
       const ironyExamples = (d.ironyExamples || []).map((e, i) => `${i + 1}. "${e}"`).join('\n')
 
       dnaBlock = `
-KISILIK DNA (bu kisinin gercek kisiligi — tweetleri buna gore yaz):
-Arketip: ${d.identity?.archetype || ''}
-Dunya gorusu: ${d.identity?.worldview || ''}
-Uzmanlik: ${(d.identity?.expertise || []).join(', ')}
+${t.dnaHeader}:
+${t.dnaArchetype}: ${d.identity?.archetype || ''}
+${t.dnaWorldview}: ${d.identity?.worldview || ''}
+${t.dnaExpertise}: ${(d.identity?.expertise || []).join(', ')}
 
-Ses tonu: ${d.voice?.toneSpectrum || ''}
-Acilis tarzi: ${d.voice?.openingStyle || ''}
-Kapanis tarzi: ${d.voice?.closingStyle || ''}
-Mizah: ${d.voice?.humorStyle || ''}
+${t.dnaTone}: ${d.voice?.toneSpectrum || ''}
+${t.dnaOpening}: ${d.voice?.openingStyle || ''}
+${t.dnaClosing}: ${d.voice?.closingStyle || ''}
+${t.dnaHumor}: ${d.voice?.humorStyle || ''}
 
-Tepkiler:
-- Iyi habere: ${d.reactions?.toGoodNews || ''}
-- Kotu habere: ${d.reactions?.toBadNews || ''}
-- Polemige: ${d.reactions?.toControversy || ''}
+${t.dnaReactions}:
+- ${t.dnaGood}: ${d.reactions?.toGoodNews || ''}
+- ${t.dnaBad}: ${d.reactions?.toBadNews || ''}
+- ${t.dnaControversy}: ${d.reactions?.toControversy || ''}
 
-Asla yapmaz: ${(d.boundaries?.neverDoes || []).join(', ')}
-Her zaman yapar: ${(d.boundaries?.alwaysDoes || []).join(', ')}
-${topicCtx ? `\nKonu bazli davranis:\n${topicCtx}` : ''}
-${cogFilters ? `\nBILISSEL FILTRELER (bu kisi olaylari su prizmadan gorur):\n${cogFilters}` : ''}
-${narTech ? `\nANLATIM TEKNIKLERI (boyle yazar):\n${narTech}` : ''}
-${ironyTech ? `\nIRONI TEKNIKLERI (ironiyi boyle kullanir — DOGRUDAN sevinme veya kufur etme, bu teknikleri kullan):\n${ironyTech}` : ''}
-${ironyExamples ? `\nGERCEK IRONI ORNEKLERI (bu kisinin gercek tweetleri — bu tarzi taklit et):\n${ironyExamples}` : ''}
-${d.contextualBehavior ? `\nMutlu olunca: ${d.contextualBehavior.whenHappy}\nSinirli olunca: ${d.contextualBehavior.whenAngry}` : ''}
+${t.dnaNever}: ${(d.boundaries?.neverDoes || []).join(', ')}
+${t.dnaAlways}: ${(d.boundaries?.alwaysDoes || []).join(', ')}
+${topicCtx ? `\n${t.dnaTopicBehavior}:\n${topicCtx}` : ''}
+${cogFilters ? `\n${t.dnaCogFilters}:\n${cogFilters}` : ''}
+${narTech ? `\n${t.dnaNarrative}:\n${narTech}` : ''}
+${ironyTech ? `\n${t.dnaIrony}:\n${ironyTech}` : ''}
+${ironyExamples ? `\n${t.dnaIronyExamples}:\n${ironyExamples}` : ''}
+${d.contextualBehavior ? `\n${t.dnaHappy}: ${d.contextualBehavior.whenHappy}\n${t.dnaAngry}: ${d.contextualBehavior.whenAngry}` : ''}
 
-Kisilik skorlari: Formality ${traits.formality || 0}/100, Humor ${traits.humor || 0}/100, Controversy ${traits.controversy || 0}/100
+${t.dnaTraits}: Formality ${traits.formality || 0}/100, Humor ${traits.humor || 0}/100, Controversy ${traits.controversy || 0}/100
 `
     }
 
-    // 5. Build prompt based on mode
-    const numberedExamples = styleTweets.map((t, i) => `${i + 1}. ${t}`).join('\n')
-    const modeLabel = cloneMode ? 'BIREBIR KLON — stili ASLA bozma' : 'OPTIMIZE — stili koru ama algoritmaya uy'
+    // 8. Build prompt based on mode
+    const numberedExamples = styleTweets.map((tw, i) => `${i + 1}. ${tw}`).join('\n')
+    const modeLabel = cloneMode ? t.cloneLabel : t.optimizeLabel
 
     let modeInstruction
     if (mode === 'quote') {
-      modeInstruction = `ASAGIDAKI TWEET'E QUOTE TWEET YAZ. Kendi stilinde yorum/tepki ver.
-
-QUOTE EDILECEK TWEET (@${quoteTweetAuthor}):
-"${quoteTweetText}"
-
-${count} farkli quote tweet yaz. Her biri farkli bir aci olsun. Sadece kendi tweet metinlerini yaz (quote edilen tweeti tekrarlama). Her tweeti yeni satirda numara ile yaz.`
+      modeInstruction = t.quoteInstruction(quoteTweetAuthor, quoteTweetText, count)
     } else if (mode === 'reply') {
-      modeInstruction = `ASAGIDAKI TWEET'E REPLY YAZ. Dogal, stiline uygun, icerikli cevap ver.
-
-REPLY YAZILACAK TWEET (@${quoteTweetAuthor}):
-"${quoteTweetText}"
-
-ONEMLI: Her reply EN AZ 50 karakter olmali. Cok kisa bos laflar yazma (ornegin sadece "helal" veya "aq" gibi). Icerikli, anlamli ama dogal reply yaz. 50-150 karakter arasi ideal.
-
-${count} farkli reply yaz. Her birini yeni satirda numara ile yaz.`
+      modeInstruction = t.replyInstruction(quoteTweetAuthor, quoteTweetText, count)
     } else if (mode === 'thread') {
-      // Thread = self-reply zinciri. Her tweet bagimsiz skorlanir.
-      // Algoritma: conversation dedup ile sadece en iyi tweet gosterilir, ilk tweet EN kritik.
-      const threadCtaRule = (cloneMode && !styleUsesQuestion)
-        ? 'Soru isareti KULLANMA. Stile sadik kal.'
-        : 'Thread boyunca 1-2 yerde soru kullan, her tweette degil.'
-      modeInstruction = `BU KONUDA 5 TWEET'LIK THREAD (self-reply zinciri) YAZ.
-
-KONU: ${topic}
-${topicContext ? `\nGUNDEM BAGLAMI:\n${topicContext}\n` : ''}
-TON: ${tone}
-
-THREAD YAPISI (her tweet oncekine REPLY olarak atilir):
-1. tweet — HOOK: Sarsici, provokatif veya surpriz acilis. Okuyucu "devamini okumam lazim" demeli. Soru, itiraf, carpici istatistik veya cesur iddia ile basla.
-2. tweet — BAGLAM: Durumu acikla, olayi veya problemi ortaya koy. Somut detay ver (tarih, yer, isim, rakam).
-3. tweet — DERINLIK: Herkesin gormezden geldigi aciyi goster. Farkli bir perspektif sun. "Ama asil mesele su:" gibi gecis yap.
-4. tweet — KANIT/DUYGU: Kisisel gozlem, somut ornek veya duygusal vurucu bir cumle. Soyut konusma, somut anlat.
-5. tweet — KAPANIIS: Guclu son cumle. ${threadCtaRule}
-
-KURALLAR:
-- HER tweet tek basina okunsa bile anlamli ve guclu olmali (algoritma her birini BAGIMSIZ skorlar)
-- Her tweet FARKLI aci, farkli yaklasim — ayni kaliplari tekrarlama
-- 80-220 karakter arasi
-- Klise, slogan ve bos motivasyon cumleleri YASAK (somut ol)
-
-SADECE 5 tweet yaz. Her tweeti "1/" "2/" gibi numara ile baslat. Baska hicbir sey yazma.`
+      const threadCtaRule = (cloneMode && !styleUsesQuestion) ? t.ctaNo : t.ctaYes
+      modeInstruction = t.threadInstruction(topic, topicContext, tone, threadCtaRule)
     } else {
-      modeInstruction = `KONU: ${topic}
-${topicContext ? `\nGUNDEM BAGLAMI (bu konu hakkinda simdi X'te konusulanlar):\n${topicContext}\n\nYukaridaki baglamdan ilham al ama KOPYALAMA. Kendi stilinde yeni icerik uret.\n` : ''}
-TON: ${tone}
-HEDEF: ${goal}
-
-Bu stilde ${count} farkli tweet yaz. Her biri farkli bir aci olsun. Sadece tweet metinlerini yaz. Her tweeti yeni satirda numara ile yaz. Baska hicbir sey yazma.`
+      modeInstruction = t.tweetInstruction(topic, topicContext, tone, goal, count)
     }
 
-    const prompt = `Sen bir Turkce tweet yazarisin. MOD: ${modeLabel}. Verilen kisinin tarzinda tweet yazacaksin.
+    const prompt = `${systemLine}. MOD: ${modeLabel}. ${lang === 'tr' ? 'Verilen kisinin tarzinda tweet yazacaksin.' : `Write tweets in this person's exact style. ALL output MUST be in ${lang.toUpperCase()}.`}
 
-STIL ORNEKLERI (@${styleUsername}):
+${t.styleHeader} (@${styleUsername}):
 ${numberedExamples}
 ${dnaBlock}
-STIL DNA KURALLARI:
+${t.styleRulesHeader}:
 - ${styleRules}
 ${lengthBlock}
 
-X ALGORITMASI KURALLARI:
-- Asiri noktalama kullanma
-${mode !== 'reply' ? '- Yeterli icerik/substance olmali (cok kisa olmasin)' : ''}
+${t.algoHeader}:
+- ${t.noPunctuation}
+${mode !== 'reply' ? `- ${t.substance}` : ''}
 
 ${modeInstruction}`
 
-    // 5. Generate with Gemini
+    // 9. Generate with Gemini
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
       {
@@ -237,24 +342,18 @@ ${modeInstruction}`
       geminiUsage.totalTokens = geminiData.usageMetadata.totalTokenCount || 0
     }
 
-    // Parse tweets from numbered list
+    // Parse tweets from numbered list (language-adaptive garbage filter)
+    const garbageFilter = t.garbageFilter
     const tweets = rawText
       .split('\n')
       .map(line => line.replace(/^\d+[\.\)\/]\s*/, '').trim())
-      .filter(line => line.length > 20
-        && !line.toLowerCase().startsWith('tamam')
-        && !line.toLowerCase().startsWith('iste')
-        && !line.toLowerCase().startsWith('tabi')
-        && !line.toLowerCase().includes('stilinde')
-        && !line.toLowerCase().includes('tweet:')
-        && !line.toLowerCase().includes('yazıyorum')
-      )
+      .filter(line => line.length > 20 && garbageFilter(line))
 
     if (tweets.length === 0) {
       return res.status(500).json({ error: 'Generation failed', raw: rawText })
     }
 
-    // 6. Score tweets (thread mode: score ALL tweets independently — algorithm scores each one)
+    // 10. Score tweets
     const results = []
     const tweetsToProcess = mode === 'thread' ? tweets : tweets.slice(0, count)
     for (let idx = 0; idx < tweetsToProcess.length; idx++) {
@@ -264,11 +363,9 @@ ${modeInstruction}`
       let attempts = 0
       const tweetOverrides = [...styleOverrides]
 
-      // Thread pre-check: extend short tweets before scoring (Xquik accepts 50+ but thread needs 80+)
+      // Thread pre-check: extend short tweets
       if (mode === 'thread' && currentDraft.length < 80) {
-        const extendPrompt = cloneMode && !styleUsesQuestion
-          ? `Bu tweeti ayni stilde ama daha uzun yaz (80-180 karakter arasi). Stili koru. Soru isareti KULLANMA. Anlami koru, detay ekle.\n\nOrijinal: "${currentDraft}"\n\nSadece yeni tweet metnini yaz.`
-          : `Bu tweeti ayni stilde ama daha uzun yaz (80-180 karakter arasi). Stili koru. Anlami koru, detay ekle.\n\nOrijinal: "${currentDraft}"\n\nSadece yeni tweet metnini yaz.`
+        const extendPrompt = t.extendPrompt(currentDraft, cloneMode && !styleUsesQuestion)
         const extRes = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
           { method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -305,10 +402,7 @@ ${modeInstruction}`
         // In clone mode: if only CTA fails and style doesn't use ?, accept as-is
         if (cloneMode && !styleUsesQuestion) {
           const nonCtaFails = failed.filter(f => !f.includes('CTA'))
-          if (nonCtaFails.length === 0) {
-            // Only CTA failed — this is expected in clone mode, accept it
-            break
-          }
+          if (nonCtaFails.length === 0) break
         }
 
         if (scoreData.passed) break
@@ -320,10 +414,8 @@ ${modeInstruction}`
 
         const minLength = mode === 'thread' ? 80 : 50
         if (currentDraft.length < minLength) {
-          const targetRange = mode === 'thread' ? '80-180 karakter' : '60-120 karakter'
-          const fixPrompt = cloneMode && !styleUsesQuestion
-            ? `Bu tweeti ayni stilde ama daha uzun yaz (${targetRange} arasi). Stili koru. Soru isareti KULLANMA.\n\nOrijinal: "${currentDraft}"\n\nSadece yeni tweet metnini yaz.`
-            : `Bu tweeti ayni stilde ama daha uzun yaz (${targetRange} arasi). Stili koru. Soru ile bitir.\n\nOrijinal: "${currentDraft}"\n\nSadece yeni tweet metnini yaz.`
+          const targetRange = mode === 'thread' ? '80-180' : '60-120'
+          const fixPrompt = t.fixShortPrompt(currentDraft, targetRange, cloneMode && !styleUsesQuestion)
           const fixRes = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
             {
@@ -365,6 +457,7 @@ ${modeInstruction}`
       tone,
       goal,
       cloneMode,
+      detectedLanguage: lang,
       questionRatio: Math.round(questionRatio * 100),
       tweets: results,
       totalGenerated: tweets.length,

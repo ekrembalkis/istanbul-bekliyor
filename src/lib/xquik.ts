@@ -196,7 +196,7 @@ export async function startDeepAnalysis(username: string, opts?: {
       replies: 'exclude',
       retweets: 'exclude',
       minFaves: opts?.minFaves ?? 50,
-      language: opts?.language ?? 'tr',
+      language: opts?.language,
     }
   })
 }
@@ -403,6 +403,7 @@ export async function lookupTweet(tweetIdOrUrl: string): Promise<TweetInfo> {
 // ── Personality DNA ──
 
 export interface PersonalityDNA {
+  language?: string
   identity: {
     archetype: string
     worldview: string
@@ -440,6 +441,7 @@ export interface PersonalityDNA {
   cognitiveFilters?: string[]
   narrativeTechniques?: string[]
   ironyTechniques?: string[]
+  slangPatterns?: string[]
   ironyExamples?: string[]
   contextualBehavior?: {
     whenHappy: string
