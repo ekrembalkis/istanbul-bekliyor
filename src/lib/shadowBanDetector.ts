@@ -15,7 +15,7 @@ async function probeMonitor(username: string): Promise<CheckResult> {
   try {
     // Check existing monitors
     const { monitors } = await listMonitors()
-    const existing = monitors.find(m => m.xUsername === username)
+    const existing = monitors.find(m => m.username === username)
 
     if (existing) {
       // Already monitored = no shadow ban (monitor creation succeeded before)
@@ -38,10 +38,10 @@ async function probeMonitor(username: string): Promise<CheckResult> {
 
       if (msg.includes('monitor_limit_reached')) {
         // Free a non-target monitor, probe, then restore
-        const expendable = monitors.find(m => m.xUsername !== username)
+        const expendable = monitors.find(m => m.username !== username)
         if (expendable) {
           freedMonitorId = expendable.id
-          const savedUsername = expendable.xUsername
+          const savedUsername = expendable.username
           await deleteMonitor(expendable.id)
 
           try {

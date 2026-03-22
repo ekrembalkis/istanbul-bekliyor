@@ -246,7 +246,7 @@ export default function StyleClone() {
       listStyles().then(res => setStyles(res.styles || [])).catch(() => {})
 
       // 6. Auto-setup monitor if not exists
-      const hasMonitor = monitors.some(m => m.xUsername === clean)
+      const hasMonitor = monitors.some(m => m.username === clean)
       if (!hasMonitor) {
         setDeepProgress('Canlı takip (monitor) ayarlanıyor...')
         try {
@@ -304,7 +304,7 @@ export default function StyleClone() {
 
   // ── Toggle monitor for a username ──
   const toggleMonitor = async (uname: string) => {
-    const existing = monitors.find(m => m.xUsername === uname)
+    const existing = monitors.find(m => m.username === uname)
     if (existing) {
       try {
         await deleteMonitor(existing.id)
@@ -769,13 +769,13 @@ export default function StyleClone() {
                           <button
                             onClick={e => { e.stopPropagation(); toggleMonitor(style.xUsername) }}
                             className={`btn text-[10px] py-1 px-2 ${
-                              monitors.some(m => m.xUsername === style.xUsername)
+                              monitors.some(m => m.username === style.xUsername)
                                 ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10'
                                 : 'text-slate-400'
                             }`}
-                            title={monitors.some(m => m.xUsername === style.xUsername) ? 'Canlı takip aktif' : 'Canlı takibi aç'}
+                            title={monitors.some(m => m.username === style.xUsername) ? 'Canlı takip aktif' : 'Canlı takibi aç'}
                           >
-                            {monitors.some(m => m.xUsername === style.xUsername) ? 'CANLI' : 'Takip'}
+                            {monitors.some(m => m.username === style.xUsername) ? 'CANLI' : 'Takip'}
                           </button>
                         )}
                         <button

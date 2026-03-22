@@ -243,7 +243,8 @@ export async function saveCuratedStyle(username: string, tweets: ExtractionTweet
 
 export interface Monitor {
   id: string
-  xUsername: string
+  username: string
+  xUsername?: string
   eventTypes: string[]
   isActive: boolean
   createdAt: string
