@@ -485,6 +485,74 @@ export async function getAccount(): Promise<XquikAccount> {
   return api<XquikAccount>('/account')
 }
 
+// ── X Account Connection ──
+
+export interface XAccount {
+  id: string
+  xUserId: string
+  xUsername: string
+  status: string
+  createdAt?: string
+}
+
+/** List connected X accounts */
+export async function getConnectedAccounts(): Promise<{ accounts: XAccount[] }> {
+  return api<{ accounts: XAccount[] }>('/x/accounts')
+}
+
+/** Connect an X account */
+export async function connectXAccount(opts: {
+  username: string
+  email: string
+  password: string
+  totp_secret?: string
+}): Promise<XAccount> {
+  return api<XAccount>('/x/accounts', {
+    method: 'POST',
+    body: {
+      username: opts.username.replace('@', ''),
+      email: opts.email,
+      password: opts.password,
+      ...(opts.totp_secret ? { totp_secret: opts.totp_secret } : {}),
+    }
+  })
+}
+
+/** Disconnect an X account */
+export async function disconnectXAccount(id: string): Promise<void> {
+  await api(`/x/accounts/${id}`, { method: 'DELETE' })
+}
+
+// ── Tweet Publishing ──
+
+export interface PublishResult {
+  tweetId: string
+  success: boolean
+}
+
+/** Publish a tweet to X */
+export async function publishTweet(account: string, text: string, opts?: {
+  reply_to_tweet_id?: string
+  media_ids?: string[]
+}): Promise<PublishResult> {
+  return api<PublishResult>('/x/tweets', {
+    method: 'POST',
+    body: {
+      account: account.replace('@', ''),
+      text,
+      ...opts,
+    }
+  })
+}
+
+/** Delete a published tweet */
+export async function deletePublishedTweet(tweetId: string, account: string): Promise<void> {
+  await api(`/x/tweets/${tweetId}`, {
+    method: 'DELETE',
+    body: { account: account.replace('@', '') }
+  })
+}
+
 // ── Helpers ──
 
 /** Validate X username format: 1-15 chars, only [A-Za-z0-9_] */

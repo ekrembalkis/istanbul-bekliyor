@@ -7,8 +7,9 @@ import {
   startDeepAnalysis, getExtractionJob, getAllExtractionResults, saveCuratedStyle,
   createMonitor, listMonitors, deleteMonitor, createWebhook, listWebhooks,
   generateTweet, getRadarTopics, lookupTweet, analyzePersonality,
+  getConnectedAccounts, publishTweet,
 } from '../lib/xquik'
-import type { StyleProfile, XUser, Draft, ScoreResult, ComposeRefineResult, Monitor, GeneratedTweet, PersonalityDNA } from '../lib/xquik'
+import type { StyleProfile, XUser, Draft, ScoreResult, ComposeRefineResult, Monitor, GeneratedTweet, PersonalityDNA, XAccount } from '../lib/xquik'
 import { getLibrary, saveEntry, togglePin, incrementGenerated, addTopic, CATEGORIES } from '../lib/styleLibrary'
 import type { StyleLibraryEntry } from '../lib/styleLibrary'
 import { getTopicSuggestions, TOPIC_CATEGORIES } from '../lib/topicSuggestor'
@@ -88,6 +89,27 @@ export default function StyleClone() {
   // ── Drafts ──
   const [drafts, setDrafts] = useState<Draft[]>([])
 
+  // ── X Publishing ──
+  const [xAccounts, setXAccounts] = useState<XAccount[]>([])
+  const [publishing, setPublishing] = useState<number | null>(null)
+  const [publishSuccess, setPublishSuccess] = useState<Record<number, string>>({})
+  const [publishError, setPublishError] = useState('')
+
+  const handlePublish = async (tweetText: string, index: number) => {
+    if (xAccounts.length === 0) { setPublishError('Hesap bağlı değil. Ayarlar → Hesap Bağla'); return }
+    if (!confirm(`Bu tweet X'e gönderilecek:\n\n"${tweetText.substring(0, 100)}..."\n\nOnayla?`)) return
+    setPublishing(index)
+    setPublishError('')
+    try {
+      const account = xAccounts[0].xUsername
+      const result = await publishTweet(account, tweetText)
+      setPublishSuccess(prev => ({ ...prev, [index]: result.tweetId }))
+    } catch (e: any) {
+      setPublishError(e.message || 'Paylaşım başarısız')
+    }
+    setPublishing(null)
+  }
+
   // Load styles, drafts, monitors, and library on mount
   useEffect(() => {
     setDrafts(getSavedDrafts())
@@ -104,6 +126,7 @@ export default function StyleClone() {
         })
       }).catch(() => {})
       listMonitors().then(res => setMonitors(res.monitors || [])).catch(() => {})
+      getConnectedAccounts().then(res => setXAccounts(res.accounts || [])).catch(() => {})
     }
   }, [])
 
@@ -1159,6 +1182,11 @@ export default function StyleClone() {
             )}
 
             {/* Generated Tweets */}
+            {publishError && (
+              <div className="bg-red-50 dark:bg-red-500/10 rounded-xl p-3 border border-red-200 dark:border-red-500/20">
+                <div className="text-xs text-red-600 dark:text-red-400">{publishError}</div>
+              </div>
+            )}
             {generatedTweets.length > 0 && (
               <div className="card p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -1243,6 +1271,20 @@ export default function StyleClone() {
                             </div>
                             <div className="flex items-center gap-1.5">
                               <CopyBtn text={gt.tweet} />
+                              {xAccounts.length > 0 && !publishSuccess[i] && (
+                                <button
+                                  onClick={() => handlePublish(gt.tweet, i)}
+                                  disabled={publishing === i}
+                                  className="text-[10px] px-2 py-1 rounded-md border border-blue-200 dark:border-blue-500/20 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all disabled:opacity-50"
+                                >
+                                  {publishing === i ? 'Gönderiliyor...' : 'Paylaş'}
+                                </button>
+                              )}
+                              {publishSuccess[i] && (
+                                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
+                                  Paylaşıldı
+                                </span>
+                              )}
                             </div>
                           </div>
                           {hasStyleOverride && (

@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { getDayCount } from '../lib/utils'
 import { DAY_PLANS } from '../data/campaign'
 import { CopyBtn } from '../components/CopyBtn'
-import { getAccount } from '../lib/xquik'
-import type { XquikAccount } from '../lib/xquik'
+import { getAccount, getConnectedAccounts, connectXAccount, disconnectXAccount } from '../lib/xquik'
+import type { XquikAccount, XAccount } from '../lib/xquik'
 import { getCostSummary, calculateGeminiCost, resetCostTracker } from '../lib/costTracker'
 import type { GeminiUsage } from '../lib/costTracker'
 import { fetchAlgorithmData, isConfirmedSignal } from '../lib/algorithmData'
@@ -66,6 +66,52 @@ export default function Settings() {
   const [algoData, setAlgoData] = useState<AlgorithmData | null>(null)
   const [algoLoading, setAlgoLoading] = useState(true)
 
+  // ── X Account Connection ──
+  const [xAccounts, setXAccounts] = useState<XAccount[]>([])
+  const [xLoading, setXLoading] = useState(true)
+  const [xError, setXError] = useState('')
+  const [showConnect, setShowConnect] = useState(false)
+  const [connectForm, setConnectForm] = useState({ username: '', email: '', password: '', totp: '' })
+  const [connecting, setConnecting] = useState(false)
+
+  const loadXAccounts = () => {
+    setXLoading(true)
+    getConnectedAccounts()
+      .then(res => setXAccounts(res.accounts || []))
+      .catch(e => setXError(e.message))
+      .finally(() => setXLoading(false))
+  }
+
+  const handleConnect = async () => {
+    if (!connectForm.username || !connectForm.email || !connectForm.password) return
+    setConnecting(true)
+    setXError('')
+    try {
+      await connectXAccount({
+        username: connectForm.username,
+        email: connectForm.email,
+        password: connectForm.password,
+        totp_secret: connectForm.totp || undefined,
+      })
+      setConnectForm({ username: '', email: '', password: '', totp: '' })
+      setShowConnect(false)
+      loadXAccounts()
+    } catch (e: any) {
+      setXError(e.message || 'Bağlantı başarısız')
+    }
+    setConnecting(false)
+  }
+
+  const handleDisconnect = async (id: string, username: string) => {
+    if (!confirm(`@${username} hesabının bağlantısını kes?`)) return
+    try {
+      await disconnectXAccount(id)
+      loadXAccounts()
+    } catch (e: any) {
+      setXError(e.message)
+    }
+  }
+
   useEffect(() => {
     getAccount()
       .then(setAccount)
@@ -74,6 +120,7 @@ export default function Settings() {
     fetchAlgorithmData()
       .then(setAlgoData)
       .finally(() => setAlgoLoading(false))
+    loadXAccounts()
   }, [])
 
   useEffect(() => {
@@ -218,6 +265,100 @@ export default function Settings() {
                   </div>
                 )
               })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ═══════════ X ACCOUNT CONNECTION ═══════════ */}
+      <div className="card p-6">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-sm font-bold text-slate-500 dark:text-slate-400 tracking-wider">X HESAP BAĞLANTISI</h2>
+          <button
+            onClick={() => setShowConnect(!showConnect)}
+            className="text-[10px] px-3 py-1.5 rounded-lg border border-brand-red/20 text-brand-red hover:bg-brand-red/10 font-bold transition-all"
+          >
+            {showConnect ? 'Kapat' : 'Hesap Bağla'}
+          </button>
+        </div>
+
+        {xError && (
+          <div className="bg-red-50 dark:bg-red-500/10 rounded-xl p-3 border border-red-200 dark:border-red-500/20 mb-4">
+            <div className="text-xs text-red-600 dark:text-red-400">{xError}</div>
+          </div>
+        )}
+
+        {/* Connected accounts list */}
+        {xLoading ? (
+          <div className="text-xs text-slate-400 animate-pulse">Yükleniyor...</div>
+        ) : xAccounts.length === 0 ? (
+          <div className="bg-slate-50 dark:bg-white/[0.03] rounded-xl p-6 border border-slate-100 dark:border-white/[0.06] text-center">
+            <div className="text-sm text-slate-400">Bağlı hesap yok</div>
+            <div className="text-[10px] text-slate-400 mt-1">Tweet paylaşmak için bir X hesabı bağlayın</div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {xAccounts.map(acc => (
+              <div key={acc.id} className="flex items-center justify-between bg-slate-50 dark:bg-white/[0.03] rounded-xl p-4 border border-slate-100 dark:border-white/[0.06]">
+                <div className="flex items-center gap-3">
+                  <span className={`w-2.5 h-2.5 rounded-full ${acc.status === 'active' || acc.status === 'connected' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                  <div>
+                    <div className="text-sm font-bold text-slate-700 dark:text-slate-200">@{acc.xUsername}</div>
+                    <div className="text-[10px] text-slate-400">{acc.status}</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleDisconnect(acc.id, acc.xUsername)}
+                  className="text-[10px] text-slate-400 hover:text-red-500 transition-colors"
+                >
+                  Bağlantıyı Kes
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Connect form */}
+        {showConnect && (
+          <div className="mt-4 bg-slate-50 dark:bg-white/[0.03] rounded-xl p-4 border border-slate-100 dark:border-white/[0.06] space-y-3">
+            <div className="text-[10px] font-bold text-slate-400 tracking-wider">YENİ HESAP BAĞLA</div>
+            <input
+              type="text"
+              placeholder="X kullanıcı adı (@ olmadan)"
+              value={connectForm.username}
+              onChange={e => setConnectForm(f => ({ ...f, username: e.target.value }))}
+              className="w-full input-field px-3 py-2 text-sm"
+            />
+            <input
+              type="email"
+              placeholder="E-posta"
+              value={connectForm.email}
+              onChange={e => setConnectForm(f => ({ ...f, email: e.target.value }))}
+              className="w-full input-field px-3 py-2 text-sm"
+            />
+            <input
+              type="password"
+              placeholder="Şifre"
+              value={connectForm.password}
+              onChange={e => setConnectForm(f => ({ ...f, password: e.target.value }))}
+              className="w-full input-field px-3 py-2 text-sm"
+            />
+            <input
+              type="text"
+              placeholder="2FA TOTP Secret (opsiyonel)"
+              value={connectForm.totp}
+              onChange={e => setConnectForm(f => ({ ...f, totp: e.target.value }))}
+              className="w-full input-field px-3 py-2 text-sm"
+            />
+            <button
+              onClick={handleConnect}
+              disabled={connecting || !connectForm.username || !connectForm.email || !connectForm.password}
+              className="btn btn-primary w-full justify-center disabled:opacity-50 text-xs"
+            >
+              {connecting ? 'Bağlanıyor...' : 'Hesabı Bağla'}
+            </button>
+            <div className="text-[10px] text-slate-400">
+              Bilgiler Xquik API'ye gönderilir. Şifreler bu panelde saklanmaz.
             </div>
           </div>
         )}
