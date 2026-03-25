@@ -7,6 +7,7 @@ const navItems = [
   { to: '/', label: 'Panel' },
   { to: '/planner', label: 'Planla' },
   { to: '/calendar', label: 'Takvim' },
+  { to: '/preview', label: 'Onizleme' },
   { to: '/archive', label: 'Arşiv' },
   { to: '/style', label: 'Üret' },
   { to: '/shadow-check', label: 'Shadow Ban' },
