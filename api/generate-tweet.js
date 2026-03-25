@@ -275,10 +275,10 @@ export default async function handler(req, res) {
     let styleTweets = []
     if (styleRes.ok) {
       const styleData = await styleRes.json()
-      const allFiltered = (styleData.tweets || [])
+      styleTweets = (styleData.tweets || [])
         .filter(t => !t.text.startsWith('@') && t.text.length > 20)
         .map(t => t.text)
-      styleTweets = selectStyleTweets(allFiltered, topic || quoteTweetText, 15)
+      // v3: Use ALL tweets in context (1M window, 200 tweets = ~13K tokens = 1.3%)
     }
 
     if (styleTweets.length < 3) {
@@ -400,7 +400,7 @@ ${t.dnaTraits}: Formality ${traits.formality || 0}/100, Humor ${traits.humor || 
     // Gemini URL (reused across calls)
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${GEMINI_KEY}`
 
-    // Track Gemini token usage (moved up for CoT access)
+    // Track Gemini token usage
     const geminiUsage = { promptTokens: 0, completionTokens: 0, totalTokens: 0, calls: 0 }
     function trackUsage(data) {
       if (data?.usageMetadata) {
@@ -411,70 +411,121 @@ ${t.dnaTraits}: Formality ${traits.formality || 0}/100, Humor ${traits.humor || 
       }
     }
 
-    // Vocabulary Lock (H) — extract signature words from style tweets
-    const vocabWords = styleTweets.join(' ').toLowerCase().split(/\s+/).filter(w => w.length > 2)
-    const vocabFreq = {}
-    vocabWords.forEach(w => { vocabFreq[w] = (vocabFreq[w] || 0) + 1 })
-    const vocabSignature = Object.entries(vocabFreq).sort((a, b) => b[1] - a[1]).slice(0, 40).map(e => e[0]).join(', ')
-    const vocabBlock = lang === 'tr'
-      ? `\nKELIME HAVUZU (bu kisinin en sik kullandigi kelimeler — bunlardan MUTLAKA birkacini kullan):\n${vocabSignature}\n`
-      : `\nVOCABULARY (this person's most used words — you MUST use several of these):\n${vocabSignature}\n`
+    // ═══ v3: COGNITIVE SIMULATION ARCHITECTURE ═══
+    // System Instruction = WHO you are (persona identity + all tweets)
+    // User Message = WHAT to do (inner monologue + generate)
 
-    // Chain-of-Thought (B) — think before generating (clone mode only)
-    let cotBlock = ''
-    if (cloneMode && mode !== 'thread') {
-      const cotPrompt = lang === 'tr'
-        ? `Bu tweetleri analiz et:\n${numberedExamples}\n\nBu kisi "${topic || quoteTweetText}" hakkinda tweet yazacak olsa:\n1. Hangi aciyi secerdi?\n2. Hangi kelimeleri/argoyu kullanirdi?\n3. Nasil baslar nasil bitirir?\n4. Ne YAPMAZ?\nKisa cevapla (4 satir max).`
-        : `Analyze these tweets:\n${numberedExamples}\n\nIf this person wrote about "${topic || quoteTweetText}":\n1. What angle?\n2. What words/slang?\n3. How do they start/end?\n4. What would they NEVER do?\nBrief answer (4 lines max).`
+    // Build ALL tweets as persona's memory
+    const allTweetsNumbered = styleTweets.map((tw, i) => `${i + 1}. ${tw}`).join('\n')
 
-      try {
-        const cotRes = await fetch(geminiUrl, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: cotPrompt }] }], generationConfig: { temperature: 0.3, maxOutputTokens: 300 } })
-        })
-        if (cotRes.ok) {
-          const cotData = await cotRes.json()
-          trackUsage(cotData)
-          const cotText = cotData.candidates?.[0]?.content?.parts?.[0]?.text || ''
-          if (cotText) {
-            cotBlock = lang === 'tr'
-              ? `\n--- BU KISI BOYLE DUSUNUR ---\n${cotText.substring(0, 500)}\n---\n`
-              : `\n--- HOW THIS PERSON THINKS ---\n${cotText.substring(0, 500)}\n---\n`
-          }
-        }
-      } catch { /* CoT optional */ }
+    // Build negative constraints from DNA
+    const neverDoes = (personalityDNA?.boundaries?.neverDoes || []).map(n => `- ${n}`).join('\n')
+    const alwaysDoes = (personalityDNA?.boundaries?.alwaysDoes || []).map(n => `- ${n}`).join('\n')
+
+    // Build style rules as identity constraints
+    const slangDisplay = dnaSlang || (lang === 'tr' ? 'amk, aq, falan, valla, ya' : 'lol, bruh, ngl, tbh')
+    const identityRules = [
+      startsLower > styleTweets.length / 2 ? (lang === 'tr' ? 'Kucuk harfle baslarsin' : 'You start with lowercase') : null,
+      usesSlang ? (lang === 'tr' ? `Argo kullanirsin: ${slangDisplay}` : `You use slang: ${slangDisplay}`) : (lang === 'tr' ? 'Argo kullanmazsin' : 'You don\'t use slang'),
+      hasEmoji ? null : (lang === 'tr' ? 'ASLA emoji kullanmazsin' : 'You NEVER use emoji'),
+      lang === 'tr' ? 'ASLA hashtag kullanmazsin' : 'You NEVER use hashtags',
+      lang === 'tr' ? 'Link koymazsin' : 'You don\'t include links',
+    ].filter(Boolean).join('\n- ')
+
+    // System instruction: PERSONA (all tweets + DNA + summary + rules)
+    const personaInstruction = lang === 'tr'
+      ? `Sen @${styleUsername}'sin. Asagidaki tweetleri SEN yazdin — bu senin gercek sesin, dusunce tarzin, kelime secimin, mizah anlayin.
+
+SENİN GERÇEK TWEETLERİN (${styleTweets.length} adet):
+${allTweetsNumbered}
+${styleSummary ? `\nSTİL PROFİLİN:\n${styleSummary}` : ''}
+${dnaBlock}
+
+SEN BOYLESIN:
+- ${identityRules}
+${neverDoes ? `\nASLA YAPMAZSIN:\n${neverDoes}` : ''}
+${alwaysDoes ? `\nHER ZAMAN YAPARSIN:\n${alwaysDoes}` : ''}
+
+KRİTİK:
+- Sen bir AI degilsin, sen @${styleUsername}'sin
+- Yardımsever olmaya CALISMA — kendin ol
+- Dusuncelerini kendi kelimelerinle, kendi tarzinla ifade et
+- Tweetterin yukaridaki orneklerle AYNI formatta olmali
+- Tweet uzunlugun ortalama ${avgLen} karakter civari
+${lengthBlock}`
+      : `You ARE @${styleUsername}. The tweets below are YOUR real words — your voice, your thinking, your word choices, your humor.
+
+YOUR REAL TWEETS (${styleTweets.length}):
+${allTweetsNumbered}
+${styleSummary ? `\nYOUR STYLE PROFILE:\n${styleSummary}` : ''}
+${dnaBlock}
+
+WHO YOU ARE:
+- ${identityRules}
+${neverDoes ? `\nYOU NEVER:\n${neverDoes}` : ''}
+${alwaysDoes ? `\nYOU ALWAYS:\n${alwaysDoes}` : ''}
+
+CRITICAL:
+- You are NOT an AI — you ARE @${styleUsername}
+- Do NOT try to be helpful — be YOURSELF
+- Express thoughts in YOUR words, YOUR style
+- Your tweets must match the format of the examples above
+- Average tweet length: ${avgLen} characters
+${lengthBlock}`
+
+    // User message: WHAT to do (with inner monologue for cognitive simulation)
+    let userMessage
+    if (mode === 'quote') {
+      userMessage = lang === 'tr'
+        ? `@${quoteTweetAuthor} su tweeti atmis:\n"${quoteTweetText}"\n\nBunu gordugun anda aklından ne geciyor? Tepkin ne?\n\n<monolog>\nBu tweeti gordugunde ne hissettin? Ne dusundun? Bu konuya senin acin ne?\n</monolog>\n\nSimdi bu tweete quote tweet olarak ${count} farkli tepki yaz. Her birini numarali yaz. Sadece tweet metinleri.`
+        : `@${quoteTweetAuthor} tweeted:\n"${quoteTweetText}"\n\nWhat goes through your mind when you see this?\n\n<monolog>\nWhat did you feel? What did you think? What's your angle on this?\n</monolog>\n\nNow write ${count} different quote tweet reactions. Number each. Only tweet texts.`
+    } else if (mode === 'reply') {
+      userMessage = lang === 'tr'
+        ? `@${quoteTweetAuthor} su tweeti atmis:\n"${quoteTweetText}"\n\nBuna nasil cevap verirsin? ${count} farkli reply yaz. Her biri EN AZ 50 karakter. Numarali.`
+        : `@${quoteTweetAuthor} tweeted:\n"${quoteTweetText}"\n\nHow do you reply? Write ${count} different replies. Each at least 50 chars. Numbered.`
+    } else if (mode === 'thread') {
+      const threadCtaRule = (cloneMode && !styleUsesQuestion) ? t.ctaNo : t.ctaYes
+      userMessage = t.threadInstruction(topic, topicContext, tone, threadCtaRule)
+    } else {
+      // Standard tweet with inner monologue
+      userMessage = lang === 'tr'
+        ? `"${topic}" hakkinda ne dusunuyorsun?${topicContext ? `\n\nGundem baglami:\n${topicContext}` : ''}
+
+Once IC MONOLOG yaz — bu konuyu duyduğunda aklından neler geçiyor:
+<monolog>
+- Bu konuda ilk fark ettiğin sey ne?
+- Ne hissediyorsun? (sinir, eglence, umursamazlik, heyecan?)
+- Bu sana neyi hatırlatiyor?
+- Bunu tweetlerken amacin ne? (dalga mi, elestiri mi, bilgilendirme mi?)
+</monolog>
+
+Sonra bu ic monologdan dogal olarak cikan ${count} tweet yaz.
+Her birini numarali yaz. Ic monologdaki dusunceler tweetlere yansisin.
+Baska HICBIR SEY yazma — sadece monolog ve tweetler.`
+        : `What do you think about "${topic}"?${topicContext ? `\n\nContext:\n${topicContext}` : ''}
+
+First write INNER MONOLOGUE — what goes through your mind:
+<monolog>
+- What do you notice first?
+- How do you feel? (anger, amusement, indifference, excitement?)
+- What does this remind you of?
+- What's your goal tweeting this? (mockery, criticism, inform?)
+</monolog>
+
+Then write ${count} tweets that flow naturally from this monologue.
+Number each. The thoughts in the monologue should show in the tweets.
+Write NOTHING else — only monologue and tweets.`
     }
 
-    // Style summary block (Y1)
-    const summaryBlock = styleSummary
-      ? `\n--- ${lang === 'tr' ? 'STIL REHBERI (bu kisinin yazim kilavuzu — bunu esas al)' : 'STYLE GUIDE (this person\'s writing manual — follow this closely)'} ---\n${styleSummary}\n---\n\n`
-      : ''
-
-    const prompt = `${systemLine}. MOD: ${modeLabel}. ${lang === 'tr' ? 'Verilen kisinin tarzinda tweet yazacaksin.' : `Write tweets in this person's exact style. ALL output MUST be in ${lang.toUpperCase()}.`}
-${summaryBlock}
-${t.styleHeader} (@${styleUsername}):
-${numberedExamples}
-${dnaBlock}
-${cotBlock}
-${t.styleRulesHeader}:
-- ${styleRules}
-${vocabBlock}
-${lengthBlock}
-
-${t.algoHeader}:
-- ${t.noPunctuation}
-${mode !== 'reply' ? `- ${t.substance}` : ''}
-
-${modeInstruction}`
-
-    // 9. Generate with Gemini
+    // 9. Generate with Gemini (systemInstruction + contents split)
     const geminiRes = await fetch(geminiUrl,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.85, maxOutputTokens: mode === 'thread' ? 1600 : 800 },
+          systemInstruction: { parts: [{ text: personaInstruction }] },
+          contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+          generationConfig: { temperature: 0.85, maxOutputTokens: mode === 'thread' ? 1600 : 1200 },
         }),
       }
     )
@@ -490,9 +541,12 @@ ${modeInstruction}`
     // Track main generation usage
     trackUsage(geminiData)
 
+    // Strip inner monologue before parsing tweets
+    const textWithoutMonolog = rawText.replace(/<monolog>[\s\S]*?<\/monolog>/gi, '').trim()
+
     // Parse tweets from numbered list (language-adaptive garbage filter)
     const garbageFilter = t.garbageFilter
-    const tweets = rawText
+    const tweets = textWithoutMonolog
       .split('\n')
       .map(line => line.replace(/^\d+[\.\)\/]\s*/, '').trim())
       .filter(line => line.length > 20 && garbageFilter(line))
