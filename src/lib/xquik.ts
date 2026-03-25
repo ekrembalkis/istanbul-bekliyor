@@ -320,6 +320,9 @@ export interface GenerateResult {
   goal: string
   tweets: GeneratedTweet[]
   geminiUsage?: { promptTokens: number; completionTokens: number; totalTokens: number; calls: number }
+  dataQuality?: 'high' | 'medium' | 'low'
+  tweetCount?: number
+  warnings?: string[]
 }
 
 /** Generate tweets in a given style using Gemini + score loop */

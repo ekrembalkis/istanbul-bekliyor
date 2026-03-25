@@ -17,6 +17,9 @@ export interface StyleLibraryEntry {
   fingerprint?: StyleFingerprint
   tweetsSinceSummary?: number
   tweetsSinceDNA?: number
+  extractedTweetCount?: number
+  dataQuality?: 'high' | 'medium' | 'low'
+  topicCoverage?: Record<string, number>
 }
 
 const LIBRARY_KEY = 'ib_style_library'

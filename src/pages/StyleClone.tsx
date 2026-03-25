@@ -45,6 +45,7 @@ export default function StyleClone() {
   // ── Auto Generation ──
   const [generating, setGenerating] = useState(false)
   const [generatedTweets, setGeneratedTweets] = useState<GeneratedTweet[]>([])
+  const [generateWarnings, setGenerateWarnings] = useState<string[]>([])
 
   // ── Topic Suggestions ──
   const [topicSuggestions, setTopicSuggestions] = useState<TopicSuggestion[]>([])
@@ -165,6 +166,7 @@ export default function StyleClone() {
         fingerprint: styleEntry?.fingerprint,
       })
       setGeneratedTweets(result.tweets)
+      setGenerateWarnings(result.warnings || [])
       if (result.geminiUsage) trackGeminiUsage(result.geminiUsage)
       incrementGenerated(composeStyle)
       addTopic(composeStyle, top.title)
@@ -213,37 +215,75 @@ export default function StyleClone() {
       setUserCache(prev => ({ ...prev, [clean]: user }))
     } catch { /* user info optional */ }
 
-    // 2. Start extraction job
+    // 2. Start extraction job — adaptive minFaves (try high first, fallback to lower)
     setDeepProgress('Derin analiz başlatılıyor (en iyi tweetler çekilecek)...')
     try {
-      const job = await startDeepAnalysis(clean, { minFaves: 50, resultsLimit: 200 })
-      setDeepProgress(`Extraction çalışıyor (job: ${job.id})...`)
+      let allTweets: Awaited<ReturnType<typeof getAllExtractionResults>> = []
+      let extractionMinFaves = 50
 
-      // 3. Poll until complete
-      let status = 'running'
-      let attempts = 0
-      while (status === 'running' && attempts < 30) {
-        await new Promise(r => setTimeout(r, 2000))
-        const check = await getExtractionJob(job.id)
-        status = check.job.status
-        if (status === 'completed') {
-          setDeepProgress(`${check.job.totalResults} tweet bulundu, filtreleniyor…`)
-        } else if (status === 'failed') {
-          throw new Error('Extraction başarısız oldu')
+      // Adaptive extraction: try minFaves 50 → 10 → 0 if too few results
+      for (const minFaves of [50, 10, 0]) {
+        extractionMinFaves = minFaves
+        const job = await startDeepAnalysis(clean, { minFaves, resultsLimit: 200 })
+        setDeepProgress(`Extraction çalışıyor (minFaves: ${minFaves})...`)
+
+        let status = 'running'
+        let attempts = 0
+        while (status === 'running' && attempts < 30) {
+          await new Promise(r => setTimeout(r, 2000))
+          const check = await getExtractionJob(job.id)
+          status = check.job.status
+          if (status === 'completed') {
+            setDeepProgress(`${check.job.totalResults} tweet bulundu (minFaves: ${minFaves})…`)
+          } else if (status === 'failed') {
+            break
+          }
+          attempts++
         }
-        attempts++
+
+        if (status === 'completed') {
+          allTweets = await getAllExtractionResults(job.id)
+          if (allTweets.length >= 20) break // enough data, stop
+          if (minFaves === 0) break // lowest tier, accept whatever we got
+          setDeepProgress(`Sadece ${allTweets.length} tweet bulundu, daha düşük eşikle deneniyor…`)
+        }
       }
 
-      if (status !== 'completed') throw new Error('Extraction zaman aşımına uğradı')
+      if (allTweets.length === 0) throw new Error('Hiç tweet bulunamadı')
 
       // 4. Get all results and save as curated style
-      const allTweets = await getAllExtractionResults(job.id)
       const filtered = allTweets.filter(t => !t.tweetText.startsWith('@') && t.tweetText.length > 30)
-      setDeepProgress(`${filtered.length} kaliteli tweet filtrelendi, stil kaydediliyor…`)
+      const dataQuality = filtered.length >= 50 ? 'high' : filtered.length >= 20 ? 'medium' : 'low'
+      setDeepProgress(`${filtered.length} tweet filtrelendi (kalite: ${dataQuality === 'high' ? 'yüksek' : dataQuality === 'medium' ? 'orta' : 'düşük'})…`)
 
       const style = await saveCuratedStyle(clean, allTweets)
       setCurrentStyle(style)
       ensureLibraryEntry(clean)
+
+      // Save data quality metadata to library
+      const libEntry = getLibrary().find(e => e.username === clean)
+      if (libEntry) {
+        libEntry.extractedTweetCount = filtered.length
+        libEntry.dataQuality = dataQuality
+        // Detect topic coverage from tweets
+        const topicCounts: Record<string, number> = {}
+        const catRegex: Record<string, RegExp> = {
+          siyaset: /bakan|meclis|chp\b|akp\b|seçim|mahkeme|hükümet|muhalefet|erdoğan|imamoğlu|belediye/i,
+          spor: /galatasaray|fenerbah|beşiktaş|maç\b|gol\b|futbol|hakem|derbi/i,
+          ekonomi: /dolar|euro|borsa|enflasyon|faiz|ekonomi|zam\b|maaş/i,
+          teknoloji: /yapay zeka|teknoloji|yazılım|ai\b|dijital|startup/i,
+          kultur: /film\b|dizi\b|müzik|kitap|sinema|sanat|netflix/i,
+        }
+        for (const t of filtered) {
+          const text = t.tweetText?.toLowerCase() || ''
+          for (const [cat, rx] of Object.entries(catRegex)) {
+            if (rx.test(text)) topicCounts[cat] = (topicCounts[cat] || 0) + 1
+          }
+        }
+        libEntry.topicCoverage = topicCounts
+        saveEntry(libEntry)
+        setLibrary(getLibrary())
+      }
 
       // 5. Refresh styles list
       listStyles().then(res => setStyles(res.styles || [])).catch(() => {})
@@ -410,6 +450,7 @@ export default function StyleClone() {
         fingerprint: styleEntry?.fingerprint,
       })
       setGeneratedTweets(result.tweets)
+      setGenerateWarnings(result.warnings || [])
       if (result.geminiUsage) trackGeminiUsage(result.geminiUsage)
       incrementGenerated(composeStyle)
       addTopic(composeStyle, composeTopic)
@@ -1318,6 +1359,17 @@ export default function StyleClone() {
                 {composeMode === 'thread' && (
                   <div className="text-[10px] text-slate-400 mb-3 flex items-center gap-1.5">
                     <span>↳</span> Her tweet öncekine reply olarak atılır (self-reply zinciri)
+                  </div>
+                )}
+
+                {generateWarnings.length > 0 && (
+                  <div className="mb-3 space-y-1.5">
+                    {generateWarnings.map((w, i) => (
+                      <div key={i} className="flex items-start gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[11px]">
+                        <span className="mt-0.5 shrink-0">&#9888;</span>
+                        <span>{w}</span>
+                      </div>
+                    ))}
                   </div>
                 )}
 

@@ -285,6 +285,27 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Not enough style data. Analyze the profile first.' })
     }
 
+    // Data quality assessment
+    const dataQuality = styleTweets.length >= 50 ? 'high' : styleTweets.length >= 20 ? 'medium' : 'low'
+    const warnings = []
+
+    if (dataQuality === 'low') {
+      warnings.push(`Düşük veri: sadece ${styleTweets.length} tweet. Stil taklidi sınırlı olacak.`)
+    }
+
+    // Topic relevance check — does this person talk about the requested topic?
+    const topicText = (topic || quoteTweetText || '').toLowerCase()
+    if (topicText) {
+      const topicInTweets = styleTweets.filter(tw => {
+        const lower = tw.toLowerCase()
+        return topicText.split(/\s+/).filter(w => w.length > 3).some(w => lower.includes(w))
+      }).length
+      const topicRelevance = topicInTweets / styleTweets.length
+      if (topicRelevance < 0.05 && styleTweets.length > 10) {
+        warnings.push(`Konu uyumsuzluğu: bu kişi "${topic || quoteTweetText}" hakkında neredeyse hiç tweet atmamış. Sonuçlar daha az doğru olabilir.`)
+      }
+    }
+
     // 2. Detect language: DNA > heuristic
     const lang = personalityDNA?.language || detectLanguage(styleTweets)
     const t = T[lang] || T._default
@@ -452,6 +473,7 @@ KRİTİK:
 - Dusuncelerini kendi kelimelerinle, kendi tarzinla ifade et
 - Tweetterin yukaridaki orneklerle AYNI formatta olmali
 - Tweet uzunlugun ortalama ${avgLen} karakter civari
+${dataQuality === 'low' ? `\nUYARI: Sadece ${styleTweets.length} tweet var. Yukaridaki orneklere COKK SIKI baglan, kendi tarzindan sapma.` : ''}
 ${lengthBlock}`
       : `You ARE @${styleUsername}. The tweets below are YOUR real words — your voice, your thinking, your word choices, your humor.
 
@@ -752,6 +774,9 @@ Write NOTHING else — only monologue and tweets.`
       tweets: results,
       totalGenerated: tweets.length,
       geminiUsage,
+      dataQuality,
+      tweetCount: styleTweets.length,
+      warnings,
     })
   } catch (error) {
     console.error('Generate tweet error:', error)
