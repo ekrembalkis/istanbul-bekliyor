@@ -160,6 +160,7 @@ export interface InstagramContent {
   imageText: string
   captionHook: string
   captionBody: string
+  imageSearchQuery: string
 }
 
 export async function generateInstagramContent(item: NewsItem): Promise<InstagramContent> {

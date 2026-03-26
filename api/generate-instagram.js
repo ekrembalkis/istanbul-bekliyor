@@ -111,6 +111,15 @@ OUTPUT 3 — captionBody:
 - Paragrafları \\n\\n ile ayır
 - Son satır: "Kaynak: [kaynak adı]" sonra \\n\\n#İstanbulBekliyor
 
+OUTPUT 4 — imageSearchQuery:
+- Google Görseller'de bu habere en uygun fotoğrafı bulmak için arama terimi
+- Haberdeki kişilerin AD SOYAD'larını kullan (en önemli kısım)
+- Varsa olayın geçtiği YER'i ekle
+- 2-5 kelime, kısa ve doğrudan
+- Örnek: haber "Adalet Bakanı Akın Gürlek, Özgür Özel hakkında suç duyurusu" → "Akın Gürlek Özgür Özel"
+- Örnek: haber "İstanbul'da sel felaketi" → "İstanbul sel"
+- Sadece isim ve anahtar olay kelimesi, gereksiz fiil ve bağlaç KOYMA
+
 ÖNEMLİ: Sadece TEK bir JSON objesi dön, DİZİ DÖNME. Markdown code block KOYMA.`
 
   const userPrompt = `HABER:
@@ -118,7 +127,7 @@ Başlık: ${title}
 Detay: ${description || 'Detay yok'}
 Kaynak: ${source || 'Bilinmiyor'}
 
-Bu haberden Instagram içeriği üret. Tek bir JSON objesi dön: {"imageText":"...","captionHook":"...","captionBody":"..."}`
+Bu haberden Instagram içeriği üret. Tek bir JSON objesi dön: {"imageText":"...","captionHook":"...","captionBody":"...","imageSearchQuery":"..."}`
 
   try {
     const geminiUrl = `${GEMINI_BASE_URL}/${GEMINI_MODEL}:generateContent?key=${apiKey}`
@@ -165,6 +174,7 @@ Bu haberden Instagram içeriği üret. Tek bir JSON objesi dön: {"imageText":".
       imageText: result.imageText,
       captionHook: result.captionHook,
       captionBody: result.captionBody,
+      imageSearchQuery: result.imageSearchQuery || '',
     })
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Unknown error' })

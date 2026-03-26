@@ -98,10 +98,11 @@ export default function HaberServisi() {
     setIgModal({ item, content: null, loading: true, error: '', images: [], imageLoading: false, imageQuery: item.title, selectedImage: null })
     try {
       const content = await generateInstagramContent(item)
-      setIgModal(prev => prev ? { ...prev, content, loading: false } : null)
-      // Auto-search images after content loads
-      setIgModal(prev => prev ? { ...prev, imageLoading: true } : null)
-      const images = await searchImages(item.title)
+      // Use AI-generated search query if available, fallback to title
+      const query = content.imageSearchQuery || item.title
+      setIgModal(prev => prev ? { ...prev, content, loading: false, imageQuery: query, imageLoading: true } : null)
+      // Auto-search images with AI-optimized query
+      const images = await searchImages(query)
       setIgModal(prev => prev ? { ...prev, images, imageLoading: false } : null)
     } catch (err) {
       setIgModal(prev => prev ? { ...prev, loading: false, imageLoading: false, error: err instanceof Error ? err.message : 'Bilinmeyen hata' } : null)
