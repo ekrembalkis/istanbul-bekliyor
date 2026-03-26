@@ -10,6 +10,7 @@ const navItems = [
   { to: '/preview', label: 'Onizleme' },
   { to: '/archive', label: 'Arşiv' },
   { to: '/style', label: 'Üret' },
+  { to: '/haberler', label: 'Haberler' },
   { to: '/shadow-check', label: 'Shadow Ban' },
   { to: '/settings', label: 'Ayarlar' },
 ]

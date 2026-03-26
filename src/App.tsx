@@ -8,6 +8,7 @@ import Settings from './pages/Settings'
 import StyleClone from './pages/StyleClone'
 import ShadowCheck from './pages/ShadowCheck'
 import InstagramPreview from './pages/InstagramPreview'
+import HaberServisi from './pages/HaberServisi'
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/archive" element={<Archive />} />
         <Route path="/preview" element={<InstagramPreview />} />
         <Route path="/style" element={<StyleClone />} />
+        <Route path="/haberler" element={<HaberServisi />} />
         <Route path="/shadow-check" element={<ShadowCheck />} />
         <Route path="/settings" element={<Settings />} />
       </Route>

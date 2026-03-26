@@ -1,8 +1,10 @@
 {
   "functions": {
-    "api/xquik.js": { "maxDuration": 60 }
+    "api/xquik.js": { "maxDuration": 60 },
+    "api/news.js": { "maxDuration": 30 }
   },
   "rewrites": [
+    { "source": "/api/news", "destination": "/api/news" },
     { "source": "/api/xquik", "destination": "/api/xquik" },
     { "source": "/api/image-proxy", "destination": "/api/image-proxy" },
     { "source": "/api/style-webhook", "destination": "/api/style-webhook" },
