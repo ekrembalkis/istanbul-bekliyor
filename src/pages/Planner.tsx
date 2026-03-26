@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { getDayCount, getDateForDay, checkCampaignRules, getScoreColor, getScoreBg } from '../lib/utils'
 import { getDayPlan } from '../data/campaign'
 import { scoreDraft } from '../lib/xquik'
@@ -10,7 +11,18 @@ import { generateNbpPrompt } from '../lib/nbpPromptService'
 export default function Planner() {
   const day = getDayCount()
   const plan = getDayPlan(day)
-  const [tweetText, setTweetText] = useState(plan.tweetTemplate)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // If navigated from Haber Servisi, pre-fill with news content
+  const newsTitle = searchParams.get('newsTitle')
+  const newsContext = searchParams.get('newsContext')
+  const newsUrl = searchParams.get('newsUrl')
+
+  const initialText = newsTitle
+    ? `GÜN ${day}\n\n${newsTitle}\n\n#İstanbulBekliyor`
+    : plan.tweetTemplate
+
+  const [tweetText, setTweetText] = useState(initialText)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [algoResult, setAlgoResult] = useState<ScoreResult | null>(null)
@@ -84,8 +96,32 @@ export default function Planner() {
     setSaving(false)
   }
 
+  // Clear search params after initial load so refresh doesn't re-apply
+  useEffect(() => {
+    if (newsTitle) {
+      setSearchParams({}, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* News context banner */}
+      {newsTitle && (
+        <div className="card p-4 border-l-4 border-l-brand-red bg-brand-red/[0.03]">
+          <div className="text-[10px] font-bold text-brand-red tracking-wider mb-1">HABERDEN TWEET</div>
+          <p className="text-sm font-medium text-slate-700 dark:text-slate-200 leading-snug">{newsTitle}</p>
+          {newsContext && (
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{newsContext}</p>
+          )}
+          {newsUrl && (
+            <a href={newsUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] text-brand-red hover:underline mt-2 inline-block">
+              Habere git
+            </a>
+          )}
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div className="section-header">
           <h1 className="text-2xl font-serif font-bold text-slate-800 dark:text-white">Tweet Planlayici</h1>
