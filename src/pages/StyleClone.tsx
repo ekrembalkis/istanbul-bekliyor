@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { CopyBtn } from '../components/CopyBtn'
 import {
   hasApiKey, analyzeStyle, listStyles, getStyleFromAPI, deleteStyleFromAPI, saveCustomStyle,
@@ -23,7 +24,11 @@ import { scoreDraft } from '../lib/xquik'
 type Tab = 'analyze' | 'compose' | 'drafts'
 
 export default function StyleClone() {
-  const [tab, setTab] = useState<Tab>('analyze')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const newsFromParam = searchParams.get('newsTitle')
+  const newsContext = searchParams.get('newsContext') || ''
+  const newsUrl = searchParams.get('newsUrl') || ''
+  const [tab, setTab] = useState<Tab>(newsFromParam ? 'compose' : 'analyze')
   const apiReady = hasApiKey()
 
   // ── Analyze ──
@@ -49,7 +54,9 @@ export default function StyleClone() {
 
   // ── Topic Suggestions ──
   const [topicSuggestions, setTopicSuggestions] = useState<TopicSuggestion[]>([])
-  const [topicContext, setTopicContext] = useState('')
+  const [topicContext, setTopicContext] = useState(
+    newsFromParam ? `Haber: ${newsFromParam}${newsContext ? '\nDetay: ' + newsContext : ''}${newsUrl ? '\nKaynak: ' + newsUrl : ''}` : ''
+  )
   const [userHint, setUserHint] = useState('')
   const [showHint, setShowHint] = useState(false)
   const [loadingTopics, setLoadingTopics] = useState(false)
@@ -72,7 +79,7 @@ export default function StyleClone() {
   const [showManual, setShowManual] = useState(false)
 
   // ── Compose ──
-  const [composeTopic, setComposeTopic] = useState('')
+  const [composeTopic, setComposeTopic] = useState(newsFromParam || '')
   const [composeStyle, setComposeStyle] = useState('')
   const [composeTone, setComposeTone] = useState('duygusal, umut dolu')
   const [composeGoal, setComposeGoal] = useState('engagement')
@@ -176,6 +183,11 @@ export default function StyleClone() {
     }
     setTrendLoading(false)
   }
+
+  // Clear news params after initial read
+  useEffect(() => {
+    if (newsFromParam) setSearchParams({}, { replace: true })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load styles, drafts, monitors, and library on mount
   useEffect(() => {

@@ -78,7 +78,7 @@ export default function HaberServisi() {
   const handleUseTweet = (item: NewsItem) => {
     const params = getNewsForTweet(item)
     const qs = new URLSearchParams(params).toString()
-    navigate(`/planner?${qs}`)
+    navigate(`/style?${qs}`)
   }
 
   // Instagram content generation
