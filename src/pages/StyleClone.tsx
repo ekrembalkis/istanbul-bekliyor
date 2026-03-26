@@ -25,10 +25,15 @@ type Tab = 'analyze' | 'compose' | 'drafts'
 
 export default function StyleClone() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const newsFromParam = searchParams.get('newsTitle')
-  const newsContext = searchParams.get('newsContext') || ''
-  const newsUrl = searchParams.get('newsUrl') || ''
-  const [tab, setTab] = useState<Tab>(newsFromParam ? 'compose' : 'analyze')
+  const [newsData] = useState(() => {
+    const title = searchParams.get('newsTitle')
+    return title ? {
+      title,
+      context: searchParams.get('newsContext') || '',
+      url: searchParams.get('newsUrl') || '',
+    } : null
+  })
+  const [tab, setTab] = useState<Tab>(newsData ? 'compose' : 'analyze')
   const apiReady = hasApiKey()
 
   // ── Analyze ──
@@ -55,7 +60,7 @@ export default function StyleClone() {
   // ── Topic Suggestions ──
   const [topicSuggestions, setTopicSuggestions] = useState<TopicSuggestion[]>([])
   const [topicContext, setTopicContext] = useState(
-    newsFromParam ? `Haber: ${newsFromParam}${newsContext ? '\nDetay: ' + newsContext : ''}${newsUrl ? '\nKaynak: ' + newsUrl : ''}` : ''
+    newsData ? `Haber: ${newsData.title}${newsData.context ? '\nDetay: ' + newsData.context : ''}${newsData.url ? '\nKaynak: ' + newsData.url : ''}` : ''
   )
   const [userHint, setUserHint] = useState('')
   const [showHint, setShowHint] = useState(false)
@@ -79,7 +84,7 @@ export default function StyleClone() {
   const [showManual, setShowManual] = useState(false)
 
   // ── Compose ──
-  const [composeTopic, setComposeTopic] = useState(newsFromParam || '')
+  const [composeTopic, setComposeTopic] = useState(newsData?.title || '')
   const [composeStyle, setComposeStyle] = useState('')
   const [composeTone, setComposeTone] = useState('duygusal, umut dolu')
   const [composeGoal, setComposeGoal] = useState('engagement')
@@ -186,7 +191,7 @@ export default function StyleClone() {
 
   // Clear news params after initial read
   useEffect(() => {
-    if (newsFromParam) setSearchParams({}, { replace: true })
+    if (newsData) setSearchParams({}, { replace: true })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load styles, drafts, monitors, and library on mount
@@ -892,6 +897,28 @@ export default function StyleClone() {
       {/* ═══════════ COMPOSE TAB ═══════════ */}
       {tab === 'compose' && (
         <div className="space-y-6">
+
+        {/* News context banner when coming from Haber Servisi */}
+        {newsData && (
+          <div className="card p-4 border-l-4 border-l-brand-red bg-brand-red/[0.03]">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-[10px] font-bold text-brand-red tracking-wider mb-1">HABERDEN TWEET ÜRET</div>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-200 leading-snug">{newsData.title}</p>
+                {newsData.context && (
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{newsData.context}</p>
+                )}
+              </div>
+              {newsData.url && (
+                <a href={newsData.url} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 ml-4 px-3 py-1.5 text-[10px] font-medium text-brand-red bg-brand-red/[0.06] hover:bg-brand-red/[0.12] rounded-lg transition-colors">
+                  Kaynağa Git
+                </a>
+              )}
+            </div>
+            <p className="text-[10px] text-slate-400 mt-2">Aşağıdan stil seç, ayarları yap ve "Üret" butonuna bas.</p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left: Controls */}
           <div className="space-y-5">
