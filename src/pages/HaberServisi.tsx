@@ -14,6 +14,7 @@ import {
   type NewsFilter,
   type InstagramContent,
 } from '../lib/newsService'
+import { searchImages, type SearchImage } from '../lib/imageSearch'
 
 const SOURCE_COLORS: Record<string, string> = {
   aa: 'bg-red-500/10 text-red-600 dark:text-red-400',
@@ -81,16 +82,40 @@ export default function HaberServisi() {
     navigate(`/style?${qs}`)
   }
 
-  // Instagram content generation
-  const [igModal, setIgModal] = useState<{ item: NewsItem; content: InstagramContent | null; loading: boolean; error: string } | null>(null)
+  // Instagram content generation + image search
+  const [igModal, setIgModal] = useState<{
+    item: NewsItem
+    content: InstagramContent | null
+    loading: boolean
+    error: string
+    images: SearchImage[]
+    imageLoading: boolean
+    imageQuery: string
+    selectedImage: string | null
+  } | null>(null)
 
   const handleInstagram = async (item: NewsItem) => {
-    setIgModal({ item, content: null, loading: true, error: '' })
+    setIgModal({ item, content: null, loading: true, error: '', images: [], imageLoading: false, imageQuery: item.title, selectedImage: null })
     try {
       const content = await generateInstagramContent(item)
-      setIgModal({ item, content, loading: false, error: '' })
+      setIgModal(prev => prev ? { ...prev, content, loading: false } : null)
+      // Auto-search images after content loads
+      setIgModal(prev => prev ? { ...prev, imageLoading: true } : null)
+      const images = await searchImages(item.title)
+      setIgModal(prev => prev ? { ...prev, images, imageLoading: false } : null)
     } catch (err) {
-      setIgModal(prev => prev ? { ...prev, loading: false, error: err instanceof Error ? err.message : 'Bilinmeyen hata' } : null)
+      setIgModal(prev => prev ? { ...prev, loading: false, imageLoading: false, error: err instanceof Error ? err.message : 'Bilinmeyen hata' } : null)
+    }
+  }
+
+  const handleImageSearch = async (query: string) => {
+    if (!igModal || query.trim().length < 2) return
+    setIgModal(prev => prev ? { ...prev, imageLoading: true, imageQuery: query, selectedImage: null } : null)
+    try {
+      const images = await searchImages(query)
+      setIgModal(prev => prev ? { ...prev, images, imageLoading: false } : null)
+    } catch {
+      setIgModal(prev => prev ? { ...prev, imageLoading: false } : null)
     }
   }
 
@@ -362,6 +387,78 @@ export default function HaberServisi() {
                   >
                     Tam Caption'u Kopyala (Hook + Body)
                   </button>
+
+                  {/* Image Search Section */}
+                  <div className="pt-4 mt-4 border-t border-black/[0.06] dark:border-white/[0.06]">
+                    <div className="text-[10px] font-bold text-slate-400 tracking-wider mb-2">GÖRSEL ARA</div>
+                    <div className="flex gap-2 mb-3">
+                      <input
+                        type="text"
+                        value={igModal.imageQuery}
+                        onChange={e => setIgModal(prev => prev ? { ...prev, imageQuery: e.target.value } : null)}
+                        onKeyDown={e => e.key === 'Enter' && handleImageSearch(igModal.imageQuery)}
+                        className="flex-1 px-3 py-2 text-xs rounded-lg border border-black/[0.08] dark:border-white/[0.08] bg-white dark:bg-dark-bg text-slate-700 dark:text-slate-300 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20"
+                        placeholder="Görsel ara..."
+                      />
+                      <button
+                        onClick={() => handleImageSearch(igModal.imageQuery)}
+                        disabled={igModal.imageLoading}
+                        className="px-3 py-2 text-xs font-medium text-white bg-fuchsia-600 hover:bg-fuchsia-700 rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        {igModal.imageLoading ? '...' : 'Ara'}
+                      </button>
+                    </div>
+
+                    {igModal.imageLoading && (
+                      <div className="py-6 text-center">
+                        <div className="inline-block w-5 h-5 border-2 border-fuchsia-500/30 border-t-fuchsia-500 rounded-full animate-spin" />
+                      </div>
+                    )}
+
+                    {igModal.images.length > 0 && !igModal.imageLoading && (
+                      <>
+                        <div className="grid grid-cols-3 gap-2">
+                          {igModal.images.map(img => (
+                            <button
+                              key={img.id}
+                              onClick={() => setIgModal(prev => prev ? { ...prev, selectedImage: prev.selectedImage === img.url ? null : img.url } : null)}
+                              className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                                igModal.selectedImage === img.url
+                                  ? 'border-fuchsia-500 ring-2 ring-fuchsia-500/30'
+                                  : 'border-transparent hover:border-slate-300 dark:hover:border-white/20'
+                              }`}
+                            >
+                              <img
+                                src={img.thumbnail}
+                                alt={img.title}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                                onError={e => { (e.target as HTMLElement).style.display = 'none' }}
+                              />
+                              {igModal.selectedImage === img.url && (
+                                <div className="absolute inset-0 bg-fuchsia-500/20 flex items-center justify-center">
+                                  <span className="text-white text-lg font-bold">&#10003;</span>
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+
+                        {igModal.selectedImage && (
+                          <button
+                            onClick={() => handleCopy(igModal.selectedImage!)}
+                            className="w-full mt-3 py-2 text-xs font-bold text-fuchsia-600 dark:text-fuchsia-400 bg-fuchsia-500/[0.08] hover:bg-fuchsia-500/[0.15] rounded-lg transition-colors"
+                          >
+                            Görsel URL Kopyala
+                          </button>
+                        )}
+                      </>
+                    )}
+
+                    {igModal.images.length === 0 && !igModal.imageLoading && igModal.content && (
+                      <p className="text-[10px] text-slate-400 text-center py-3">Görsel bulunamadı. Farklı bir arama deneyin.</p>
+                    )}
+                  </div>
 
                   {/* Regenerate */}
                   <button

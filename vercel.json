@@ -1,9 +1,11 @@
 {
   "functions": {
     "api/xquik.js": { "maxDuration": 60 },
-    "api/news.js": { "maxDuration": 30 }
+    "api/news.js": { "maxDuration": 30 },
+    "api/serpapi.js": { "maxDuration": 15 }
   },
   "rewrites": [
+    { "source": "/api/serpapi", "destination": "/api/serpapi" },
     { "source": "/api/news", "destination": "/api/news" },
     { "source": "/api/xquik", "destination": "/api/xquik" },
     { "source": "/api/image-proxy", "destination": "/api/image-proxy" },
