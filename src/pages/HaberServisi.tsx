@@ -430,12 +430,21 @@ export default function HaberServisi() {
                         </p>
 
                         {igModal.selectedImage && (
-                          <button
-                            onClick={() => handleCopy(igModal.selectedImage!)}
-                            className="w-full mt-2 py-2 text-xs font-bold text-fuchsia-600 dark:text-fuchsia-400 bg-fuchsia-500/[0.08] hover:bg-fuchsia-500/[0.15] rounded-lg transition-colors"
-                          >
-                            Görsel URL Kopyala
-                          </button>
+                          <div className="flex gap-2 mt-2">
+                            <button
+                              onClick={() => handleCopy(igModal.selectedImage!)}
+                              className="flex-1 py-2 text-xs font-bold text-fuchsia-600 dark:text-fuchsia-400 bg-fuchsia-500/[0.08] hover:bg-fuchsia-500/[0.15] rounded-lg transition-colors"
+                            >
+                              URL Kopyala
+                            </button>
+                            <a
+                              href={`/api/image-download?url=${encodeURIComponent(igModal.selectedImage!)}`}
+                              download
+                              className="flex-1 py-2 text-xs font-bold text-white bg-fuchsia-600 hover:bg-fuchsia-700 rounded-lg transition-colors text-center"
+                            >
+                              Indir
+                            </a>
+                          </div>
                         )}
                       </>
                     )}
