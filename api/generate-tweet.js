@@ -26,6 +26,38 @@ const LOWERCASE_REGEX = {
   _default: /^[a-z]/,
 }
 
+// ── Diverse cognitive angles for inner monologue (anti-repetition) ──
+const MONOLOGUE_ANGLES_TR = [
+  `- Bu konuda ilk fark ettiğin sey ne?\n- Ne hissediyorsun? (sinir, eglence, umursamazlik, heyecan?)\n- Bu sana neyi hatırlatiyor?\n- Bunu tweetlerken amacin ne? (dalga mi, elestiri mi, bilgilendirme mi?)`,
+  `- Bu konu neden simdi gundemde?\n- Herkes ne diyor, sen nereye katilmiyorsun?\n- Bu konuda kimse soylemiyor ama sen biliyorsun — o sey ne?\n- Bunu okuyacak kisi ne hissetmeli?`,
+  `- Bu haberi ilk gordugunde yuzundeki ifade ne?\n- Bunu bir arkadasina anlatsan ilk cumlenn ne olur?\n- Bu konunun komik, absurd veya ironik tarafi ne?\n- Bir yil sonra bu olay nasil hatiranacak?`,
+  `- Butun dunyanin bu konuda yanildigi sey ne?\n- Bunu cocuguna/kardesine nasil acikladin?\n- Bu olay aslinda baska neyin semptomu?\n- Sessiz kalan cogunluk ne dusunuyor sence?`,
+  `- Bu konuyu bir film sahnesi olarak hayal et — ne goruyorsun?\n- Senin kisisel deneyimin bu konuyla nasil kesisiyor?\n- En kotu senaryo ne? En iyi senaryo ne?\n- Bunu tweet atarken hangi duyguyu tetiklemek istiyorsun?`,
+  `- Bu konuda en cok kimin sesi cikiyor, en cok kim susuyor?\n- 3 ay once bunu dusan ne derdin, simdi ne degisti?\n- Bu olayda gorulmeyen detay ne?\n- Takipcilerin bunu okuyunca ne yapmali — gulumsemeli mi, kizmali mi, dusunmeli mi?`,
+]
+const MONOLOGUE_ANGLES_EN = [
+  `- What's the first thing you notice about this?\n- How do you feel? (anger, amusement, indifference, excitement?)\n- What does this remind you of?\n- What's your goal tweeting this? (mockery, criticism, inform?)`,
+  `- Why is this trending NOW?\n- What is everyone saying that you disagree with?\n- What's the thing nobody is saying but you know?\n- How should the reader feel after your tweet?`,
+  `- What was your face when you first saw this?\n- How would you explain this to a friend in one sentence?\n- What's the funny, absurd, or ironic angle here?\n- How will people remember this a year from now?`,
+  `- What is everyone getting WRONG about this?\n- How does your personal experience intersect with this?\n- What's the worst case? Best case?\n- What emotion do you want to trigger with this tweet?`,
+  `- Who's the loudest voice on this, and who's suspiciously quiet?\n- What would you have said 3 months ago vs now?\n- What's the hidden detail nobody sees?\n- Should your followers smile, get angry, or think?`,
+]
+
+function pickMonologue(lang) {
+  const pool = lang === 'tr' ? MONOLOGUE_ANGLES_TR : MONOLOGUE_ANGLES_EN
+  return pool[Math.floor(Math.random() * pool.length)]
+}
+
+// ── Fisher-Yates shuffle (returns new array) ──
+function shuffle(arr) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
 // ── Category regex for topic-aware tweet selection (from search-viral.js) ──
 const CATEGORY_REGEX_LOCAL = {
   spor: /galatasaray|fenerbah|beşiktaş|trabzon|süper lig|osimhen|maç\b|gol\b|futbol|hakem|şampiyon|milli tak|basketbol|voleybol|derbi|teknik direktör/i,
@@ -260,6 +292,7 @@ export default async function handler(req, res) {
     personalityDNA = null, // optional PersonalityDNA object from frontend
     styleSummary = '', // optional style summary text from frontend
     fingerprint = null, // optional StyleFingerprint object from frontend
+    previousTweets = [], // previously generated tweets to avoid repetition
   } = req.body
 
   if (!styleUsername || (!topic && !quoteTweetText)) {
@@ -424,8 +457,9 @@ ${t.dnaTraits}: Formality ${traits.formality || 0}/100, Humor ${traits.humor || 
     // System Instruction = WHO you are (persona identity + all tweets)
     // User Message = WHAT to do (inner monologue + generate)
 
-    // Build ALL tweets as persona's memory
-    const allTweetsNumbered = styleTweets.map((tw, i) => `${i + 1}. ${tw}`).join('\n')
+    // Build ALL tweets as persona's memory (shuffled to prevent anchoring)
+    const shuffledTweets = shuffle(styleTweets)
+    const allTweetsNumbered = shuffledTweets.map((tw, i) => `${i + 1}. ${tw}`).join('\n')
 
     // Build negative constraints from DNA
     const neverDoes = (personalityDNA?.boundaries?.neverDoes || []).map(n => `- ${n}`).join('\n')
@@ -455,13 +489,15 @@ SEN BOYLESIN:
 ${neverDoes ? `\nASLA YAPMAZSIN:\n${neverDoes}` : ''}
 ${alwaysDoes ? `\nHER ZAMAN YAPARSIN:\n${alwaysDoes}` : ''}
 
+${previousTweets.length > 0 ? `\nDAHA ONCE YAZDIKLARIM (bunlari TEKRARLAMA, benzer acilis/kelime/yapi KULLANMA):\n${previousTweets.slice(-10).map((tw, i) => `X${i + 1}. ${tw}`).join('\n')}\n` : ''}
 KRİTİK:
 - Sen bir AI degilsin, sen @${styleUsername}'sin
 - Yardımsever olmaya CALISMA — kendin ol
 - Dusuncelerini kendi kelimelerinle, kendi tarzinla ifade et
 - Tweetterin yukaridaki orneklerle AYNI formatta olmali
 - Tweet uzunlugun ortalama ${avgLen} karakter civari
-${dataQuality === 'low' ? `\nUYARI: Sadece ${styleTweets.length} tweet var. Yukaridaki orneklere COKK SIKI baglan, kendi tarzindan sapma.` : ''}
+- CESITLILIK: Her tweet FARKLI bir kelime ile baslamali. Ayni acilis kalibini TEKRARLAMA. Bazen soru ile ac, bazen gozlemle, bazen ironiile, bazen dogrudan tespitle. Tek duzeligin dusmani ol.
+${dataQuality === 'low' ? `\nNOT: ${styleTweets.length} tweet ornegi var. Genel tarzi ve ses tonunu koru ama HER SEFERINDE farkli kelimeler, farkli acilislar, farkli yapilar kullan. Monoton olma.` : ''}
 ${lengthBlock}`
       : `You ARE @${styleUsername}. The tweets below are YOUR real words — your voice, your thinking, your word choices, your humor.
 
@@ -475,12 +511,14 @@ WHO YOU ARE:
 ${neverDoes ? `\nYOU NEVER:\n${neverDoes}` : ''}
 ${alwaysDoes ? `\nYOU ALWAYS:\n${alwaysDoes}` : ''}
 
+${previousTweets.length > 0 ? `\nPREVIOUSLY WRITTEN (do NOT repeat these — use DIFFERENT openings, words, structures):\n${previousTweets.slice(-10).map((tw, i) => `X${i + 1}. ${tw}`).join('\n')}\n` : ''}
 CRITICAL:
 - You are NOT an AI — you ARE @${styleUsername}
 - Do NOT try to be helpful — be YOURSELF
 - Express thoughts in YOUR words, YOUR style
 - Your tweets must match the format of the examples above
 - Average tweet length: ${avgLen} characters
+- DIVERSITY: Each tweet MUST start with a DIFFERENT word. Never repeat the same opening pattern. Mix questions, observations, irony, direct takes. Fight monotony.
 ${lengthBlock}`
 
     // User message: WHAT to do (with inner monologue for cognitive simulation)
@@ -497,33 +535,30 @@ ${lengthBlock}`
       const threadCtaRule = (cloneMode && !styleUsesQuestion) ? t.ctaNo : t.ctaYes
       userMessage = t.threadInstruction(topic, topicContext, tone, threadCtaRule)
     } else {
-      // Standard tweet with inner monologue
+      // Standard tweet with inner monologue (randomized cognitive angle)
+      const monologueQuestions = pickMonologue(lang)
       userMessage = lang === 'tr'
         ? `"${topic}" hakkinda ne dusunuyorsun?${topicContext ? `\n\nGundem baglami:\n${topicContext}` : ''}
 
 Once IC MONOLOG yaz — bu konuyu duyduğunda aklından neler geçiyor:
 <monolog>
-- Bu konuda ilk fark ettiğin sey ne?
-- Ne hissediyorsun? (sinir, eglence, umursamazlik, heyecan?)
-- Bu sana neyi hatırlatiyor?
-- Bunu tweetlerken amacin ne? (dalga mi, elestiri mi, bilgilendirme mi?)
+${monologueQuestions}
 </monolog>
 
 Sonra bu ic monologdan dogal olarak cikan ${count} tweet yaz.
 Her birini numarali yaz. Ic monologdaki dusunceler tweetlere yansisin.
+ONEMLI: Her tweet FARKLI bir acilis cumlesi, FARKLI bir cumle yapisi, FARKLI kelimeler kullansin. Birbirine benzeyen tweetler YASAK.
 Baska HICBIR SEY yazma — sadece monolog ve tweetler.`
         : `What do you think about "${topic}"?${topicContext ? `\n\nContext:\n${topicContext}` : ''}
 
 First write INNER MONOLOGUE — what goes through your mind:
 <monolog>
-- What do you notice first?
-- How do you feel? (anger, amusement, indifference, excitement?)
-- What does this remind you of?
-- What's your goal tweeting this? (mockery, criticism, inform?)
+${monologueQuestions}
 </monolog>
 
 Then write ${count} tweets that flow naturally from this monologue.
 Number each. The thoughts in the monologue should show in the tweets.
+IMPORTANT: Each tweet MUST have a DIFFERENT opening, DIFFERENT sentence structure, DIFFERENT vocabulary. No two tweets should feel similar.
 Write NOTHING else — only monologue and tweets.`
     }
 
@@ -650,8 +685,8 @@ Write NOTHING else — only monologue and tweets.`
       if (fingerprint) {
         styleMatch = fingerprintMatchServer(currentDraft, fingerprint)
 
-        // If poor match and we haven't exhausted retries, try one targeted fix
-        if (styleMatch < 60 && attempts <= 3) {
+        // If very poor match and we haven't exhausted retries, try one targeted fix
+        if (styleMatch < 40 && attempts <= 3) {
           const fixHints = []
           if (fingerprint.lowercaseStartRatio > 0.5 && !/^[a-zçğıöşü]/.test(currentDraft)) fixHints.push('MUTLAKA kucuk harfle basla')
           if (fingerprint.emojiRatio < 0.05 && /[\u{1F300}-\u{1FAFF}]/u.test(currentDraft)) fixHints.push('Tum emojileri kaldir')
@@ -695,7 +730,7 @@ Write NOTHING else — only monologue and tweets.`
       }
 
       // Iterative refinement (F) — criticize + fix (clone mode only, max 1 round)
-      if (cloneMode && mode !== 'thread' && styleMatch != null && styleMatch < 70) {
+      if (cloneMode && mode !== 'thread' && styleMatch != null && styleMatch < 45) {
         try {
           // Step 1: Criticize
           const critiquePrompt = lang === 'tr'

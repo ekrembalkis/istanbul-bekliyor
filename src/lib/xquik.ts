@@ -341,6 +341,7 @@ export async function generateTweet(opts: {
   personalityDNA?: PersonalityDNA
   styleSummary?: string
   fingerprint?: import('./styleFingerprint').StyleFingerprint
+  previousTweets?: string[]
 }): Promise<GenerateResult> {
   const res = await fetch('/api/generate-tweet', {
     method: 'POST',
@@ -360,6 +361,7 @@ export async function generateTweet(opts: {
       personalityDNA: opts.personalityDNA,
       styleSummary: opts.styleSummary,
       fingerprint: opts.fingerprint,
+      previousTweets: opts.previousTweets || [],
     }),
   })
 

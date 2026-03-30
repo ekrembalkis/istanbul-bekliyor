@@ -56,6 +56,7 @@ export default function StyleClone() {
   const [generating, setGenerating] = useState(false)
   const [generatedTweets, setGeneratedTweets] = useState<GeneratedTweet[]>([])
   const [generateWarnings, setGenerateWarnings] = useState<string[]>([])
+  const [previousTweets, setPreviousTweets] = useState<string[]>([])
 
   // ── Topic Suggestions ──
   const [topicSuggestions, setTopicSuggestions] = useState<TopicSuggestion[]>([])
@@ -176,8 +177,10 @@ export default function StyleClone() {
         personalityDNA: styleDNA,
         styleSummary: styleEntry?.styleSummary,
         fingerprint: styleEntry?.fingerprint,
+        previousTweets,
       })
       setGeneratedTweets(result.tweets)
+      setPreviousTweets(prev => [...prev, ...result.tweets.map((t: any) => t.tweet)].slice(-20))
       setGenerateWarnings(result.warnings || [])
       if (result.geminiUsage) trackGeminiUsage(result.geminiUsage)
       incrementGenerated(composeStyle)
@@ -193,6 +196,9 @@ export default function StyleClone() {
   useEffect(() => {
     if (newsData) setSearchParams({}, { replace: true })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Reset previousTweets when style changes
+  useEffect(() => { setPreviousTweets([]) }, [composeStyle])
 
   // Load styles, drafts, monitors, and library on mount
   useEffect(() => {
@@ -465,8 +471,10 @@ export default function StyleClone() {
         personalityDNA: styleDNA,
         styleSummary: styleEntry?.styleSummary,
         fingerprint: styleEntry?.fingerprint,
+        previousTweets,
       })
       setGeneratedTweets(result.tweets)
+      setPreviousTweets(prev => [...prev, ...result.tweets.map((t: any) => t.tweet)].slice(-20))
       setGenerateWarnings(result.warnings || [])
       if (result.geminiUsage) trackGeminiUsage(result.geminiUsage)
       incrementGenerated(composeStyle)
