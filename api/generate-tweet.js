@@ -489,15 +489,14 @@ SEN BOYLESIN:
 ${neverDoes ? `\nASLA YAPMAZSIN:\n${neverDoes}` : ''}
 ${alwaysDoes ? `\nHER ZAMAN YAPARSIN:\n${alwaysDoes}` : ''}
 
-${previousTweets.length > 0 ? `\nDAHA ONCE YAZDIKLARIM (bunlari TEKRARLAMA, benzer acilis/kelime/yapi KULLANMA):\n${previousTweets.slice(-10).map((tw, i) => `X${i + 1}. ${tw}`).join('\n')}\n` : ''}
+${previousTweets.length > 0 ? `\nDAHA ONCE YAZDIKLARIM (bunlari TEKRARLAMA, benzer acilis/ton/yapi KULLANMA):\n${previousTweets.slice(-10).map((tw, i) => `X${i + 1}. ${tw}`).join('\n')}\n` : ''}
 KRİTİK:
 - Sen bir AI degilsin, sen @${styleUsername}'sin
 - Yardımsever olmaya CALISMA — kendin ol
-- Dusuncelerini kendi kelimelerinle, kendi tarzinla ifade et
+- Dusuncelerini kendi tarzinla ifade et
 - Tweetterin yukaridaki orneklerle AYNI formatta olmali
 - Tweet uzunlugun ortalama ${avgLen} karakter civari
-- CESITLILIK: Her tweet FARKLI bir kelime ile baslamali. Ayni acilis kalibini TEKRARLAMA. Bazen soru ile ac, bazen gozlemle, bazen ironiile, bazen dogrudan tespitle. Tek duzeligin dusmani ol.
-${dataQuality === 'low' ? `\nNOT: ${styleTweets.length} tweet ornegi var. Genel tarzi ve ses tonunu koru ama HER SEFERINDE farkli kelimeler, farkli acilislar, farkli yapilar kullan. Monoton olma.` : ''}
+${dataQuality === 'low' ? `\nNOT: ${styleTweets.length} tweet ornegi var. Genel tarzi ve ses tonunu koru.` : ''}
 ${lengthBlock}`
       : `You ARE @${styleUsername}. The tweets below are YOUR real words — your voice, your thinking, your word choices, your humor.
 
@@ -511,14 +510,13 @@ WHO YOU ARE:
 ${neverDoes ? `\nYOU NEVER:\n${neverDoes}` : ''}
 ${alwaysDoes ? `\nYOU ALWAYS:\n${alwaysDoes}` : ''}
 
-${previousTweets.length > 0 ? `\nPREVIOUSLY WRITTEN (do NOT repeat these — use DIFFERENT openings, words, structures):\n${previousTweets.slice(-10).map((tw, i) => `X${i + 1}. ${tw}`).join('\n')}\n` : ''}
+${previousTweets.length > 0 ? `\nPREVIOUSLY WRITTEN (do NOT repeat these — use DIFFERENT openings, tone, structures):\n${previousTweets.slice(-10).map((tw, i) => `X${i + 1}. ${tw}`).join('\n')}\n` : ''}
 CRITICAL:
 - You are NOT an AI — you ARE @${styleUsername}
 - Do NOT try to be helpful — be YOURSELF
-- Express thoughts in YOUR words, YOUR style
+- Express thoughts in YOUR style
 - Your tweets must match the format of the examples above
 - Average tweet length: ${avgLen} characters
-- DIVERSITY: Each tweet MUST start with a DIFFERENT word. Never repeat the same opening pattern. Mix questions, observations, irony, direct takes. Fight monotony.
 ${lengthBlock}`
 
     // User message: WHAT to do (with inner monologue for cognitive simulation)
@@ -547,7 +545,7 @@ ${monologueQuestions}
 
 Sonra bu ic monologdan dogal olarak cikan ${count} tweet yaz.
 Her birini numarali yaz. Ic monologdaki dusunceler tweetlere yansisin.
-ONEMLI: Her tweet FARKLI bir acilis cumlesi, FARKLI bir cumle yapisi, FARKLI kelimeler kullansin. Birbirine benzeyen tweetler YASAK.
+ONEMLI: Birbirine benzeyen tweetler YASAK.
 Baska HICBIR SEY yazma — sadece monolog ve tweetler.`
         : `What do you think about "${topic}"?${topicContext ? `\n\nContext:\n${topicContext}` : ''}
 
@@ -558,7 +556,7 @@ ${monologueQuestions}
 
 Then write ${count} tweets that flow naturally from this monologue.
 Number each. The thoughts in the monologue should show in the tweets.
-IMPORTANT: Each tweet MUST have a DIFFERENT opening, DIFFERENT sentence structure, DIFFERENT vocabulary. No two tweets should feel similar.
+IMPORTANT: No two tweets should feel similar.
 Write NOTHING else — only monologue and tweets.`
     }
 
@@ -598,6 +596,34 @@ Write NOTHING else — only monologue and tweets.`
 
     if (tweets.length === 0) {
       return res.status(500).json({ error: 'Generation failed', raw: rawText })
+    }
+
+    // 9b. Opening dedup — regenerate tweets that share the same first 2 words
+    const getOpening = (text) => text.toLowerCase().replace(/[^\w\s\u00C0-\u017Fçğıöşü]/g, '').split(/\s+/).slice(0, 2).join(' ')
+    const seenOpenings = new Set()
+    for (let i = 0; i < tweets.length; i++) {
+      const opening = getOpening(tweets[i])
+      if (seenOpenings.has(opening)) {
+        // Ask Gemini to rewrite with a different opening
+        const rewritePrompt = lang === 'tr'
+          ? `Bu tweeti FARKLI bir acilisla yeniden yaz. Anlamini koru, ilk 2-3 sozcugu degistir.\n\nOrijinal: "${tweets[i]}"\n\nKullanilmis acilislar (BUNLARI KULLANMA): ${[...seenOpenings].join(', ')}\n\nSadece yeni tweet metnini yaz.`
+          : `Rewrite this tweet with a DIFFERENT opening. Keep the meaning, change the first 2-3 words.\n\nOriginal: "${tweets[i]}"\n\nUsed openings (DO NOT use these): ${[...seenOpenings].join(', ')}\n\nWrite only the new tweet text.`
+        try {
+          const rewriteRes = await fetch(geminiUrl,
+            { method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ contents: [{ parts: [{ text: rewritePrompt }] }], generationConfig: { temperature: 0.9, maxOutputTokens: 200 } }) }
+          )
+          if (rewriteRes.ok) {
+            const rewriteData = await rewriteRes.json()
+            trackUsage(rewriteData)
+            const rewritten = rewriteData.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
+            if (rewritten && rewritten.length > 20) {
+              tweets[i] = rewritten.replace(/^\d+[\.\)\/]\s*/, '').replace(/^["']|["']$/g, '')
+            }
+          }
+        } catch { /* dedup rewrite optional */ }
+      }
+      seenOpenings.add(getOpening(tweets[i]))
     }
 
     // 10. Score tweets
