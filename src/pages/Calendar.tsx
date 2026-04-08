@@ -206,6 +206,20 @@ export default function Calendar() {
               <p className="text-sm text-slate-600 dark:text-slate-300">{selectedPlan.scene} — altın eleman: {selectedPlan.goldenElement}</p>
             </div>
 
+            {/* Quote */}
+            {selectedPlan.quote && (
+              <div className="mb-4 p-4 rounded-xl bg-brand-red/5 border-l-4 border-l-brand-red">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="text-[10px] font-bold text-brand-red tracking-wider">SÖZ</div>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-brand-red/10 text-brand-red/70 font-medium">{selectedPlan.quote.category}</span>
+                </div>
+                <p className="text-sm text-slate-700 dark:text-slate-200 italic leading-relaxed">
+                  &ldquo;{selectedPlan.quote.text}&rdquo;
+                </p>
+                <div className="text-[10px] text-slate-400 mt-2">— Ekrem İmamoğlu</div>
+              </div>
+            )}
+
             {/* Tweet template */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-1">

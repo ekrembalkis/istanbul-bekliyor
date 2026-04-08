@@ -119,6 +119,18 @@ export default function Dashboard() {
           <div className="mt-4">
             <div className="text-xs font-mono tracking-[3px] text-brand-gold font-semibold mb-1">{plan.theme.toUpperCase()}</div>
             <div className="text-[11px] text-slate-400 mb-4">Sahne: {plan.scene} · Altın: {plan.goldenElement}</div>
+            {plan.quote && (
+              <div className="mb-4 p-3 rounded-xl bg-brand-red/5 border-l-4 border-l-brand-red">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <div className="text-[9px] font-bold text-brand-red tracking-wider">GÜNÜN SÖZÜ</div>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-md bg-brand-red/10 text-brand-red/70 font-medium">{plan.quote.category}</span>
+                </div>
+                <p className="text-sm text-slate-700 dark:text-slate-200 italic leading-relaxed">
+                  &ldquo;{plan.quote.text}&rdquo;
+                </p>
+                <div className="text-[10px] text-slate-400 mt-1.5">— Ekrem İmamoğlu</div>
+              </div>
+            )}
             <div className="bg-slate-50 dark:bg-white/[0.03] rounded-xl p-4 text-slate-600 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-line mb-4 max-h-40 overflow-y-auto border border-slate-100 dark:border-white/[0.06]">
               {plan.tweetTemplate}
             </div>

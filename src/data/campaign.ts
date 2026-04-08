@@ -1,3 +1,5 @@
+import { Quote, getQuoteForDay } from './quotes'
+
 export interface DayPlan {
   dayOffset: number
   theme: string
@@ -6,6 +8,7 @@ export interface DayPlan {
   goldenElement: string
   prompt: string
   tweetTemplate: string
+  quote?: Quote
 }
 
 // 30 rotating themes from campaign research
@@ -465,6 +468,7 @@ export function getDayPlan(dayNumber: number): DayPlan {
     ...plan,
     prompt: plan.prompt.replace(/\{day\}/g, String(dayNumber)),
     tweetTemplate: plan.tweetTemplate.replace(/\{day\}/g, String(dayNumber)),
+    quote: getQuoteForDay(dayNumber),
   }
 }
 
