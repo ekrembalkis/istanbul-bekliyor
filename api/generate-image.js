@@ -143,7 +143,7 @@ export default async function handler(req, res) {
     // 7. Upload to Supabase Storage (if configured)
     let imageUrl = null
     const supabaseUrl = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim()
-    const supabaseKey = (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim()
+    const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '').trim()
 
     if (supabaseUrl && supabaseKey) {
       const fileName = `images/day-${dayNumber}-${Date.now()}.png`
