@@ -51,7 +51,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const GEMINI_KEY = (process.env.GEMINI_API_KEY || '').trim()
-  const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-preview-05-20'
+  const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image'
   const GEMINI_BASE_URL = process.env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta'
   if (!GEMINI_KEY) return res.status(500).json({ error: 'GEMINI_API_KEY not configured' })
 
