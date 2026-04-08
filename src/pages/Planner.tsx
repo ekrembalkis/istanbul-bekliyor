@@ -6,6 +6,7 @@ import type { ScoreResult } from '../lib/xquik'
 import { supabase } from '../lib/supabase'
 import { CopyBtn } from '../components/CopyBtn'
 import { generateNbpPrompt } from '../lib/nbpPromptService'
+import { generateDailyImage } from '../lib/nbpImageService'
 
 export default function Planner() {
   const day = getDayCount()
@@ -19,6 +20,9 @@ export default function Planner() {
   const [generatedPrompt, setGeneratedPrompt] = useState<string | null>(null)
   const [promptLoading, setPromptLoading] = useState(false)
   const [promptError, setPromptError] = useState('')
+  const [generatedImage, setGeneratedImage] = useState<{ base64: string, mimeType: string, url: string | null } | null>(null)
+  const [imageLoading, setImageLoading] = useState(false)
+  const [imageError, setImageError] = useState('')
 
   const campaignAnalysis = checkCampaignRules(tweetText)
 
@@ -63,6 +67,29 @@ export default function Planner() {
     setPromptLoading(false)
   }
 
+  const handleGenerateImage = async () => {
+    setImageLoading(true)
+    setImageError('')
+    try {
+      const result = await generateDailyImage({
+        dayNumber: day,
+        theme: plan.theme,
+        scene: plan.scene,
+        goldenElement: plan.goldenElement,
+        quote: plan.quote!,
+        customPrompt: activePrompt || undefined,
+      })
+      setGeneratedImage({
+        base64: result.imageBase64,
+        mimeType: result.imageMimeType,
+        url: result.imageUrl,
+      })
+    } catch (e: any) {
+      setImageError(e.message || 'Görsel üretilemedi')
+    }
+    setImageLoading(false)
+  }
+
   const saveTweet = async () => {
     if (!supabase) { alert('Supabase baglantisi yapilandirilmamis.'); return }
     setSaving(true)
@@ -73,6 +100,7 @@ export default function Planner() {
         theme: plan.theme,
         tweet_text: tweetText,
         nano_prompt: activePrompt,
+        image_url: generatedImage?.url || null,
         status: 'ready',
         algorithm_score: algoResult ? algoResult.passedCount * 9 : campaignAnalysis.score, // 0-99 scale
         algorithm_notes: [
@@ -185,6 +213,70 @@ export default function Planner() {
             </div>
             {promptError && (
               <div className="mt-2 text-[10px] text-red-500">{promptError}</div>
+            )}
+          </div>
+
+          {/* Image Generation */}
+          <div className="card p-5">
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-[10px] font-bold text-brand-gold tracking-wider">GORSEL URETIMI</label>
+              {plan.quote && (
+                <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-brand-red/10 text-brand-red/70 font-medium">
+                  {plan.quote.category}
+                </span>
+              )}
+            </div>
+
+            {plan.quote && (
+              <div className="mb-3 p-2.5 rounded-lg bg-brand-red/5 border-l-3 border-l-brand-red text-[11px] italic text-slate-500 dark:text-slate-400">
+                &ldquo;{plan.quote.text}&rdquo;
+              </div>
+            )}
+
+            {generatedImage ? (
+              <div className="mb-3">
+                <img
+                  src={`data:${generatedImage.mimeType};base64,${generatedImage.base64}`}
+                  alt={`GUN ${day} — ${plan.theme}`}
+                  className="w-full rounded-xl border border-slate-100 dark:border-white/[0.06]"
+                />
+                {generatedImage.url && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <CopyBtn text={generatedImage.url} label="URL Kopyala" />
+                    <a
+                      href={generatedImage.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-blue-500 hover:text-blue-600"
+                    >
+                      Tam boyut
+                    </a>
+                  </div>
+                )}
+              </div>
+            ) : imageLoading ? (
+              <div className="flex flex-col items-center gap-3 py-12 text-slate-400">
+                <svg className="w-8 h-8 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" />
+                  <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" />
+                </svg>
+                <div className="text-xs">Gorsel uretiliyor... (30-60 sn)</div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-slate-300 dark:text-slate-500 text-xs">
+                Referans fotograflarla Imamoglu gorseli uret
+              </div>
+            )}
+
+            <button
+              onClick={handleGenerateImage}
+              disabled={imageLoading}
+              className="btn btn-primary w-full text-[10px] py-2 disabled:opacity-50"
+            >
+              {imageLoading ? 'Uretiliyor...' : generatedImage ? 'Yeniden Uret' : 'Gorsel Uret'}
+            </button>
+            {imageError && (
+              <div className="mt-2 text-[10px] text-red-500">{imageError}</div>
             )}
           </div>
         </div>
