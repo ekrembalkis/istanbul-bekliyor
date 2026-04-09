@@ -75,10 +75,10 @@ export default function Sidebar() {
         {/* Üret CTA */}
         <NavLink
           to="/style"
-          className="mt-4 flex items-center justify-center gap-2 rounded-full bg-x-accent px-4 py-3 font-bold text-white transition-colors hover:bg-x-accent-hover lg:w-full"
+          className="mt-4 flex items-center justify-center gap-2 rounded-full bg-x-accent py-3 font-bold text-white transition-colors hover:bg-x-accent-hover w-[52px] h-[52px] lg:w-full lg:h-auto lg:px-4"
         >
-          <svg className="w-6 h-6 lg:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          <svg className="w-7 h-7 lg:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
           </svg>
           <span className="hidden lg:block text-[17px]">Üret</span>
         </NavLink>
