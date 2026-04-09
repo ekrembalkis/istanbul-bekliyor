@@ -613,10 +613,10 @@ export default function Settings() {
             'Tweet her zaman "GÜN [SAYI]." ile başlar',
             '2-4 satır kısa, şiirsel metin',
             'Sonda #İstanbulBekliyor hashtag\'i (tek hashtag)',
-            'Her tweete 1:1 kare gorsel ekle (siyah/beyaz + altin)',
-            'Gunde 1 ana tweet + gelen reply\'lara cevap',
-            'Paylasim saati: 09:00 TSI',
-            'Ton: yapici, umut dolu, asla saldirgan degil',
+            'Her tweete 1:1 kare görsel ekle (siyah/beyaz + altın)',
+            'Günde 1 ana tweet + gelen reply\'lara cevap',
+            'Paylaşım saati: 09:00 TSİ',
+            'Ton: yapıcı, umut dolu, asla saldırgan değil',
           ].map((rule, i) => (
             <div key={i} className="flex gap-3 items-start p-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors">
               <span className="w-6 h-6 rounded-md bg-brand-gold/10 text-brand-gold text-[10px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>

@@ -36,8 +36,8 @@ export default function AlgorithmCheck() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="section-header">
-        <h1 className="text-2xl font-serif font-bold text-slate-800 dark:text-white">Algoritma Kontrolu</h1>
-        <p className="text-sm text-slate-400 mt-1">Tweet taslagini yapistir, X algoritmasi + kampanya kurallarina gore analiz et.</p>
+        <h1 className="text-2xl font-serif font-bold text-slate-800 dark:text-white">Algoritma Kontrolü</h1>
+        <p className="text-sm text-slate-400 mt-1">Tweet taslağını yapıştır, X algoritması + kampanya kurallarına göre analiz et.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -48,7 +48,7 @@ export default function AlgorithmCheck() {
             onChange={e => setText(e.target.value)}
             rows={12}
             className="w-full input-field p-4 text-slate-700 dark:text-slate-200 text-sm leading-relaxed resize-none"
-            placeholder={'Tweet metnini buraya yapistir...\n\nOrnek:\nGUN 368.\n\nIstanbul bekliyor.\n\n#IstanbulBekliyor'}
+            placeholder={'Tweet metnini buraya yapıştır...\n\nÖrnek:\nGÜN 368.\n\nİstanbul bekliyor.\n\n#İstanbulBekliyor'}
           />
           <div className="flex items-center justify-between mt-3">
             <span className={`text-xs font-mono ${text.length > 280 ? 'text-red-500' : text.length > 250 ? 'text-amber-500' : 'text-slate-400'}`}>
@@ -71,7 +71,7 @@ export default function AlgorithmCheck() {
                 <div className="flex items-center justify-between mb-2">
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 tracking-wider">ALGORITMA SKORU</label>
-                    <div className="text-[10px] text-slate-400 mt-0.5">Xquik — 11 kontrol (canli)</div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">Xquik — 11 kontrol (canlı)</div>
                   </div>
                   {algoLoading ? (
                     <svg className="w-8 h-8 animate-spin text-slate-300" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" /><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" /></svg>
@@ -110,7 +110,7 @@ export default function AlgorithmCheck() {
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 tracking-wider">KAMPANYA UYUMU</label>
-                    <div className="text-[10px] text-slate-400 mt-0.5">Marka kimligi kontrolleri</div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">Marka kimliği kontrolleri</div>
                   </div>
                   <span className={`stat-number text-3xl ${getScoreColor(campaignAnalysis.score)}`}>
                     {campaignAnalysis.checks.filter(c => c.passed).length}/{campaignAnalysis.checks.length}
@@ -135,8 +135,8 @@ export default function AlgorithmCheck() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
               </div>
-              <div className="text-slate-500 dark:text-slate-400 text-sm font-medium">Tweet metnini sol tarafa yaz veya yapistir.</div>
-              <div className="text-slate-400 text-xs mt-2">Xquik canli 11 kontrol + kampanya uyum analizi yapilacak.</div>
+              <div className="text-slate-500 dark:text-slate-400 text-sm font-medium">Tweet metnini sol tarafa yaz veya yapıştır.</div>
+              <div className="text-slate-400 text-xs mt-2">Xquik canlı 11 kontrol + kampanya uyum analizi yapılacak.</div>
             </div>
           )}
         </div>

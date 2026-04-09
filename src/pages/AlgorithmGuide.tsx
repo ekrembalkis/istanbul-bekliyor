@@ -16,7 +16,7 @@ export default function AlgorithmGuide() {
         <div className="section-header">
           <h1 className="text-2xl font-serif font-bold text-slate-800 dark:text-white">Algoritma Rehberi</h1>
         </div>
-        <div className="card p-12 text-center text-sm text-slate-400">Algoritma verileri yukleniyor...</div>
+        <div className="card p-12 text-center text-sm text-slate-400">Algoritma verileri yükleniyor...</div>
       </div>
     )
   }
@@ -25,7 +25,7 @@ export default function AlgorithmGuide() {
     <div className="space-y-8 animate-fade-in">
       <div className="section-header">
         <h1 className="text-2xl font-serif font-bold text-slate-800 dark:text-white">Algoritma Rehberi</h1>
-        <p className="text-sm text-slate-400 mt-1">X algoritmasinin kaynak kodundan ve Xquik analizinden elde edilen canli veriler.</p>
+        <p className="text-sm text-slate-400 mt-1">X algoritmasının kaynak kodundan ve Xquik analizinden elde edilen canlı veriler.</p>
       </div>
 
       {/* Source attribution */}
@@ -39,7 +39,7 @@ export default function AlgorithmGuide() {
       {/* Content Rules (from Xquik compose) */}
       {data?.contentRules && data.contentRules.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-lg font-serif font-bold text-slate-700 dark:text-slate-200">Icerik Kurallari ({data.contentRules.length})</h2>
+          <h2 className="text-lg font-serif font-bold text-slate-700 dark:text-slate-200">İçerik Kuralları ({data.contentRules.length})</h2>
           {data.contentRules.map((rule, i) => (
             <div key={i} className="card p-4 hover:shadow-card-hover dark:hover:shadow-dark-card-hover">
               <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{rule.rule}</p>
@@ -52,7 +52,7 @@ export default function AlgorithmGuide() {
       {data?.scorerWeights && data.scorerWeights.length > 0 && (
         <div className="card p-6">
           <h2 className="text-lg font-serif font-bold text-slate-700 dark:text-slate-200 mb-1">Phoenix Skorlama Sinyalleri ({data.scorerWeights.length})</h2>
-          <p className="text-xs text-slate-400 mb-5">Agirlik degerleri TAHMIN — kaynak kodda sabit agirlik yok, transformer ogreniyor.</p>
+          <p className="text-xs text-slate-400 mb-5">Ağırlık değerleri TAHMİN — kaynak kodda sabit ağırlık yok, transformer öğreniyor.</p>
           <div className="space-y-3">
             {data.scorerWeights.map((sw, i) => {
               const isPositive = sw.weight > 0
@@ -90,7 +90,7 @@ export default function AlgorithmGuide() {
       {/* Engagement Multipliers */}
       {data?.engagementMultipliers && data.engagementMultipliers.length > 0 && (
         <div className="card p-6">
-          <h2 className="text-lg font-serif font-bold text-slate-700 dark:text-slate-200 mb-5">Engagement Carpanlari</h2>
+          <h2 className="text-lg font-serif font-bold text-slate-700 dark:text-slate-200 mb-5">Engagement Çarpanları</h2>
           <div className="space-y-2">
             {data.engagementMultipliers.map((em, i) => (
               <div key={i} className="flex items-center justify-between py-2 border-b border-slate-50 dark:border-white/[0.04] last:border-0">
@@ -105,7 +105,7 @@ export default function AlgorithmGuide() {
       {/* Velocity */}
       {data?.engagementVelocity && (
         <div className="card border-l-4 border-l-brand-gold p-6 bg-brand-gold-light dark:bg-brand-gold/5">
-          <h3 className="font-bold text-brand-gold mb-3">Engagement Hizi</h3>
+          <h3 className="font-bold text-brand-gold mb-3">Engagement Hızı</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{data.engagementVelocity}</p>
         </div>
       )}
@@ -129,10 +129,10 @@ export default function AlgorithmGuide() {
       <div className="card p-6">
         <div className="section-header">
           <h3 className="font-bold text-slate-700 dark:text-slate-200 text-lg font-serif">Sistem Mimarisi</h3>
-          <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1">x-algorithm-main kaynak kodundan dogrulanmis</p>
+          <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1">x-algorithm-main kaynak kodundan doğrulanmış</p>
         </div>
         <div className="font-mono text-xs text-slate-500 dark:text-slate-400 leading-loose space-y-1 mt-4">
-          <div className="text-slate-400 text-[10px] tracking-widest font-sans font-bold">KULLANICI ISTEGI</div>
+          <div className="text-slate-400 text-[10px] tracking-widest font-sans font-bold">KULLANICI İSTEĞİ</div>
           <div className="text-slate-300 dark:text-slate-600 ml-2">|</div>
           {[
             '1. Query Hydration -> User Action Sequence + Features',
@@ -146,13 +146,13 @@ export default function AlgorithmGuide() {
             <div key={i} className="ml-2 pl-4 border-l-2 border-brand-red/20 py-1 hover:border-brand-red/50 hover:text-slate-700 dark:hover:text-white transition-colors">{step}</div>
           ))}
           <div className="text-slate-300 dark:text-slate-600 ml-2">|</div>
-          <div className="text-brand-red font-bold ml-2 font-sans text-sm">Siralanmis Feed</div>
+          <div className="text-brand-red font-bold ml-2 font-sans text-sm">Sıralanmış Feed</div>
         </div>
       </div>
 
       {!data && (
         <div className="card p-8 text-center text-sm text-slate-400">
-          Algoritma verileri yuklenemedi. Xquik API baglantisini kontrol et.
+          Algoritma verileri yüklenemedi. Xquik API bağlantısını kontrol et.
         </div>
       )}
     </div>

@@ -31,7 +31,7 @@ async function probeMonitor(username: string): Promise<CheckResult> {
   try {
     const probe = await createMonitor(target)
     await deleteMonitor(probe.id)
-    return { status: 'pass', detail: 'Monitor probe basarili — shadow ban yok', confidence: 95 }
+    return { status: 'pass', detail: 'Monitor probe başarılı — shadow ban yok', confidence: 95 }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     const msgLower = msg.toLowerCase()
@@ -70,7 +70,7 @@ async function probeMonitor(username: string): Promise<CheckResult> {
             const probe = await createMonitor(target)
             await deleteMonitor(probe.id)
             try { await createMonitor(savedUsername) } catch { /* best effort restore */ }
-            return { status: 'pass', detail: 'Monitor probe basarili — shadow ban yok', confidence: 95 }
+            return { status: 'pass', detail: 'Monitor probe başarılı — shadow ban yok', confidence: 95 }
           } catch (probeErr: unknown) {
             try { await createMonitor(savedUsername) } catch { /* best effort restore */ }
             const probeMsg = probeErr instanceof Error ? probeErr.message : String(probeErr)

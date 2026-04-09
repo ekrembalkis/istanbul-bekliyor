@@ -257,8 +257,8 @@ export default function Dashboard() {
       <section className="card p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-sm font-bold text-slate-500 dark:text-slate-400">Hesap Sagligi</h2>
-            <p className="text-[10px] text-slate-400 mt-0.5">@istbekliyor shadow ban kontrolu</p>
+            <h2 className="text-sm font-bold text-slate-500 dark:text-slate-400">Hesap Sağlığı</h2>
+            <p className="text-[10px] text-slate-400 mt-0.5">@istbekliyor shadow ban kontrolü</p>
           </div>
           {shadowResult && (() => {
             const cfg = SHADOW_STATUS[shadowResult.overall]
@@ -327,17 +327,17 @@ export default function Dashboard() {
                   disabled={shadowLoading}
                   className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 hover:text-brand-red transition-colors disabled:opacity-40"
                 >
-                  {shadowLoading ? 'Kontrol...' : 'Hizli Kontrol'}
+                  {shadowLoading ? 'Kontrol...' : 'Hızlı Kontrol'}
                 </button>
                 <Link to="/shadow-check" className="text-[10px] font-semibold text-brand-red hover:text-brand-red-dark transition-colors">
-                  Detayli Analiz &rarr;
+                  Detaylı Analiz &rarr;
                 </Link>
               </div>
             </div>
           </div>
         ) : (
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-400">Henuz kontrol yapilmadi</span>
+            <span className="text-xs text-slate-400">Henüz kontrol yapılmadı</span>
             <button
               onClick={async () => {
                 setShadowLoading(true)
@@ -350,7 +350,7 @@ export default function Dashboard() {
               disabled={shadowLoading}
               className="text-xs font-semibold text-brand-red hover:text-brand-red-dark transition-colors disabled:opacity-40"
             >
-              {shadowLoading ? 'Kontrol...' : 'Simdi Kontrol Et'}
+              {shadowLoading ? 'Kontrol...' : 'Şimdi Kontrol Et'}
             </button>
           </div>
         )}

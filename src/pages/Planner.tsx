@@ -23,6 +23,7 @@ export default function Planner() {
   const [generatedImage, setGeneratedImage] = useState<{ base64: string, mimeType: string, url: string | null } | null>(null)
   const [imageLoading, setImageLoading] = useState(false)
   const [imageError, setImageError] = useState('')
+  const [algoExpanded, setAlgoExpanded] = useState(false)
 
   const campaignAnalysis = checkCampaignRules(tweetText)
 
@@ -91,7 +92,7 @@ export default function Planner() {
   }
 
   const saveTweet = async () => {
-    if (!supabase) { alert('Supabase baglantisi yapilandirilmamis.'); return }
+    if (!supabase) { alert('Supabase bağlantısı yapılandırılmamış.'); return }
     setSaving(true)
     try {
       const { error } = await supabase.from('tweets').upsert({
@@ -158,7 +159,7 @@ export default function Planner() {
           </div>
 
           <div className="card p-5">
-            <label className="text-[10px] font-bold text-slate-400 tracking-wider block mb-3">GORSEL BILGISI</label>
+            <label className="text-[10px] font-bold text-slate-400 tracking-wider block mb-3">GÖRSEL BİLGİSİ</label>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <div className="text-[10px] text-slate-400 mb-1 font-semibold">SAHNE</div>
@@ -219,7 +220,7 @@ export default function Planner() {
           {/* Image Generation */}
           <div className="card p-5">
             <div className="flex items-center justify-between mb-3">
-              <label className="text-[10px] font-bold text-brand-gold tracking-wider">GORSEL URETIMI</label>
+              <label className="text-[10px] font-bold text-brand-gold tracking-wider">GÖRSEL ÜRETİMİ</label>
               {plan.quote && (
                 <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-brand-red/10 text-brand-red/70 font-medium">
                   {plan.quote.category}
@@ -260,11 +261,11 @@ export default function Planner() {
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" />
                   <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" />
                 </svg>
-                <div className="text-xs">Gorsel uretiliyor... (30-60 sn)</div>
+                <div className="text-xs">Görsel üretiliyor... (30-60 sn)</div>
               </div>
             ) : (
               <div className="text-center py-8 text-slate-300 dark:text-slate-500 text-xs">
-                Referans fotograflarla Imamoglu gorseli uret
+                Referans fotoğraflarla İmamoğlu görseli üret
               </div>
             )}
 
@@ -273,7 +274,7 @@ export default function Planner() {
               disabled={imageLoading}
               className="btn btn-primary w-full text-[10px] py-2 disabled:opacity-50"
             >
-              {imageLoading ? 'Uretiliyor...' : generatedImage ? 'Yeniden Uret' : 'Gorsel Uret'}
+              {imageLoading ? 'Üretiliyor...' : generatedImage ? 'Yeniden Üret' : 'Görsel Üret'}
             </button>
             {imageError && (
               <div className="mt-2 text-[10px] text-red-500">{imageError}</div>
@@ -285,23 +286,28 @@ export default function Planner() {
         <div className="space-y-5">
           {/* Xquik Algorithm Score */}
           <div className={`card rounded-2xl p-6 ${algoResult ? (algoResult.passed ? getScoreBg(100) : getScoreBg(algoScore)) : 'bg-slate-50 dark:bg-white/[0.03]'}`}>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between cursor-pointer select-none" onClick={() => algoResult && setAlgoExpanded(e => !e)}>
               <div>
-                <label className="text-[10px] font-bold text-slate-400 tracking-wider">ALGORITMA SKORU</label>
-                <div className="text-[10px] text-slate-400 mt-0.5">Xquik canli 11 kontrol</div>
+                <label className="text-[10px] font-bold text-slate-400 tracking-wider pointer-events-none">ALGORITMA SKORU</label>
+                <div className="text-[10px] text-slate-400 mt-0.5">Xquik canlı 11 kontrol</div>
               </div>
-              {algoLoading ? (
-                <svg className="w-8 h-8 animate-spin text-slate-300" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" /><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" /></svg>
-              ) : algoResult ? (
-                <span className={`stat-number text-5xl ${algoResult.passed ? 'text-emerald-600 dark:text-emerald-400' : getScoreColor(algoScore)}`}>
-                  {algoResult.passedCount}/{algoResult.totalChecks}
-                </span>
-              ) : (
-                <span className="text-2xl text-slate-300">—</span>
-              )}
+              <div className="flex items-center gap-2">
+                {algoLoading ? (
+                  <svg className="w-8 h-8 animate-spin text-slate-300" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" /><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" /></svg>
+                ) : algoResult ? (
+                  <span className={`stat-number text-5xl ${algoResult.passed ? 'text-emerald-600 dark:text-emerald-400' : getScoreColor(algoScore)}`}>
+                    {algoResult.passedCount}/{algoResult.totalChecks}
+                  </span>
+                ) : (
+                  <span className="text-2xl text-slate-300">—</span>
+                )}
+                {algoResult && (
+                  <svg className={`w-5 h-5 text-slate-400 transition-transform ${algoExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                )}
+              </div>
             </div>
-            {algoResult && (
-              <div className="space-y-2">
+            {algoResult && algoExpanded && (
+              <div className="space-y-2 mt-4">
                 {algoResult.checklist.map((check, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm">
                     <span className={`text-xs font-bold ${check.passed ? 'text-emerald-500' : 'text-red-500'}`}>
@@ -336,15 +342,12 @@ export default function Planner() {
 
           {/* Pre-publish checklist */}
           <div className="card p-5">
-            <label className="text-[10px] font-bold text-slate-400 tracking-wider block mb-4">PAYLASIM ONCESI KONTROL</label>
+            <label className="text-[10px] font-bold text-slate-400 tracking-wider block mb-4">PAYLAŞIM ÖNCESİ KONTROL</label>
             {[
-              'Nano Banana Pro ile gorseli urettim',
-              'Gorsel 1:1 kare format, siyah/beyaz + tek altin eleman',
-              'Tweet metnini kontrol ettim',
-              `Algoritma skoru ${algoResult?.passed ? '11/11 ✓' : algoResult ? `${algoResult.passedCount}/11 — iyilestir!` : 'bekleniyor...'}`,
-              `Kampanya uyumu ${campaignAnalysis.score >= 100 ? '3/3 ✓' : `${campaignAnalysis.checks.filter(c => c.passed).length}/3 — iyilestir!`}`,
-              'Display name guncellendi (GUN sayisi)',
-              'Sabah 09:00 TSI civarinda paylasacagim',
+              'Nano Banana Pro ile görseli ürettim',
+              'Görsel 1:1 kare format, siyah/beyaz + tek altın eleman',
+              'Display name güncellendi (GÜN sayısı)',
+              'Sabah 09:00 TSİ civarında paylaşacağım',
             ].map((item, i) => (
               <label key={i} className="flex items-center gap-3 py-2 text-sm text-slate-500 dark:text-slate-400 cursor-pointer hover:text-slate-700 dark:hover:text-white transition-colors border-b border-slate-50 dark:border-white/[0.04] last:border-0">
                 <input type="checkbox" className="rounded w-4 h-4" />

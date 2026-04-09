@@ -18,25 +18,25 @@ import {
 const SURFACE_LABELS: Record<PreviewSurface, string> = {
   profile: 'Profil Grid',
   reels: 'Reels Grid',
-  explore: 'Kesfet Simulasyonu',
+  explore: 'Keşfet Simülasyonu',
 }
 
 const PROFILE_NOTES = [
-  'Profil grid artik kare degil, dikey thumbnail mantigina daha yakin.',
-  '1:1 gorseller yandan, 9:16 kapaklar ust-alt eksende kirpilir.',
-  'Metin ve logo guvenli alani orta bantta tutulmali.',
+  'Profil grid artık kare değil, dikey thumbnail mantığına daha yakın.',
+  '1:1 görseller yandan, 9:16 kapaklar üst-alt eksende kırpılır.',
+  'Metin ve logo güvenli alanı orta bantta tutulmalı.',
 ]
 
 const REELS_NOTES = [
   'Reels sekmesinde dikey kapak tam boy hissi verir.',
-  'Ayni kapak profil gridde merkez 3:4 alana dusurulur.',
-  'Kapak metni ust veya alt kenara yapismamali.',
+  'Aynı kapak profil gridde merkez 3:4 alana düşürülür.',
+  'Kapak metni üst veya alt kenara yapışmamalı.',
 ]
 
 const EXPLORE_NOTES = [
-  'Explore herkeste ayni degildir; bu gorunum yuksek dogruluklu bir simulasyondur.',
-  'Kare kartlar temel yuzey olarak korunur, buyuk dikkat ceken kutular araya girer.',
-  'Hero isaretli kartlar mozaikte buyuk alan alir.',
+  'Explore herkeste aynı değildir; bu görünüm yüksek doğruluklu bir simülasyondur.',
+  'Kare kartlar temel yüzey olarak korunur, büyük dikkat çeken kutular araya girer.',
+  'Hero işaretli kartlar mozaikte büyük alan alır.',
 ]
 
 function getInitialAssets() {
@@ -129,20 +129,20 @@ export default function InstagramPreview() {
               Instagram Preview Lab
             </div>
             <h1 className="max-w-3xl font-serif text-3xl font-bold tracking-tight text-slate-850 dark:text-white sm:text-4xl">
-              Profil grid, reels grid ve kesfet yuzeyini tek yerde, gercekci crop mantigi ile gor.
+              Profil grid, reels grid ve keşfet yüzeyini tek yerde, gerçekçi crop mantığı ile gör.
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-500 dark:text-slate-400">
-              Bu arac birebir profil grid ve reels kapak davranisini hedefler. Kesfet gorunumu ise algoritmik olarak ayni olmayacagi icin
-              acikca simulasyon olarak isaretlenir. Temsil gorselleri yukleyip dogru crop bolgesini ayarlayabilirsin.
+              Bu araç birebir profil grid ve reels kapak davranışını hedefler. Keşfet görünümü ise algoritmik olarak aynı olmayacağı için
+              açıkça simülasyon olarak işaretlenir. Temsil görselleri yükleyip doğru crop bölgesini ayarlayabilirsin.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
               <label className="btn btn-primary cursor-pointer">
                 <input type="file" accept="image/*" multiple className="hidden" onChange={handleUpload} />
-                {uploading ? 'Yukleniyor...' : 'Temsil gorseli yukle'}
+                {uploading ? 'Yükleniyor...' : 'Temsil görseli yükle'}
               </label>
-              <button type="button" className="btn" onClick={cloneSelected}>Secili karti cogalt</button>
-              <button type="button" className="btn" onClick={resetSamples}>Ornek seti geri yukle</button>
+              <button type="button" className="btn" onClick={cloneSelected}>Seçili kartı çoğalt</button>
+              <button type="button" className="btn" onClick={resetSamples}>Örnek seti geri yükle</button>
             </div>
           </div>
 
@@ -169,7 +169,7 @@ export default function InstagramPreview() {
             <div className="flex flex-col gap-4 border-b border-black/[0.06] pb-5 dark:border-white/[0.06] sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <div className="section-header">
-                  <h2 className="font-serif text-2xl font-bold text-slate-850 dark:text-white">Canli yuzey</h2>
+                  <h2 className="font-serif text-2xl font-bold text-slate-850 dark:text-white">Canlı yüzey</h2>
                 </div>
                 <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{getSurfaceSummary(surface)}</p>
               </div>
@@ -221,7 +221,7 @@ export default function InstagramPreview() {
                   />
                 )) : (
                   <div className="col-span-full rounded-[1.5rem] border border-dashed border-black/[0.1] p-10 text-center text-sm text-slate-400 dark:border-white/[0.08]">
-                    Reels grid preview icin en az bir karti <span className="font-semibold text-brand-red">reel</span> turune cevir.
+                    Reels grid preview için en az bir kartı <span className="font-semibold text-brand-red">reel</span> türüne çevir.
                   </div>
                 )}
               </div>
@@ -250,7 +250,7 @@ export default function InstagramPreview() {
           <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="card p-5">
               <div className="section-header">
-                <h2 className="font-serif text-xl font-bold text-slate-850 dark:text-white">Acilmis gorunum</h2>
+                <h2 className="font-serif text-xl font-bold text-slate-850 dark:text-white">Açılmış görünüm</h2>
               </div>
               {selectedAsset && (
                 <div className="mt-5 rounded-[2rem] bg-slate-950 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.38)]">
@@ -287,7 +287,7 @@ export default function InstagramPreview() {
 
             <div className="card p-5">
               <div className="section-header">
-                <h2 className="font-serif text-xl font-bold text-slate-850 dark:text-white">Yuzey notlari</h2>
+                <h2 className="font-serif text-xl font-bold text-slate-850 dark:text-white">Yüzey notları</h2>
               </div>
               <div className="mt-5 space-y-3">
                 {getPreviewNotes(surface).map(note => (
@@ -304,7 +304,7 @@ export default function InstagramPreview() {
         <aside className="space-y-6">
           <div className="card p-5">
             <div className="section-header">
-              <h2 className="font-serif text-xl font-bold text-slate-850 dark:text-white">Secili kart</h2>
+              <h2 className="font-serif text-xl font-bold text-slate-850 dark:text-white">Seçili kart</h2>
             </div>
 
             {selectedAsset && (
@@ -400,7 +400,7 @@ export default function InstagramPreview() {
                   <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Kaynak oran</div>
                   <div className="mt-2 font-semibold text-slate-800 dark:text-white">{getRatioLabel(selectedAsset.sourceRatio)}</div>
                   <div className="mt-2 text-xs leading-6 text-slate-400">
-                    Yuklenen gorselin kendi orani saklanir. Profil grid preview ayri, acilmis gorunum ayri hesaplanir.
+                    Yüklenen görselin kendi oranı saklanır. Profil grid preview ayrı, açılmış görünüm ayrı hesaplanır.
                   </div>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {[
@@ -435,7 +435,7 @@ export default function InstagramPreview() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <button type="button" className="btn justify-center" onClick={cloneSelected}>Cogalt</button>
+                  <button type="button" className="btn justify-center" onClick={cloneSelected}>Çoğalt</button>
                   <button
                     type="button"
                     className="btn justify-center border-red-200 text-red-600 dark:border-red-500/20 dark:text-red-400"

@@ -62,19 +62,19 @@ export const SAMPLE_ASSETS: PreviewAsset[] = [
     sourceRatio: 1,
     focalX: 50,
     focalY: 50,
-    note: 'Kare post. Profil gridde yanlardan kirpilir.',
+    note: 'Kare post. Profil gridde yanlardan kırpılır.',
     accent: '#E30A17',
     highlight: false,
   },
   {
     id: crypto.randomUUID(),
-    title: 'Sessiz yuruyus',
+    title: 'Sessiz yürüyüş',
     kind: 'post',
-    dataUrl: buildPlaceholder('Sessiz yuruyus', '#D4A843', 'POST / 4:5'),
+    dataUrl: buildPlaceholder('Sessiz yürüyüş', '#D4A843', 'POST / 4:5'),
     sourceRatio: 4 / 5,
     focalX: 55,
     focalY: 46,
-    note: 'Dikey post. Gridde daha guvenli.',
+    note: 'Dikey post. Gridde daha güvenli.',
     accent: '#D4A843',
     highlight: true,
   },
@@ -86,19 +86,19 @@ export const SAMPLE_ASSETS: PreviewAsset[] = [
     sourceRatio: 9 / 16,
     focalX: 50,
     focalY: 38,
-    note: 'Reels sekmesinde tam boy, profil gridde merkez 3:4 alani.',
+    note: 'Reels sekmesinde tam boy, profil gridde merkez 3:4 alanı.',
     accent: '#F97316',
     highlight: true,
   },
   {
     id: crypto.randomUUID(),
-    title: 'Aksam karesi',
+    title: 'Akşam karesi',
     kind: 'post',
-    dataUrl: buildPlaceholder('Aksam karesi', '#22C55E', 'POST / 3:4'),
+    dataUrl: buildPlaceholder('Akşam karesi', '#22C55E', 'POST / 3:4'),
     sourceRatio: 3 / 4,
     focalX: 50,
     focalY: 52,
-    note: '3:4, yeni grid davranisina en yakin guvenli gorunum.',
+    note: '3:4, yeni grid davranışına en yakın güvenli görünüm.',
     accent: '#22C55E',
     highlight: false,
   },
@@ -110,7 +110,7 @@ export const SAMPLE_ASSETS: PreviewAsset[] = [
     sourceRatio: 9 / 16,
     focalX: 48,
     focalY: 42,
-    note: 'Kapak metni orta bantta tutulmali.',
+    note: 'Kapak metni orta bantta tutulmalı.',
     accent: '#38BDF8',
     highlight: false,
   },
@@ -195,7 +195,7 @@ export function createUploadAsset(fileName: string, dataUrl: string, sourceRatio
     sourceRatio,
     focalX: 50,
     focalY: 50,
-    note: 'Yuklenen temsil gorseli.',
+    note: 'Yüklenen temsil görseli.',
     accent: '#E30A17',
     highlight: false,
   }
@@ -241,7 +241,7 @@ export function getRatioLabel(ratio: number) {
 }
 
 export function getSurfaceSummary(surface: PreviewSurface) {
-  if (surface === 'profile') return '3 kolonlu profil grid. Dikey thumbnail crop davranisi.'
-  if (surface === 'reels') return 'Reels sekmesi. 9:16 kapaklar tam boy gozukur.'
-  return 'Kisisel Explore birebir kopyalanamaz. Bu yuzey gercekci bir simulasyondur.'
+  if (surface === 'profile') return '3 kolonlu profil grid. Dikey thumbnail crop davranışı.'
+  if (surface === 'reels') return 'Reels sekmesi. 9:16 kapaklar tam boy gözükür.'
+  return 'Kişisel Explore birebir kopyalanamaz. Bu yüzey gerçekçi bir simülasyondur.'
 }

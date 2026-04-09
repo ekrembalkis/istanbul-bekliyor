@@ -1010,7 +1010,7 @@ export default function StyleClone() {
                         type="text"
                         value={quoteTweetUrl}
                         onChange={e => setQuoteTweetUrl(e.target.value)}
-                        placeholder="Tweet URL yapistir..."
+                        placeholder="Tweet URL yapıştır..."
                         className="flex-1 input-field px-3 py-2 text-sm text-slate-700 dark:text-slate-200"
                       />
                       <button onClick={handleFetchQuoteTweet} disabled={fetchingQuote} className="btn text-xs px-3 disabled:opacity-50">
