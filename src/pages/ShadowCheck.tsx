@@ -33,11 +33,11 @@ function CheckIcon({ status }: { status: CheckResult['status'] }) {
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime()
   const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'az once'
-  if (mins < 60) return `${mins} dk once`
+  if (mins < 1) return 'az önce'
+  if (mins < 60) return `${mins} dk önce`
   const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs} saat once`
-  return `${Math.floor(hrs / 24)} gun once`
+  if (hrs < 24) return `${hrs} saat önce`
+  return `${Math.floor(hrs / 24)} gün önce`
 }
 
 export default function ShadowCheck() {

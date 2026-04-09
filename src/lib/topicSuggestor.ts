@@ -27,7 +27,7 @@ function getCampaignTopic(): TopicSuggestion {
     title: `GUN ${day}: ${plan.theme}`,
     source: 'campaign',
     relevance: 90,
-    reason: 'Bugunku kampanya temasi',
+    reason: 'Bugünkü kampanya teması',
   }
 }
 

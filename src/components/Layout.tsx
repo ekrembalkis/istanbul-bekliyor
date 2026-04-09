@@ -7,7 +7,7 @@ const navItems = [
   { to: '/', label: 'Panel' },
   { to: '/planner', label: 'Planla' },
   { to: '/calendar', label: 'Takvim' },
-  { to: '/preview', label: 'Onizleme' },
+  { to: '/preview', label: 'Önizleme' },
   { to: '/archive', label: 'Arşiv' },
   { to: '/style', label: 'Üret' },
   { to: '/haberler', label: 'Haberler' },

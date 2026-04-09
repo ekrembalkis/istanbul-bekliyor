@@ -310,7 +310,7 @@ export default function InstagramPreview() {
             {selectedAsset && (
               <div className="mt-5 space-y-4">
                 <div>
-                  <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Baslik</label>
+                  <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Başlık</label>
                   <input
                     value={selectedAsset.title}
                     onChange={event => updateSelected({ title: event.target.value })}

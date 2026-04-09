@@ -118,7 +118,7 @@ export default function Planner() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div className="section-header">
-          <h1 className="text-2xl font-serif font-bold text-slate-800 dark:text-white">Tweet Planlayici</h1>
+          <h1 className="text-2xl font-serif font-bold text-slate-800 dark:text-white">Tweet Planlayıcı</h1>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-2xl">{plan.emoji}</span>

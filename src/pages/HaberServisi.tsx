@@ -442,7 +442,7 @@ export default function HaberServisi() {
                               download
                               className="flex-1 py-2 text-xs font-bold text-white bg-fuchsia-600 hover:bg-fuchsia-700 rounded-lg transition-colors text-center"
                             >
-                              Indir
+                              İndir
                             </a>
                           </div>
                         )}

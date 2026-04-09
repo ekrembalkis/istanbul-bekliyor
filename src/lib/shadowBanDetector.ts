@@ -77,21 +77,21 @@ async function probeMonitor(username: string): Promise<CheckResult> {
             if (probeMsg.toLowerCase().includes('shadow')) {
               return { status: 'fail', detail: 'X shadow ban tespit etti', confidence: 95 }
             }
-            return { status: 'error', detail: `Probe hatasi: ${probeMsg}`, confidence: 0 }
+            return { status: 'error', detail: `Probe hatası: ${probeMsg}`, confidence: 0 }
           }
         }
       } catch {
         // listMonitors failed during retry
       }
-      return { status: 'skipped', detail: 'Monitor limiti dolu, slot acilamadi', confidence: 0 }
+      return { status: 'skipped', detail: 'Monitor limiti dolu, slot açılamadı', confidence: 0 }
     }
 
     // Subscription required
     if (msgLower.includes('402') || msgLower.includes('subscription')) {
-      return { status: 'skipped', detail: 'API aboneligi gerekli', confidence: 0 }
+      return { status: 'skipped', detail: 'API aboneliği gerekli', confidence: 0 }
     }
 
-    return { status: 'error', detail: `Monitor hatasi: ${msg}`, confidence: 0 }
+    return { status: 'error', detail: `Monitor hatası: ${msg}`, confidence: 0 }
   }
 }
 
