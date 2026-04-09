@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { getDayCount } from '../lib/utils'
 import { runQuickCheck } from '../lib/shadowBanDetector'
 import type { ShadowBanRecord } from '../lib/shadowBanDetector'
+import { getLatestCheck } from '../lib/shadowBanHistory'
 
 export default function RightSidebar() {
   const day = getDayCount()
@@ -9,9 +10,8 @@ export default function RightSidebar() {
   const [shadowLoading, setShadowLoading] = useState(false)
 
   useEffect(() => {
-    runQuickCheck('istbekliyor')
-      .then(setShadowResult)
-      .catch(() => {})
+    const cached = getLatestCheck('istbekliyor')
+    if (cached) setShadowResult(cached)
   }, [])
 
   const handleCheck = async () => {

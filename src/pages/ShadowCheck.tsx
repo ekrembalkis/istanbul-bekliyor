@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom'
 const STATUS_CONFIG: Record<OverallStatus, { label: string; color: string; bg: string }> = {
   clean: { label: 'Temiz', color: 'text-[#00BA7C]', bg: 'bg-[#00BA7C]/10 border-[#00BA7C]/20' },
   suspicious: { label: 'Şüpheli', color: 'text-[#FFD400]', bg: 'bg-[#FFD400]/10 border-[#FFD400]/20' },
-  likely_banned: { label: 'Muhtemel Ban', color: 'text-orange-500', bg: 'bg-orange-500/10 border-orange-500/20' },
+  likely_banned: { label: 'Muhtemel Ban', color: 'text-[#FFD400]', bg: 'bg-[#FFD400]/10 border-[#FFD400]/20' },
   confirmed_banned: { label: 'Onaylı Shadow Ban', color: 'text-[#F91880]', bg: 'bg-[#F91880]/10 border-[#F91880]/20' },
 }
 
@@ -86,7 +86,7 @@ export default function ShadowCheck() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">Shadow Ban Dedektoru</h1>
+          <h1 className="text-xl font-bold text-[#E7E9EA]">Shadow Ban Dedektoru</h1>
           <p className="text-xs text-[#71767B] mt-1">5 katmanli hesap sagligi analizi</p>
         </div>
         <Link to="/" className="text-xs text-[#71767B] hover:text-[#1D9BF0] transition-colors">&larr; Panel</Link>
@@ -102,7 +102,7 @@ export default function ShadowCheck() {
               value={username}
               onChange={e => setUsername(e.target.value.replace('@', '').trim())}
               placeholder="istbekliyor"
-              className="w-full pl-8 pr-3 py-2.5 rounded-xl bg-[rgba(231,233,234,0.03)] border border-[#2F3336] text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#1D9BF0]/30"
+              className="w-full pl-8 pr-3 py-2.5 rounded-xl bg-[rgba(231,233,234,0.03)] border border-[#2F3336] text-sm text-[#E7E9EA] focus:outline-none focus:ring-2 focus:ring-[#1D9BF0]/30"
               disabled={loading}
             />
           </div>
@@ -151,7 +151,7 @@ export default function ShadowCheck() {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-white">%{result.confidence}</div>
+              <div className="text-2xl font-bold text-[#E7E9EA]">%{result.confidence}</div>
               <div className="text-[10px] text-[#71767B]">guvenilirlik</div>
             </div>
           </div>
@@ -175,7 +175,7 @@ export default function ShadowCheck() {
 
       {/* 5 Layer Detail Cards */}
       {result && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {(Object.entries(result.checks) as [string, CheckResult][]).map(([key, check]) => {
             const layer = LAYER_LABELS[key]
             if (!layer) return null

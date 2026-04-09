@@ -251,7 +251,7 @@ export default function InstagramPreview() {
                 <h2 className="text-xl font-bold text-[#E7E9EA]">Açılmış görünüm</h2>
               </div>
               {selectedAsset && (
-                <div className="mt-5 rounded-[2rem] bg-slate-950 p-4">
+                <div className="mt-5 rounded-[2rem] bg-[#000] p-4">
                   <div className="mx-auto w-full max-w-[320px] rounded-[2rem] border border-white/10 bg-[#09090f] p-3">
                     <div className="mb-3 flex justify-center">
                       <div className="h-1.5 w-20 rounded-full bg-white/20" />
@@ -343,7 +343,7 @@ export default function InstagramPreview() {
                       onClick={() => updateSelected({ highlight: !selectedAsset.highlight })}
                       className={`w-full rounded-xl border px-4 py-3 text-sm font-semibold transition-all ${
                         selectedAsset.highlight
-                          ? 'border-campaign-gold bg-brand-gold-light text-campaign-gold'
+                          ? 'border-campaign-gold bg-campaign-gold/10 text-campaign-gold'
                           : 'border-[#2F3336] bg-[rgba(231,233,234,0.03)] text-[#E7E9EA]'
                       }`}
                     >

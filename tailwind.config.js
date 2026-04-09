@@ -1,7 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
-  darkMode: 'class',
   theme: {
     screens: {
       xs: '500px',
@@ -27,20 +26,6 @@ export default {
           red: '#E30A17',
           'red-dark': '#B80813',
           gold: '#D4A843',
-        },
-        // Keep old brand/dark aliases during migration so pages don't break
-        brand: {
-          red: '#E30A17',
-          'red-dark': '#B80813',
-          'red-light': '#1D9BF0',
-          gold: '#D4A843',
-          'gold-light': '#FDF8EF',
-        },
-        dark: {
-          bg: '#000000',
-          card: '#16181C',
-          border: '#2F3336',
-          hover: '#1C1C28',
         },
       },
       fontFamily: {

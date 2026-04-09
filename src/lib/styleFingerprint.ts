@@ -46,7 +46,7 @@ export function computeFingerprint(tweets: string[]): StyleFingerprint {
   // Punctuation density
   const allText = texts.join('')
   const punctCount = allText.replace(/[^.,!?;:…–—]/g, '').length
-  const punctuationDensity = punctCount / allText.length
+  const punctuationDensity = allText.length > 0 ? punctCount / allText.length : 0
 
   // Slang density
   const slangDensity = texts.map(t => (t.match(SLANG_REGEX) || []).length).reduce((a, b) => a + b, 0) / texts.length
@@ -120,7 +120,7 @@ export function fingerprintMatch(tweet: string, fp: StyleFingerprint): number {
   weightedScore += (slangMatch ? 2 : 0)
   totalWeight += 2
 
-  const tweetPunct = tweet.replace(/[^.,!?;:…–—]/g, '').length / tweet.length
+  const tweetPunct = tweet.length > 0 ? tweet.replace(/[^.,!?;:…–—]/g, '').length / tweet.length : 0
   const punctMatch = Math.abs(tweetPunct - fp.punctuationDensity) < 0.03
   weightedScore += (punctMatch ? 2 : 0)
   totalWeight += 2

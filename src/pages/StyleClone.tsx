@@ -717,7 +717,7 @@ export default function StyleClone() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Current Style */}
             <div className="space-y-5">
               {currentStyle && (
@@ -875,7 +875,7 @@ export default function StyleClone() {
                         <button
                           onClick={e => { e.stopPropagation(); setUsername(style.xUsername); handleAnalyze(style.xUsername) }}
                           disabled={analyzing}
-                          className="btn text-[10px] py-1 px-2 text-purple-500 hover:bg-purple-500/100/10 disabled:opacity-50"
+                          className="btn text-[10px] py-1 px-2 text-[#7856FF] hover:bg-[#7856FF]/10 disabled:opacity-50"
                           title="Stili ve DNA'yı yeniden analiz et"
                         >
                           {analyzing && username === style.xUsername ? '...' : 'Restyle'}
@@ -927,7 +927,7 @@ export default function StyleClone() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Left: Controls */}
           <div className="space-y-5">
             {/* Config */}
@@ -987,7 +987,7 @@ export default function StyleClone() {
                               <div className="flex items-center gap-1">
                                 <span className={`text-xs font-semibold ${isSelected ? 'text-[#1D9BF0]' : 'text-[#E7E9EA]'}`}>@{s.xUsername}</span>
                                 {library.find(e => e.username === s.xUsername)?.personalityDNA && (
-                                  <span className="text-[8px] px-1 py-0.5 rounded bg-purple-500/10 text-purple-500 border border-purple-500/20 font-bold">DNA</span>
+                                  <span className="text-[8px] px-1 py-0.5 rounded bg-[#7856FF]/10 text-[#7856FF] border border-[#7856FF]/20 font-bold">DNA</span>
                                 )}
                               </div>
                               <div className="text-[10px] text-[#71767B]">{s.tweetCount} tweet</div>
@@ -1282,7 +1282,7 @@ export default function StyleClone() {
                       onClick={() => setCloneMode(false)}
                       className={`text-[10px] px-3 py-1.5 rounded-lg border transition-all ${
                         !cloneMode
-                          ? 'bg-blue-500/10 text-[#1D9BF0] border-blue-500/20 font-bold'
+                          ? 'bg-[#1D9BF0]/10 text-[#1D9BF0] border-[#1D9BF0]/20 font-bold'
                           : 'text-[#71767B] border-[#2F3336] hover:text-[#E7E9EA]'
                       }`}
                     >
@@ -1395,7 +1395,7 @@ export default function StyleClone() {
                     <span className={`text-[10px] px-2 py-0.5 rounded-lg ${
                       cloneMode
                         ? 'bg-[rgba(29,155,240,0.1)] text-[#1D9BF0]'
-                        : 'bg-blue-500/10 text-[#1D9BF0]'
+                        : 'bg-[#1D9BF0]/10 text-[#1D9BF0]'
                     }`}>
                       {cloneMode ? 'Birebir Klon' : 'Optimize'}
                     </span>
@@ -1412,7 +1412,7 @@ export default function StyleClone() {
                 {generateWarnings.length > 0 && (
                   <div className="mb-3 space-y-1.5">
                     {generateWarnings.map((w, i) => (
-                      <div key={i} className="flex items-start gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-[#FFD400]/20 text-[#FFD400] text-[11px]">
+                      <div key={i} className="flex items-start gap-2 px-3 py-2 rounded-lg bg-[#FFD400]/10 border border-[#FFD400]/20 text-[#FFD400] text-[11px]">
                         <span className="mt-0.5 shrink-0">&#9888;</span>
                         <span>{w}</span>
                       </div>
@@ -1467,7 +1467,7 @@ export default function StyleClone() {
                               )}
                               <span className="text-[10px] text-[#71767B]">{gt.tweet.length} chr</span>
                               {gt.styleMatch != null && (
-                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${gt.styleMatch >= 80 ? 'bg-[#00BA7C]/10 text-[#00BA7C]' : gt.styleMatch >= 60 ? 'bg-amber-500/10 text-[#FFD400]' : 'bg-[#F91880]/10 text-[#F91880]'}`}>
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${gt.styleMatch >= 80 ? 'bg-[#00BA7C]/10 text-[#00BA7C]' : gt.styleMatch >= 60 ? 'bg-[#FFD400]/10 text-[#FFD400]' : 'bg-[#F91880]/10 text-[#F91880]'}`}>
                                   stil {gt.styleMatch}%
                                 </span>
                               )}

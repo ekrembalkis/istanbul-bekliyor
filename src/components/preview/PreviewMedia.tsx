@@ -31,7 +31,7 @@ export default function PreviewMedia({
           : 'border-[#2F3336]'
       } ${className}`}
     >
-      <div className={`relative ${aspectClass} bg-slate-950`}>
+      <div className={`relative ${aspectClass} bg-[#000]`}>
         <img
           src={asset.dataUrl}
           alt={asset.title}

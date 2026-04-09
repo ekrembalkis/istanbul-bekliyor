@@ -50,8 +50,8 @@ function GeminiCard({ title, usage, period }: { title: string; usage: GeminiUsag
         </div>
       </div>
       <div className="space-y-2">
-        <UsageBar label="Input tokens" value={usage.promptTokens} max={Math.max(usage.promptTokens, usage.completionTokens)} color="bg-blue-400" />
-        <UsageBar label="Output tokens" value={usage.completionTokens} max={Math.max(usage.promptTokens, usage.completionTokens)} color="bg-indigo-400" />
+        <UsageBar label="Input tokens" value={usage.promptTokens} max={Math.max(usage.promptTokens, usage.completionTokens)} color="bg-[#1D9BF0]" />
+        <UsageBar label="Output tokens" value={usage.completionTokens} max={Math.max(usage.promptTokens, usage.completionTokens)} color="bg-[#7856FF]" />
       </div>
     </div>
   )
@@ -206,7 +206,7 @@ export default function Settings() {
       <div className="card p-6">
         <h2 className="text-sm font-bold text-[#71767B] mb-5 tracking-wider">API KULLANIM PANELİ</h2>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Xquik Subscription */}
           <div className="space-y-4">
             <div className="text-[10px] font-bold text-[#71767B] tracking-wider">XQUIK ABONELİK</div>
@@ -246,7 +246,7 @@ export default function Settings() {
                   <div className="h-3 bg-[rgba(231,233,234,0.03)] rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
-                        usagePct > 80 ? 'bg-[#F91880]' : usagePct > 50 ? 'bg-amber-500' : 'bg-[#00BA7C]'
+                        usagePct > 80 ? 'bg-[#F91880]' : usagePct > 50 ? 'bg-[#FFD400]' : 'bg-[#00BA7C]'
                       }`}
                       style={{ width: `${Math.max(2, usagePct)}%` }}
                     />
@@ -318,7 +318,7 @@ export default function Settings() {
                 const pct = (r.gemini.totalTokens / maxTokens) * 100
                 return (
                   <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                    <div className="w-full bg-blue-500/20 rounded-sm" style={{ height: `${Math.max(2, pct)}%` }}
+                    <div className="w-full bg-[#1D9BF0]/20 rounded-sm" style={{ height: `${Math.max(2, pct)}%` }}
                       title={`${r.date}: ${formatTokens(r.gemini.totalTokens)} token, ${r.gemini.calls} istek`}
                     />
                     <span className="text-[8px] text-[#71767B]">{r.date.slice(5)}</span>
@@ -361,7 +361,7 @@ export default function Settings() {
             {xAccounts.map(acc => (
               <div key={acc.id} className="flex items-center justify-between bg-[rgba(231,233,234,0.03)] rounded-xl p-4 border border-[#2F3336]">
                 <div className="flex items-center gap-3">
-                  <span className={`w-2.5 h-2.5 rounded-full ${acc.status === 'active' || acc.status === 'connected' ? 'bg-[#00BA7C]' : 'bg-amber-500'}`} />
+                  <span className={`w-2.5 h-2.5 rounded-full ${acc.status === 'active' || acc.status === 'connected' ? 'bg-[#00BA7C]' : 'bg-[#FFD400]'}`} />
                   <div>
                     <div className="text-sm font-bold text-[#E7E9EA]">@{acc.xUsername}</div>
                     <div className="text-[10px] text-[#71767B]">{acc.status}</div>
@@ -467,7 +467,7 @@ export default function Settings() {
                       onClick={() => handleToggleAutomation(flow)}
                       className={`text-[10px] px-2 py-1 rounded-md border transition-all ${
                         flow.isActive
-                          ? 'text-amber-500 border-amber-500/20 hover:bg-[rgba(231,233,234,0.1)]'
+                          ? 'text-[#FFD400] border-[#FFD400]/20 hover:bg-[rgba(231,233,234,0.1)]'
                           : 'text-[#00BA7C] border-[#00BA7C]/20 hover:bg-[rgba(231,233,234,0.1)]'
                       }`}
                     >
@@ -510,7 +510,7 @@ export default function Settings() {
       {/* Campaign Info */}
       <div className="card p-6">
         <h2 className="text-sm font-bold text-[#71767B] mb-5 tracking-wider">KAMPANYA BİLGİLERİ</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 text-sm">
+        <div className="grid grid-cols-2 gap-5 text-sm">
           {[
             { label: 'Hesap', value: '@istbekliyor' },
             { label: 'Başlangıç', value: '19 Mart 2025' },
@@ -528,7 +528,7 @@ export default function Settings() {
       {/* Brand Colors */}
       <div className="card p-6">
         <h2 className="text-sm font-bold text-[#71767B] mb-5 tracking-wider">MARKA RENKLERİ</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 gap-5">
           {[
             { name: 'Marka Kırmızı', hex: '#E30A17', usage: 'Profil, banner' },
             { name: 'Altın Aksan', hex: '#D4A843', usage: 'Günlük görseller' },

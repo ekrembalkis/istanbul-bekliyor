@@ -19,21 +19,21 @@ import { searchImages, type SearchImage } from '../lib/imageSearch'
 const SOURCE_COLORS: Record<string, string> = {
   aa: 'bg-[#F91880]/10 text-[#F91880]',
   ntv: 'bg-[#00BA7C]/10 text-[#00BA7C]',
-  cnnturk: 'bg-sky-500/10 text-sky-400',
-  diken: 'bg-orange-500/10 text-orange-400',
-  bianet: 'bg-purple-500/10 text-purple-400',
-  bbc: 'bg-slate-500/10 text-[#E7E9EA]',
-  sozcu: 'bg-blue-500/10 text-blue-400',
-  cumhuriyet: 'bg-rose-500/10 text-rose-400',
+  cnnturk: 'bg-[#38BDF8]/10 text-[#38BDF8]',
+  diken: 'bg-[#FB923C]/10 text-[#FB923C]',
+  bianet: 'bg-[#A855F7]/10 text-[#A855F7]',
+  bbc: 'bg-[rgba(231,233,234,0.06)] text-[#E7E9EA]',
+  sozcu: 'bg-[#1D9BF0]/10 text-[#1D9BF0]',
+  cumhuriyet: 'bg-[#FB7185]/10 text-[#FB7185]',
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
   siyaset: 'bg-[#F91880]/10 text-[#F91880]',
   ekonomi: 'bg-[#00BA7C]/10 text-[#00BA7C]',
-  dunya: 'bg-blue-500/10 text-blue-400',
-  teknoloji: 'bg-violet-500/10 text-violet-400',
+  dunya: 'bg-[#1D9BF0]/10 text-[#1D9BF0]',
+  teknoloji: 'bg-[#8B5CF6]/10 text-[#8B5CF6]',
   toplum: 'bg-[#FFD400]/10 text-[#FFD400]',
-  spor: 'bg-cyan-500/10 text-cyan-400',
+  spor: 'bg-[#22D3EE]/10 text-[#22D3EE]',
 }
 
 const defaultFilter: NewsFilter = {
@@ -482,8 +482,8 @@ function NewsCard({
   onUseTweet: (item: NewsItem) => void
   onInstagram: (item: NewsItem) => void
 }) {
-  const sourceColor = SOURCE_COLORS[item.source] || 'bg-slate-500/10 text-[#71767B]'
-  const categoryColor = CATEGORY_COLORS[item.category] || 'bg-slate-500/10 text-[#71767B]'
+  const sourceColor = SOURCE_COLORS[item.source] || 'bg-[rgba(231,233,234,0.06)] text-[#71767B]'
+  const categoryColor = CATEGORY_COLORS[item.category] || 'bg-[rgba(231,233,234,0.06)] text-[#71767B]'
   const categoryLabel = CATEGORIES.find(c => c.key === item.category)?.label || item.category
 
   return (

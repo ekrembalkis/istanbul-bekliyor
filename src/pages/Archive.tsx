@@ -106,7 +106,7 @@ export default function Archive() {
                   <span className="text-xs text-[#71767B]">{t.theme}</span>
                   <span className={`chip text-[10px] ${
                     t.status === 'posted' ? 'bg-[#00BA7C]/10 text-[#00BA7C] border-[#00BA7C]/20' :
-                    t.status === 'ready' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
+                    t.status === 'ready' ? 'bg-[#1D9BF0]/10 text-[#1D9BF0] border-[#1D9BF0]/20' :
                     'bg-[rgba(231,233,234,0.04)] text-[#71767B] border-[rgba(231,233,234,0.1)]'
                   }`}>
                     {t.status === 'posted' ? 'PAYLAŞILDI' : t.status === 'ready' ? 'HAZIR' : t.status === 'skipped' ? 'ATLANDI' : 'PLANLI'}

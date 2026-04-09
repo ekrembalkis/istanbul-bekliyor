@@ -69,6 +69,7 @@ export default function Planner() {
   }
 
   const handleGenerateImage = async () => {
+    if (!plan.quote) { setImageError('Quote bulunamadı'); return }
     setImageLoading(true)
     setImageError('')
     try {
@@ -77,7 +78,7 @@ export default function Planner() {
         theme: plan.theme,
         scene: plan.scene,
         goldenElement: plan.goldenElement,
-        quote: plan.quote!,
+        quote: plan.quote,
         customPrompt: activePrompt || undefined,
       })
       setGeneratedImage({
