@@ -64,25 +64,25 @@ export default function Calendar() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
-        <div className="section-header">
-          <h1 className="text-2xl font-serif font-bold text-slate-800 dark:text-white">Takvim</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-[#E7E9EA]">Takvim</h1>
         </div>
-        <div className="chip font-mono">GÜN {today}</div>
+        <div className="chip">GUN {today}</div>
       </div>
 
       <div className="card p-6">
         {/* Month navigation */}
         <div className="flex items-center justify-between mb-5">
-          <button onClick={prevMonth} className="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.06] flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors">
+          <button onClick={prevMonth} className="w-8 h-8 rounded-lg hover:bg-[rgba(231,233,234,0.1)] flex items-center justify-center text-[#71767B] hover:text-[#E7E9EA] transition-colors">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </button>
           <div className="text-center">
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white capitalize">{monthLabel}</h2>
+            <h2 className="text-lg font-bold text-[#E7E9EA] capitalize">{monthLabel}</h2>
             {!isCurrentMonth && (
-              <button onClick={goToday} className="text-[10px] text-brand-red hover:underline mt-0.5">Bugüne dön</button>
+              <button onClick={goToday} className="text-[10px] text-[#1D9BF0] hover:underline mt-0.5">Bugune don</button>
             )}
           </div>
-          <button onClick={nextMonth} className="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.06] flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors">
+          <button onClick={nextMonth} className="w-8 h-8 rounded-lg hover:bg-[rgba(231,233,234,0.1)] flex items-center justify-center text-[#71767B] hover:text-[#E7E9EA] transition-colors">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </button>
         </div>
@@ -90,7 +90,7 @@ export default function Calendar() {
         {/* Weekday headers */}
         <div className="grid grid-cols-7 gap-1 mb-1">
           {WEEKDAYS.map(w => (
-            <div key={w} className="text-center text-[10px] font-bold text-slate-400 tracking-wider py-1">{w}</div>
+            <div key={w} className="text-center text-[10px] font-bold text-[#71767B] tracking-wider py-1">{w}</div>
           ))}
         </div>
 
@@ -115,16 +115,16 @@ export default function Calendar() {
                 disabled={isBeforeCampaign}
                 className={`aspect-square rounded-xl p-1 flex flex-col items-center justify-center gap-0.5 transition-all relative ${
                   isSelected
-                    ? 'bg-brand-red text-white shadow-lg scale-105 ring-2 ring-brand-red/30'
+                    ? 'bg-[#1D9BF0] text-white scale-105 ring-2 ring-[#1D9BF0]/30'
                     : isToday
-                      ? 'bg-brand-red/10 border-2 border-brand-red text-brand-red'
+                      ? 'bg-[#1D9BF0]/10 border-2 border-[#1D9BF0] text-[#1D9BF0]'
                       : isMilestone
                         ? 'bg-brand-gold/10 border border-brand-gold/30 text-brand-gold'
                         : isBeforeCampaign
-                          ? 'text-slate-200 dark:text-white/[0.1] cursor-default'
+                          ? 'text-[rgba(231,233,234,0.1)] cursor-default'
                           : isPast
-                            ? 'bg-slate-50 dark:bg-white/[0.02] text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.06]'
-                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.04]'
+                            ? 'bg-[rgba(231,233,234,0.03)] text-[#71767B] hover:bg-[rgba(231,233,234,0.1)]'
+                            : 'text-[#E7E9EA] hover:bg-[rgba(231,233,234,0.06)]'
                 }`}
               >
                 {/* Calendar date */}
@@ -132,8 +132,8 @@ export default function Calendar() {
 
                 {/* Campaign day number */}
                 {!isBeforeCampaign && (
-                  <span className={`text-[9px] font-mono font-bold leading-none ${
-                    isSelected ? 'text-white' : isToday ? 'text-brand-red' : isMilestone ? 'text-brand-gold' : 'text-slate-500 dark:text-slate-400'
+                  <span className={`text-[9px] font-bold leading-none ${
+                    isSelected ? 'text-white' : isToday ? 'text-[#1D9BF0]' : isMilestone ? 'text-brand-gold' : 'text-[#71767B]'
                   }`}>
                     {campaignDay}
                   </span>
@@ -146,7 +146,7 @@ export default function Calendar() {
 
                 {/* Today dot */}
                 {isToday && !isSelected && (
-                  <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-brand-red" />
+                  <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#1D9BF0]" />
                 )}
               </button>
             )
@@ -154,18 +154,18 @@ export default function Calendar() {
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-4 mt-4 pt-3 border-t border-slate-100 dark:border-white/[0.06]">
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-            <div className="w-3 h-3 rounded bg-brand-red/10 border-2 border-brand-red" />
-            <span>Bugün</span>
+        <div className="flex items-center gap-4 mt-4 pt-3 border-t border-[#2F3336]">
+          <div className="flex items-center gap-1.5 text-[10px] text-[#71767B]">
+            <div className="w-3 h-3 rounded bg-[#1D9BF0]/10 border-2 border-[#1D9BF0]" />
+            <span>Bugun</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
+          <div className="flex items-center gap-1.5 text-[10px] text-[#71767B]">
             <div className="w-3 h-3 rounded bg-brand-gold/10 border border-brand-gold/30" />
             <span>Milestone</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-            <div className="w-3 h-3 rounded bg-slate-50 dark:bg-white/[0.04]" />
-            <span>Geçmiş</span>
+          <div className="flex items-center gap-1.5 text-[10px] text-[#71767B]">
+            <div className="w-3 h-3 rounded bg-[rgba(231,233,234,0.03)]" />
+            <span>Gecmis</span>
           </div>
         </div>
       </div>
@@ -173,60 +173,60 @@ export default function Calendar() {
       {/* Selected day detail card */}
       {selectedDay && selectedPlan && selectedCampaignDay && selectedCampaignDay > 0 && (
         <div className={`card overflow-hidden animate-fade-in ${
-          selectedMilestone ? 'border-l-4 border-l-brand-gold' : 'border-l-4 border-l-brand-red'
+          selectedMilestone ? 'border-l-4 border-l-brand-gold' : 'border-l-4 border-l-[#1D9BF0]'
         }`}>
           <div className="p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-2xl">{selectedPlan.emoji}</span>
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white">{selectedPlan.theme}</h3>
+                  <h3 className="text-lg font-bold text-[#E7E9EA]">{selectedPlan.theme}</h3>
                   {selectedMilestone && (
                     <span className="text-[10px] px-2 py-0.5 rounded-lg bg-brand-gold/10 text-brand-gold border border-brand-gold/20 font-bold">MILESTONE</span>
                   )}
                   {selectedCampaignDay === today && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-lg bg-brand-red/10 text-brand-red border border-brand-red/20 font-bold">BUGÜN</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-lg bg-[#1D9BF0]/10 text-[#1D9BF0] border border-[#1D9BF0]/20 font-bold">BUGUN</span>
                   )}
                 </div>
-                <div className="text-xs text-slate-400">
+                <div className="text-xs text-[#71767B]">
                   {selectedDate?.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                 </div>
               </div>
               <div className="text-right">
-                <div className={`text-3xl font-bold font-mono ${selectedCampaignDay === today ? 'text-brand-red' : selectedMilestone ? 'text-brand-gold' : 'text-slate-700 dark:text-slate-300'}`}>
+                <div className={`text-3xl font-bold ${selectedCampaignDay === today ? 'text-[#1D9BF0]' : selectedMilestone ? 'text-brand-gold' : 'text-[#E7E9EA]'}`}>
                   {selectedCampaignDay}
                 </div>
-                <div className="text-[9px] text-slate-400 tracking-widest font-bold">GÜN</div>
+                <div className="text-[9px] text-[#71767B] tracking-widest font-bold">GUN</div>
               </div>
             </div>
 
             {/* Scene */}
             <div className="mb-4">
-              <div className="text-[10px] font-bold text-slate-400 tracking-wider mb-1">SAHNE</div>
-              <p className="text-sm text-slate-600 dark:text-slate-300">{selectedPlan.scene} — altın eleman: {selectedPlan.goldenElement}</p>
+              <div className="text-[10px] font-bold text-[#71767B] tracking-wider mb-1">SAHNE</div>
+              <p className="text-sm text-[#E7E9EA]">{selectedPlan.scene} — altin eleman: {selectedPlan.goldenElement}</p>
             </div>
 
             {/* Quote */}
             {selectedPlan.quote && (
-              <div className="mb-4 p-4 rounded-xl bg-brand-red/5 border-l-4 border-l-brand-red">
+              <div className="mb-4 p-4 rounded-xl bg-[#1D9BF0]/5 border-l-4 border-l-[#1D9BF0]">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="text-[10px] font-bold text-brand-red tracking-wider">SÖZ</div>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-brand-red/10 text-brand-red/70 font-medium">{selectedPlan.quote.category}</span>
+                  <div className="text-[10px] font-bold text-[#1D9BF0] tracking-wider">SOZ</div>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-[#1D9BF0]/10 text-[#1D9BF0]/70 font-medium">{selectedPlan.quote.category}</span>
                 </div>
-                <p className="text-sm text-slate-700 dark:text-slate-200 italic leading-relaxed">
+                <p className="text-sm text-[#E7E9EA] italic leading-relaxed">
                   &ldquo;{selectedPlan.quote.text}&rdquo;
                 </p>
-                <div className="text-[10px] text-slate-400 mt-2">— Ekrem İmamoğlu</div>
+                <div className="text-[10px] text-[#71767B] mt-2">— Ekrem Imamoglu</div>
               </div>
             )}
 
             {/* Tweet template */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-1">
-                <div className="text-[10px] font-bold text-slate-400 tracking-wider">TWEET</div>
+                <div className="text-[10px] font-bold text-[#71767B] tracking-wider">TWEET</div>
                 <CopyBtn text={selectedPlan.tweetTemplate} label="Kopyala" />
               </div>
-              <div className="bg-slate-50 dark:bg-white/[0.03] rounded-xl p-3 text-sm text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed border border-slate-100 dark:border-white/[0.06]">
+              <div className="bg-[rgba(231,233,234,0.03)] rounded-xl p-3 text-sm text-[#E7E9EA] whitespace-pre-line leading-relaxed border border-[#2F3336]">
                 {selectedPlan.tweetTemplate}
               </div>
             </div>
@@ -234,12 +234,12 @@ export default function Calendar() {
             {/* Prompt */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <div className="text-[10px] font-bold text-slate-400 tracking-wider">NANO BANANA PRO PROMPT</div>
+                <div className="text-[10px] font-bold text-[#71767B] tracking-wider">NANO BANANA PRO PROMPT</div>
                 <CopyBtn text={selectedPlan.prompt} label="Kopyala" />
               </div>
               <details className="group">
-                <summary className="text-[10px] text-blue-500 cursor-pointer hover:text-blue-600">Prompt'u göster</summary>
-                <div className="mt-2 bg-slate-50 dark:bg-white/[0.03] rounded-xl p-3 text-[11px] font-mono text-slate-400 leading-relaxed border border-slate-100 dark:border-white/[0.06]">
+                <summary className="text-[10px] text-[#1D9BF0] cursor-pointer hover:text-[#1A8CD8]">Prompt'u goster</summary>
+                <div className="mt-2 bg-[rgba(231,233,234,0.03)] rounded-xl p-3 text-[11px] text-[#71767B] leading-relaxed border border-[#2F3336]">
                   {selectedPlan.prompt}
                 </div>
               </details>

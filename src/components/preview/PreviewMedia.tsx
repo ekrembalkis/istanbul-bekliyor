@@ -27,8 +27,8 @@ export default function PreviewMedia({
       onClick={onClick}
       className={`group relative w-full overflow-hidden rounded-[1.35rem] border text-left transition-all ${
         selected
-          ? 'border-brand-red shadow-[0_14px_28px_rgba(227,10,23,0.18)]'
-          : 'border-black/[0.08] dark:border-white/[0.08]'
+          ? 'border-[#1D9BF0]'
+          : 'border-[#2F3336]'
       } ${className}`}
     >
       <div className={`relative ${aspectClass} bg-slate-950`}>

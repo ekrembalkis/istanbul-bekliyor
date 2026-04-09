@@ -7,8 +7,8 @@ export function CopyBtn({ text, label = 'Kopyala', className = '' }: { text: str
       onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
       className={`btn text-xs py-1.5 px-3 transition-all ${
         copied
-          ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-          : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/[0.06]'
+          ? 'bg-[#00BA7C]/10 text-[#00BA7C] border-[#00BA7C]/20'
+          : 'text-[#71767B] hover:text-[#E7E9EA] hover:bg-[rgba(231,233,234,0.1)]'
       } ${className}`}
     >
       {copied ? '✓ Kopyalandı' : label}

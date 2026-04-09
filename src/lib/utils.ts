@@ -65,13 +65,13 @@ export function checkCampaignRules(tweetText: string): { score: number; checks: 
 }
 
 export function getScoreColor(score: number): string {
-  if (score >= 80) return 'text-emerald-600 dark:text-emerald-400';
-  if (score >= 60) return 'text-amber-600 dark:text-amber-400';
-  return 'text-red-600 dark:text-red-400';
+  if (score >= 80) return 'text-[#00BA7C]';
+  if (score >= 60) return 'text-[#FFD400]';
+  return 'text-[#F91880]';
 }
 
 export function getScoreBg(score: number): string {
-  if (score >= 80) return 'bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20';
-  if (score >= 60) return 'bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20';
-  return 'bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20';
+  if (score >= 80) return 'bg-[#00BA7C]/10 border border-[#00BA7C]/20';
+  if (score >= 60) return 'bg-[#FFD400]/10 border border-[#FFD400]/20';
+  return 'bg-[#F91880]/10 border border-[#F91880]/20';
 }

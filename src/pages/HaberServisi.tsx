@@ -17,23 +17,23 @@ import {
 import { searchImages, type SearchImage } from '../lib/imageSearch'
 
 const SOURCE_COLORS: Record<string, string> = {
-  aa: 'bg-red-500/10 text-red-600 dark:text-red-400',
-  ntv: 'bg-green-500/10 text-green-600 dark:text-green-400',
-  cnnturk: 'bg-sky-500/10 text-sky-600 dark:text-sky-400',
-  diken: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
-  bianet: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
-  bbc: 'bg-slate-500/10 text-slate-600 dark:text-slate-300',
-  sozcu: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  cumhuriyet: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
+  aa: 'bg-[#F91880]/10 text-[#F91880]',
+  ntv: 'bg-[#00BA7C]/10 text-[#00BA7C]',
+  cnnturk: 'bg-sky-500/10 text-sky-400',
+  diken: 'bg-orange-500/10 text-orange-400',
+  bianet: 'bg-purple-500/10 text-purple-400',
+  bbc: 'bg-slate-500/10 text-[#E7E9EA]',
+  sozcu: 'bg-blue-500/10 text-blue-400',
+  cumhuriyet: 'bg-rose-500/10 text-rose-400',
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  siyaset: 'bg-red-500/10 text-red-600 dark:text-red-400',
-  ekonomi: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  dunya: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  teknoloji: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
-  toplum: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  spor: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400',
+  siyaset: 'bg-[#F91880]/10 text-[#F91880]',
+  ekonomi: 'bg-[#00BA7C]/10 text-[#00BA7C]',
+  dunya: 'bg-blue-500/10 text-blue-400',
+  teknoloji: 'bg-violet-500/10 text-violet-400',
+  toplum: 'bg-[#FFD400]/10 text-[#FFD400]',
+  spor: 'bg-cyan-500/10 text-cyan-400',
 }
 
 const defaultFilter: NewsFilter = {
@@ -129,22 +129,22 @@ export default function HaberServisi() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-slate-850 dark:text-white">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#E7E9EA]">
             Haber Servisi
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-[#71767B] mt-1">
             Türkiye gündemi, canlı ve kategorize
           </p>
         </div>
         <div className="flex items-center gap-3">
           {fetchedAt && (
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-[#71767B]">
               Son: {getRelativeTime(fetchedAt)}
             </span>
           )}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-red/[0.06] border border-brand-red/10">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1D9BF0]/[0.06] border border-[#1D9BF0]/10">
             <span className="live-dot" />
-            <span className="text-[10px] font-bold tracking-[2px] text-brand-red">
+            <span className="text-[10px] font-bold tracking-[2px] text-[#1D9BF0]">
               {okCount}/{totalCount} KAYNAK
             </span>
           </div>
@@ -152,17 +152,17 @@ export default function HaberServisi() {
       </div>
 
       {/* Filter Bar */}
-      <div className="card p-4 space-y-3">
+      <div className="border-b border-[#2F3336] pb-4 space-y-3">
         {/* Category Tabs */}
         <div className="flex flex-wrap gap-1.5">
           {CATEGORIES.map(cat => (
             <button
               key={cat.key}
               onClick={() => setFilter(f => ({ ...f, category: cat.key }))}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+              className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
                 filter.category === cat.key
-                  ? 'bg-brand-red text-white shadow-sm'
-                  : 'bg-slate-100 dark:bg-white/[0.06] text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/[0.1]'
+                  ? 'bg-[#1D9BF0] text-white'
+                  : 'bg-[rgba(231,233,234,0.03)] text-[#71767B] hover:bg-[rgba(231,233,234,0.1)]'
               }`}
             >
               {cat.label}
@@ -175,7 +175,7 @@ export default function HaberServisi() {
           <select
             value={filter.source}
             onChange={e => setFilter(f => ({ ...f, source: e.target.value }))}
-            className="px-3 py-2 text-xs rounded-lg border border-black/[0.08] dark:border-white/[0.08] bg-white dark:bg-dark-bg text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-red/20"
+            className="px-3 py-2 text-xs rounded-lg border border-[#2F3336] bg-[#000000] text-[#E7E9EA] focus:outline-none focus:ring-2 focus:ring-[#1D9BF0]/20"
           >
             {SOURCES.map(s => (
               <option key={s.key} value={s.key}>{s.label}</option>
@@ -187,15 +187,15 @@ export default function HaberServisi() {
             placeholder="Haberlerde ara..."
             value={filter.searchQuery}
             onChange={e => setFilter(f => ({ ...f, searchQuery: e.target.value }))}
-            className="flex-1 px-3 py-2 text-xs rounded-lg border border-black/[0.08] dark:border-white/[0.08] bg-white dark:bg-dark-bg text-slate-700 dark:text-slate-300 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-red/20"
+            className="flex-1 px-3 py-2 text-xs rounded-lg border border-[#2F3336] bg-[#000000] text-[#E7E9EA] placeholder:text-[#71767B] focus:outline-none focus:ring-2 focus:ring-[#1D9BF0]/20"
           />
 
           <button
             onClick={() => setFilter(f => ({ ...f, campaignOnly: !f.campaignOnly }))}
             className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all whitespace-nowrap ${
               filter.campaignOnly
-                ? 'bg-brand-red/10 border-brand-red/30 text-brand-red'
-                : 'border-black/[0.08] dark:border-white/[0.08] text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.06]'
+                ? 'bg-[#1D9BF0]/10 border-[#1D9BF0]/30 text-[#1D9BF0]'
+                : 'border-[#2F3336] text-[#71767B] hover:bg-[rgba(231,233,234,0.1)]'
             }`}
           >
             Kampanya Sinyali
@@ -205,8 +205,8 @@ export default function HaberServisi() {
 
       {/* Error */}
       {error && (
-        <div className="card p-4 border-l-4 border-amber-500 bg-amber-50 dark:bg-amber-500/10">
-          <p className="text-xs text-amber-700 dark:text-amber-400">{error}</p>
+        <div className="p-4 border-l-4 border-[#FFD400] bg-[#FFD400]/10">
+          <p className="text-xs text-[#FFD400]">{error}</p>
         </div>
       )}
 
@@ -214,10 +214,10 @@ export default function HaberServisi() {
       {loading && (
         <div className="space-y-4">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="card p-5 animate-pulse">
-              <div className="h-3 bg-slate-200 dark:bg-white/[0.06] rounded w-16 mb-3" />
-              <div className="h-4 bg-slate-200 dark:bg-white/[0.06] rounded w-3/4 mb-2" />
-              <div className="h-3 bg-slate-200 dark:bg-white/[0.06] rounded w-full" />
+            <div key={i} className="border-b border-[#2F3336] py-4 animate-pulse">
+              <div className="h-3 bg-[rgba(231,233,234,0.03)] rounded w-16 mb-3" />
+              <div className="h-4 bg-[rgba(231,233,234,0.03)] rounded w-3/4 mb-2" />
+              <div className="h-3 bg-[rgba(231,233,234,0.03)] rounded w-full" />
             </div>
           ))}
         </div>
@@ -230,11 +230,11 @@ export default function HaberServisi() {
             <section>
               <div className="flex items-center gap-2 mb-3">
                 <span className="live-dot" />
-                <h2 className="text-sm font-bold text-brand-red tracking-wide">
+                <h2 className="text-sm font-bold text-[#1D9BF0] tracking-wide">
                   KAMPANYA SİNYALİ ({campaignSignals.length})
                 </h2>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-0">
                 {campaignSignals.map(item => (
                   <NewsCard
                     key={item.id}
@@ -251,20 +251,20 @@ export default function HaberServisi() {
           {/* General News (or all if campaignOnly) */}
           <section>
             {!filter.campaignOnly && campaignSignals.length > 0 && (
-              <h2 className="text-sm font-bold text-slate-500 dark:text-slate-400 tracking-wide mb-3">
+              <h2 className="text-sm font-bold text-[#71767B] tracking-wide mb-3">
                 GENEL GÜNDEM ({generalNews.length})
               </h2>
             )}
             {(filter.campaignOnly ? filtered : generalNews).length === 0 && (
-              <div className="card p-8 text-center">
-                <p className="text-sm text-slate-400">
+              <div className="border-b border-[#2F3336] py-8 text-center">
+                <p className="text-sm text-[#71767B]">
                   {filter.searchQuery
                     ? `"${filter.searchQuery}" için sonuç bulunamadı.`
                     : 'Bu filtreye uygun haber yok.'}
                 </p>
               </div>
             )}
-            <div className="space-y-3">
+            <div className="space-y-0">
               {(filter.campaignOnly ? filtered : generalNews).map(item => (
                 <NewsCard
                   key={item.id}
@@ -277,8 +277,8 @@ export default function HaberServisi() {
           </section>
 
           {/* Source Status */}
-          <section className="card p-4">
-            <div className="text-[10px] font-bold text-slate-400 tracking-wider mb-2">KAYNAK DURUMU</div>
+          <section className="border-b border-[#2F3336] py-4">
+            <div className="text-[10px] font-bold text-[#71767B] tracking-wider mb-2">KAYNAK DURUMU</div>
             <div className="flex flex-wrap gap-2">
               {Object.entries(sourceStatus).map(([key, status]) => {
                 const label = SOURCES.find(s => s.key === key)?.label || key
@@ -287,11 +287,11 @@ export default function HaberServisi() {
                     key={key}
                     className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium ${
                       status === 'ok'
-                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                        : 'bg-red-500/10 text-red-600 dark:text-red-400'
+                        ? 'bg-[#00BA7C]/10 text-[#00BA7C]'
+                        : 'bg-[#F91880]/10 text-[#F91880]'
                     }`}
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full ${status === 'ok' ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full ${status === 'ok' ? 'bg-[#00BA7C]' : 'bg-[#F91880]'}`} />
                     {label}
                   </span>
                 )
@@ -308,18 +308,18 @@ export default function HaberServisi() {
           onClick={() => setIgModal(null)}
         >
           <div
-            className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-dark-card shadow-2xl"
+            className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-[#16181C] border border-[#2F3336]"
             onClick={e => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-black/[0.06] dark:border-white/[0.06] bg-white dark:bg-dark-card rounded-t-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-[#2F3336] bg-[#16181C] rounded-t-2xl">
               <div className="flex items-center gap-2">
                 <span className="text-fuchsia-500 text-lg">&#9632;</span>
-                <h3 className="text-sm font-bold text-slate-800 dark:text-white">Instagram İçeriği</h3>
+                <h3 className="text-sm font-bold text-[#E7E9EA]">Instagram İçeriği</h3>
               </div>
               <button
                 onClick={() => setIgModal(null)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-[#71767B] hover:bg-[rgba(231,233,234,0.1)] transition-colors"
               >
                 &#10005;
               </button>
@@ -327,8 +327,8 @@ export default function HaberServisi() {
 
             <div className="p-4 space-y-4">
               {/* Source news title */}
-              <div className="text-xs text-slate-400 leading-relaxed">
-                <span className="font-medium text-slate-500 dark:text-slate-300">{igModal.item.sourceLabel}:</span>{' '}
+              <div className="text-xs text-[#71767B] leading-relaxed">
+                <span className="font-medium text-[#E7E9EA]">{igModal.item.sourceLabel}:</span>{' '}
                 {igModal.item.title}
               </div>
 
@@ -336,17 +336,17 @@ export default function HaberServisi() {
               {igModal.loading && (
                 <div className="py-12 text-center space-y-3">
                   <div className="inline-block w-6 h-6 border-2 border-fuchsia-500/30 border-t-fuchsia-500 rounded-full animate-spin" />
-                  <p className="text-xs text-slate-400">Gemini ile oluşturuluyor...</p>
+                  <p className="text-xs text-[#71767B]">Gemini ile oluşturuluyor...</p>
                 </div>
               )}
 
               {/* Error */}
               {igModal.error && (
-                <div className="p-3 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20">
-                  <p className="text-xs text-red-600 dark:text-red-400">{igModal.error}</p>
+                <div className="p-3 rounded-lg bg-[#F91880]/10 border border-[#F91880]/20">
+                  <p className="text-xs text-[#F91880]">{igModal.error}</p>
                   <button
                     onClick={() => handleInstagram(igModal.item)}
-                    className="mt-2 text-xs font-medium text-red-600 dark:text-red-400 underline"
+                    className="mt-2 text-xs font-medium text-[#F91880] underline"
                   >
                     Tekrar Dene
                   </button>
@@ -390,15 +390,15 @@ export default function HaberServisi() {
                   </button>
 
                   {/* Image Search Section */}
-                  <div className="pt-4 mt-4 border-t border-black/[0.06] dark:border-white/[0.06]">
-                    <div className="text-[10px] font-bold text-slate-400 tracking-wider mb-2">GÖRSEL ARA</div>
+                  <div className="pt-4 mt-4 border-t border-[#2F3336]">
+                    <div className="text-[10px] font-bold text-[#71767B] tracking-wider mb-2">GÖRSEL ARA</div>
                     <div className="flex gap-2 mb-3">
                       <input
                         type="text"
                         value={igModal.imageQuery}
                         onChange={e => setIgModal(prev => prev ? { ...prev, imageQuery: e.target.value } : null)}
                         onKeyDown={e => e.key === 'Enter' && handleImageSearch(igModal.imageQuery)}
-                        className="flex-1 px-3 py-2 text-xs rounded-lg border border-black/[0.08] dark:border-white/[0.08] bg-white dark:bg-dark-bg text-slate-700 dark:text-slate-300 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20"
+                        className="flex-1 px-3 py-2 text-xs rounded-lg border border-[#2F3336] bg-[#000000] text-[#E7E9EA] placeholder:text-[#71767B] focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20"
                         placeholder="Görsel ara..."
                       />
                       <button
@@ -424,7 +424,7 @@ export default function HaberServisi() {
                           onSelect={url => setIgModal(prev => prev ? { ...prev, selectedImage: prev.selectedImage === url ? null : url } : null)}
                         />
 
-                        <p className="text-[10px] text-slate-400 text-center mt-2">
+                        <p className="text-[10px] text-[#71767B] text-center mt-2">
                           {igModal.images.length} görsel bulundu
                           {igModal.selectedImage && ' — 1 seçili'}
                         </p>
@@ -433,7 +433,7 @@ export default function HaberServisi() {
                           <div className="flex gap-2 mt-2">
                             <button
                               onClick={() => handleCopy(igModal.selectedImage!)}
-                              className="flex-1 py-2 text-xs font-bold text-fuchsia-600 dark:text-fuchsia-400 bg-fuchsia-500/[0.08] hover:bg-fuchsia-500/[0.15] rounded-lg transition-colors"
+                              className="flex-1 py-2 text-xs font-bold text-fuchsia-400 bg-fuchsia-500/[0.08] hover:bg-fuchsia-500/[0.15] rounded-lg transition-colors"
                             >
                               URL Kopyala
                             </button>
@@ -450,14 +450,14 @@ export default function HaberServisi() {
                     )}
 
                     {igModal.images.length === 0 && !igModal.imageLoading && igModal.content && (
-                      <p className="text-[10px] text-slate-400 text-center py-3">Görsel bulunamadı. Farklı bir arama deneyin.</p>
+                      <p className="text-[10px] text-[#71767B] text-center py-3">Görsel bulunamadı. Farklı bir arama deneyin.</p>
                     )}
                   </div>
 
                   {/* Regenerate */}
                   <button
                     onClick={() => handleInstagram(igModal.item)}
-                    className="w-full py-2 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/[0.06] hover:bg-slate-200 dark:hover:bg-white/[0.1] rounded-lg transition-colors"
+                    className="w-full py-2 text-xs font-medium text-[#71767B] bg-[rgba(231,233,234,0.03)] hover:bg-[rgba(231,233,234,0.1)] rounded-lg transition-colors"
                   >
                     Yeniden Oluştur
                   </button>
@@ -482,14 +482,14 @@ function NewsCard({
   onUseTweet: (item: NewsItem) => void
   onInstagram: (item: NewsItem) => void
 }) {
-  const sourceColor = SOURCE_COLORS[item.source] || 'bg-slate-500/10 text-slate-500'
-  const categoryColor = CATEGORY_COLORS[item.category] || 'bg-slate-500/10 text-slate-500'
+  const sourceColor = SOURCE_COLORS[item.source] || 'bg-slate-500/10 text-[#71767B]'
+  const categoryColor = CATEGORY_COLORS[item.category] || 'bg-slate-500/10 text-[#71767B]'
   const categoryLabel = CATEGORIES.find(c => c.key === item.category)?.label || item.category
 
   return (
     <article
-      className={`card p-4 sm:p-5 transition-all hover:shadow-card-hover dark:hover:shadow-dark-card-hover ${
-        isCampaign ? 'border-l-4 border-l-brand-red' : ''
+      className={`border-b border-[#2F3336] py-4 transition-all hover:bg-[rgba(231,233,234,0.03)] ${
+        isCampaign ? 'border-l-4 border-l-campaign-red' : ''
       }`}
     >
       <div className="flex flex-col sm:flex-row sm:items-start gap-3">
@@ -504,12 +504,12 @@ function NewsCard({
               {categoryLabel}
             </span>
             {item.isCampaignSignal && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-brand-red/10 text-brand-red">
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-red animate-pulse" />
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-[#1D9BF0]/10 text-[#1D9BF0]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#1D9BF0] animate-pulse" />
                 Kampanya
               </span>
             )}
-            <span className="text-[10px] text-slate-400 ml-auto">
+            <span className="text-[10px] text-[#71767B] ml-auto">
               {getRelativeTime(item.publishedAt)}
             </span>
           </div>
@@ -519,14 +519,14 @@ function NewsCard({
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="block text-sm font-semibold text-slate-800 dark:text-white hover:text-brand-red dark:hover:text-brand-red transition-colors leading-snug mb-1"
+            className="block text-sm font-semibold text-[#E7E9EA] hover:text-[#1D9BF0] transition-colors leading-snug mb-1"
           >
             {item.title}
           </a>
 
           {/* Description */}
           {item.description && (
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
+            <p className="text-xs text-[#71767B] leading-relaxed line-clamp-2">
               {item.description}
             </p>
           )}
@@ -534,7 +534,7 @@ function NewsCard({
 
         {/* Image thumbnail */}
         {item.imageUrl && (
-          <div className="hidden sm:block flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-slate-100 dark:bg-white/[0.06]">
+          <div className="hidden sm:block flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-[rgba(231,233,234,0.03)]">
             <img
               src={item.imageUrl}
               alt=""
@@ -547,16 +547,16 @@ function NewsCard({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-black/[0.04] dark:border-white/[0.04]">
+      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#2F3336]">
         <button
           onClick={() => onUseTweet(item)}
-          className="px-3 py-1.5 text-[11px] font-medium text-brand-red bg-brand-red/[0.06] hover:bg-brand-red/[0.12] rounded-lg transition-colors"
+          className="px-3 py-1.5 text-[11px] font-medium text-[#1D9BF0] bg-[#1D9BF0]/[0.06] hover:bg-[#1D9BF0]/[0.12] rounded-lg transition-colors"
         >
           Tweet İçin Kullan
         </button>
         <button
           onClick={() => onInstagram(item)}
-          className="px-3 py-1.5 text-[11px] font-medium text-fuchsia-600 dark:text-fuchsia-400 bg-fuchsia-500/[0.06] hover:bg-fuchsia-500/[0.12] rounded-lg transition-colors"
+          className="px-3 py-1.5 text-[11px] font-medium text-fuchsia-400 bg-fuchsia-500/[0.06] hover:bg-fuchsia-500/[0.12] rounded-lg transition-colors"
         >
           Instagram İçin Kullan
         </button>
@@ -564,7 +564,7 @@ function NewsCard({
           href={item.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="px-3 py-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/[0.06] hover:bg-slate-200 dark:hover:bg-white/[0.1] rounded-lg transition-colors"
+          className="px-3 py-1.5 text-[11px] font-medium text-[#71767B] bg-[rgba(231,233,234,0.03)] hover:bg-[rgba(231,233,234,0.1)] rounded-lg transition-colors"
         >
           Habere Git
         </a>
@@ -602,7 +602,7 @@ function ImageGrid({
             className={`group relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
               isSelected
                 ? 'border-fuchsia-500 ring-2 ring-fuchsia-500/30 bg-fuchsia-500/10'
-                : 'border-black/[0.06] dark:border-white/[0.06] hover:border-fuchsia-400/60 hover:scale-[1.03]'
+                : 'border-[#2F3336] hover:border-fuchsia-400/60 hover:scale-[1.03]'
             }`}
           >
             {!hasFailed ? (
@@ -614,7 +614,7 @@ function ImageGrid({
                 onError={() => setFailedThumbs(prev => new Set(prev).add(img.id))}
               />
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center bg-slate-100 dark:bg-white/[0.04] text-slate-400">
+              <div className="w-full h-full flex flex-col items-center justify-center bg-[rgba(231,233,234,0.03)] text-[#71767B]">
                 <span className="text-lg">&#128247;</span>
                 <span className="text-[9px] mt-1">Yüklenemedi</span>
               </div>
@@ -665,20 +665,20 @@ function ContentBlock({
   }
 
   return (
-    <div className="rounded-xl border border-black/[0.06] dark:border-white/[0.06] overflow-hidden">
-      <div className="flex items-center justify-between px-3 py-2 bg-slate-50 dark:bg-white/[0.03]">
+    <div className="rounded-xl border border-[#2F3336] overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-2 bg-[rgba(231,233,234,0.03)]">
         <div>
-          <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200">{label}</span>
-          <span className="text-[10px] text-slate-400 ml-2">{sublabel}</span>
+          <span className="text-[11px] font-bold text-[#E7E9EA]">{label}</span>
+          <span className="text-[10px] text-[#71767B] ml-2">{sublabel}</span>
         </div>
         <button
           onClick={handleClick}
-          className="px-2 py-1 text-[10px] font-medium text-slate-500 dark:text-slate-400 hover:text-fuchsia-600 dark:hover:text-fuchsia-400 transition-colors"
+          className="px-2 py-1 text-[10px] font-medium text-[#71767B] hover:text-fuchsia-400 transition-colors"
         >
           {copied ? 'Kopyalandı' : 'Kopyala'}
         </button>
       </div>
-      <div className={`px-3 py-3 text-xs leading-relaxed text-slate-700 dark:text-slate-300 whitespace-pre-wrap ${mono ? 'font-mono text-base font-black tracking-wide text-slate-900 dark:text-white' : ''}`}>
+      <div className={`px-3 py-3 text-xs leading-relaxed text-[#E7E9EA] whitespace-pre-wrap ${mono ? 'text-base font-black tracking-wide text-white' : ''}`}>
         {content}
       </div>
     </div>
