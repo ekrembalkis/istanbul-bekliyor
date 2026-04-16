@@ -1,8 +1,5 @@
-// In production: calls go through /api/xquik proxy (avoids CORS)
-// In dev: calls go directly to xquik.com with API key
-const IS_DEV = import.meta.env.DEV
-const DIRECT_URL = 'https://xquik.com/api/v1'
-const API_KEY = import.meta.env.VITE_XQUIK_API_KEY?.trim() || ''
+// All calls go through /api/xquik proxy (keeps API key server-side)
+const PROXY_BASE = '/api/xquik'
 
 export interface StyleProfile {
   xUsername: string
@@ -39,18 +36,9 @@ export interface ComposeRefineResult {
 async function api<T = unknown>(path: string, options?: { method?: string; body?: unknown }): Promise<T> {
   const method = options?.method || 'GET'
 
-  let url: string
-  let headers: Record<string, string>
-
-  if (IS_DEV) {
-    // Dev: direct call with API key
-    url = `${DIRECT_URL}${path}`
-    headers = { 'Content-Type': 'application/json', 'x-api-key': API_KEY }
-  } else {
-    // Production: go through Vercel serverless proxy
-    url = `/api/xquik?path=${encodeURIComponent(path)}`
-    headers = { 'Content-Type': 'application/json' }
-  }
+  // Always proxy through server-side — API key stays on server
+  const url = `${PROXY_BASE}?path=${encodeURIComponent(path)}`
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
 
   const res = await fetch(url, {
     method,
@@ -702,7 +690,7 @@ export function proxyImageUrl(url: string | undefined): string {
   if (!url || typeof url !== 'string') return ''
   // Upgrade to higher resolution
   const upgraded = url.replace('_normal', '_200x200')
-  if (IS_DEV) return upgraded
+  // Always proxy through server to bypass tracking prevention
   return `/api/image-proxy?url=${encodeURIComponent(upgraded)}`
 }
 
@@ -734,8 +722,7 @@ export function deleteDraft(id: string) {
   localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts))
 }
 
-/** Check if API is ready (dev: needs key, prod: proxy handles it) */
+/** Check if API is ready (proxy handles auth server-side) */
 export function hasApiKey(): boolean {
-  if (IS_DEV) return !!API_KEY && API_KEY.startsWith('xq_')
-  return true // Production uses serverless proxy with server-side key
+  return true // Serverless proxy handles API key
 }

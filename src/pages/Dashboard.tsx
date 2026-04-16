@@ -319,7 +319,7 @@ export default function Dashboard() {
                     try {
                       const res = await runQuickCheck('istbekliyor')
                       setShadowResult(res)
-                    } catch { /* silent */ }
+                    } catch (err) { console.error('Shadow check failed:', err) }
                     setShadowLoading(false)
                   }}
                   disabled={shadowLoading}
@@ -342,7 +342,7 @@ export default function Dashboard() {
                 try {
                   const res = await runQuickCheck('istbekliyor')
                   setShadowResult(res)
-                } catch { /* silent */ }
+                } catch (err) { console.error('Shadow check failed:', err) }
                 setShadowLoading(false)
               }}
               disabled={shadowLoading}

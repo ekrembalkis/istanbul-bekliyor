@@ -18,7 +18,8 @@ export default function AlgorithmCheck() {
     try {
       const result = await scoreDraft(draft, true)
       setAlgoResult(result)
-    } catch {
+    } catch (err) {
+      console.error('Algo scoring failed:', err)
       setAlgoResult(null)
     }
     setAlgoLoading(false)

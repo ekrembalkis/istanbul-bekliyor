@@ -19,7 +19,7 @@ export default function RightSidebar() {
     try {
       const res = await runQuickCheck('istbekliyor')
       setShadowResult(res)
-    } catch { /* silent */ }
+    } catch (err) { console.error('Shadow check failed:', err) }
     setShadowLoading(false)
   }
 
@@ -54,11 +54,11 @@ export default function RightSidebar() {
             <div className="flex items-center gap-2">
               <span className={`w-2.5 h-2.5 ${
                 shadowResult.overall === 'clean' ? 'bg-[#0A0A0A]' :
-                shadowResult.overall === 'suspicious' ? 'bg-[#E30A17]' : 'bg-[#E30A17]'
+                shadowResult.overall === 'suspicious' ? 'bg-[#D4A843]' : 'bg-[#E30A17]'
               }`} />
               <span className={`font-mono text-xs font-bold tracking-[1px] ${
                 shadowResult.overall === 'clean' ? 'text-[#0A0A0A]' :
-                shadowResult.overall === 'suspicious' ? 'text-[#E30A17]' : 'text-[#E30A17]'
+                shadowResult.overall === 'suspicious' ? 'text-[#D4A843]' : 'text-[#E30A17]'
               }`}>
                 {shadowResult.overall === 'clean' ? 'TEMİZ' :
                  shadowResult.overall === 'suspicious' ? 'ŞÜPHELİ' : 'RİSK'}

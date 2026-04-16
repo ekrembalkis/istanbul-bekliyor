@@ -157,7 +157,7 @@ export default function Calendar() {
         <div className="flex items-center gap-4 mt-4 pt-3 border-t border-[#0A0A0A]">
           <div className="flex items-center gap-1.5 text-[10px] text-[rgba(10,10,10,0.4)]">
             <div className="w-3 h-3 rounded bg-[#E30A17]/10 border-2 border-[#E30A17]" />
-            <span>Bugun</span>
+            <span>Bugün</span>
           </div>
           <div className="flex items-center gap-1.5 text-[10px] text-[rgba(10,10,10,0.4)]">
             <div className="w-3 h-3 rounded bg-brand-gold/10 border border-brand-gold/30" />

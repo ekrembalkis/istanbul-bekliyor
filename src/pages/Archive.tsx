@@ -27,7 +27,11 @@ export default function Archive() {
   useEffect(() => {
     if (!supabase) { setLoading(false); return }
     supabase.from('tweets').select('*').order('day_number', { ascending: false }).limit(100)
-      .then(({ data }) => { setTweets(data || []); setLoading(false) })
+      .then(({ data, error }) => {
+        if (error) console.error('Archive fetch error:', error.message)
+        setTweets(data || [])
+      })
+      .then(() => setLoading(false), () => setLoading(false))
   }, [])
 
   const filtered = filter === 'all' ? tweets : tweets.filter(t => t.status === filter)

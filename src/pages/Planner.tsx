@@ -110,8 +110,16 @@ export default function Planner() {
           ...campaignAnalysis.checks.filter(c => !c.passed).map(c => c.tip),
         ],
       }, { onConflict: 'day_number' })
-      if (!error) setSaved(true)
-    } catch (e) { console.error(e) }
+      if (error) {
+        console.error('Save error:', error.message)
+        alert(`Kaydetme hatası: ${error.message}`)
+      } else {
+        setSaved(true)
+      }
+    } catch (e) {
+      console.error('Save error:', e)
+      alert('Kaydetme sırasında beklenmeyen hata oluştu.')
+    }
     setSaving(false)
   }
 

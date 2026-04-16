@@ -68,19 +68,9 @@ export async function fetchAlgorithmData(): Promise<AlgorithmData | null> {
 
   // 2. Fetch from API
   try {
-    const IS_DEV = import.meta.env.DEV
-    const API_KEY = import.meta.env.VITE_XQUIK_API_KEY?.trim() || ''
-
-    let url: string
-    let headers: Record<string, string>
-
-    if (IS_DEV) {
-      url = 'https://xquik.com/api/v1/compose'
-      headers = { 'Content-Type': 'application/json', 'x-api-key': API_KEY }
-    } else {
-      url = `/api/xquik?path=${encodeURIComponent('/compose')}`
-      headers = { 'Content-Type': 'application/json' }
-    }
+    // Always proxy through server-side — API key stays on server
+    const url = `/api/xquik?path=${encodeURIComponent('/compose')}`
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
 
     const res = await fetch(url, {
       method: 'POST',
