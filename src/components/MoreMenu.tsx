@@ -47,7 +47,7 @@ export default function MoreMenu({ onClose }: { onClose: () => void }) {
   }, [onClose])
 
   return (
-    <div ref={ref} className="absolute top-full right-0 md:left-0 md:right-auto mt-2 w-56 md:w-64 border-2 border-[#0A0A0A] bg-[#EBEBEB] shadow-[4px_4px_0_#0A0A0A] py-1 z-50">
+    <div ref={ref} className="absolute top-full right-0 md:left-0 md:right-auto mt-2 w-56 md:w-64 border-2 border-x-border bg-x-bg shadow-[4px_4px_0_#0A0A0A] py-1 z-50">
       {moreItems.map(item => (
         <NavLink
           key={item.to}
@@ -56,8 +56,8 @@ export default function MoreMenu({ onClose }: { onClose: () => void }) {
           className={({ isActive }) =>
             `flex items-center gap-3 px-4 py-3 font-mono text-xs tracking-[1px] transition-colors ${
               isActive
-                ? 'font-bold text-[#E30A17] bg-[rgba(227,10,23,0.05)]'
-                : 'text-[#0A0A0A] hover:bg-[rgba(10,10,10,0.05)]'
+                ? 'font-bold text-x-accent bg-[rgba(227,10,23,0.05)]'
+                : 'text-x-text-primary hover:bg-x-surface-active'
             }`
           }
         >

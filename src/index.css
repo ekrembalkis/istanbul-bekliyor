@@ -2,41 +2,105 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ══════════════════════════════════════
+   THEME VARIABLES
+   ══════════════════════════════════════ */
+
+:root {
+  /* Backgrounds */
+  --bg: #EBEBEB;
+  --surface: #FFFFFF;
+  --surface-hover: rgba(10,10,10,0.02);
+  --surface-active: rgba(10,10,10,0.05);
+
+  /* Text */
+  --text-primary: #0A0A0A;
+  --text-secondary: rgba(10,10,10,0.45);
+  --text-muted: rgba(10,10,10,0.3);
+
+  /* Borders */
+  --border: #0A0A0A;
+  --border-light: rgba(10,10,10,0.1);
+
+  /* Accent */
+  --accent: #E30A17;
+  --accent-hover: #B80813;
+  --gold: #D4A843;
+
+  /* Shadows (brutalist offset) */
+  --shadow-color: #0A0A0A;
+
+  /* Navbar (constant — always dark) */
+  --nav-bg: #0A0A0A;
+  --nav-text: #EBEBEB;
+  --nav-text-dim: rgba(235,235,235,0.5);
+
+  /* Scrollbar */
+  --scrollbar-track: #EBEBEB;
+  --scrollbar-thumb: #0A0A0A;
+}
+
+[data-theme="dark"] {
+  --bg: #0C0C10;
+  --surface: #161620;
+  --surface-hover: rgba(255,255,255,0.03);
+  --surface-active: rgba(255,255,255,0.06);
+
+  --text-primary: #E8E6E3;
+  --text-secondary: rgba(255,255,255,0.45);
+  --text-muted: rgba(255,255,255,0.25);
+
+  --border: #2A2A35;
+  --border-light: rgba(255,255,255,0.06);
+
+  --accent: #FF4D3A;
+  --accent-hover: #E30A17;
+  --gold: #F4C869;
+
+  --shadow-color: rgba(0,0,0,0.5);
+
+  --scrollbar-track: #0C0C10;
+  --scrollbar-thumb: #2A2A35;
+}
+
+/* ══════════════════════════════════════
+   BASE
+   ══════════════════════════════════════ */
+
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 html, body {
-  background: #EBEBEB;
-  color: #0A0A0A;
+  background: var(--bg);
+  color: var(--text-primary);
   min-height: 100vh;
   font-family: 'DM Sans', sans-serif;
+  transition: background-color 0.2s, color 0.2s;
 }
 
-/* Scrollbar — brutalist */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #EBEBEB; }
-::-webkit-scrollbar-thumb { background: #0A0A0A; }
-::-webkit-scrollbar-thumb:hover { background: #E30A17; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-/* Checkbox */
-input[type="checkbox"] { accent-color: #E30A17; }
+input[type="checkbox"] { accent-color: var(--accent); }
+::selection { background: rgba(227,10,23,0.25); color: var(--text-primary); }
 
-/* Selection */
-::selection { background: rgba(227,10,23,0.25); color: #0A0A0A; }
+/* ══════════════════════════════════════
+   COMPONENTS
+   ══════════════════════════════════════ */
 
 @layer components {
 
-  /* ── Card (brutalist) ── */
   .card {
-    background: #FFFFFF;
-    border: 2px solid #0A0A0A;
+    background: var(--surface);
+    border: 2px solid var(--border);
     border-radius: 0;
-    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.2s, border-color 0.2s;
   }
 
-  /* ── Chip / Badge ── */
   .chip {
     display: inline-flex;
     align-items: center;
@@ -48,32 +112,30 @@ input[type="checkbox"] { accent-color: #E30A17; }
     letter-spacing: 2px;
     text-transform: uppercase;
     border-radius: 0;
-    border: 2px solid #0A0A0A;
+    border: 2px solid var(--border);
     background: transparent;
-    color: rgba(10,10,10,0.5);
+    color: var(--text-secondary);
     transition: all 0.1s;
   }
 
-  /* ── Input ── */
   .input-field {
-    background: #FFFFFF;
-    border: 2px solid #0A0A0A;
+    background: var(--surface);
+    border: 2px solid var(--border);
     border-radius: 0;
-    color: #0A0A0A;
+    color: var(--text-primary);
     font-family: 'DM Sans', sans-serif;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, background-color 0.2s;
   }
   .input-field:focus {
-    border-color: #E30A17;
+    border-color: var(--accent);
     box-shadow: none;
     outline: none;
   }
   select.input-field option {
-    background: #FFFFFF;
-    color: #0A0A0A;
+    background: var(--surface);
+    color: var(--text-primary);
   }
 
-  /* ── Button (brutalist offset shadow) ── */
   .btn {
     display: inline-flex;
     align-items: center;
@@ -85,22 +147,21 @@ input[type="checkbox"] { accent-color: #E30A17; }
     letter-spacing: 1px;
     text-transform: uppercase;
     border-radius: 0;
-    border: 2px solid #0A0A0A;
+    border: 2px solid var(--border);
     background: transparent;
-    color: #0A0A0A;
+    color: var(--text-primary);
     cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.1s;
-    box-shadow: 3px 3px 0 #0A0A0A;
+    transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s, color 0.2s;
+    box-shadow: 3px 3px 0 var(--shadow-color);
   }
 
   .btn-primary {
-    background: #E30A17;
+    background: var(--accent);
     color: #FFFFFF;
-    border-color: #0A0A0A;
-    box-shadow: 4px 4px 0 #0A0A0A;
+    border-color: var(--border);
+    box-shadow: 4px 4px 0 var(--shadow-color);
   }
 
-  /* ── Stat Number ── */
   .stat-number {
     font-family: 'Archivo Black', sans-serif;
     font-weight: 400;
@@ -108,19 +169,17 @@ input[type="checkbox"] { accent-color: #E30A17; }
     letter-spacing: -0.04em;
   }
 
-  /* ── Divider ── */
   .divider {
     height: 2px;
     width: 100%;
-    background: #0A0A0A;
+    background: var(--border);
   }
 
-  /* ── Live Indicator ── */
   .live-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #E30A17;
+    background: var(--accent);
     animation: livePulse 2s ease-in-out infinite;
   }
 }
@@ -130,28 +189,26 @@ input[type="checkbox"] { accent-color: #E30A17; }
   50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(227,10,23,0); }
 }
 
-/* ── Hover effects (brutalist) ── */
 @media (hover: hover) {
   .card:hover {
     transform: translate(-1px, -1px);
-    box-shadow: 3px 3px 0 #0A0A0A;
+    box-shadow: 3px 3px 0 var(--shadow-color);
   }
   .btn:hover {
     transform: translate(1px, 1px);
-    box-shadow: 2px 2px 0 #0A0A0A;
+    box-shadow: 2px 2px 0 var(--shadow-color);
   }
   .btn-primary:hover {
-    background: #B80813;
+    background: var(--accent-hover);
     transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0 #0A0A0A;
+    box-shadow: 2px 2px 0 var(--shadow-color);
   }
   .chip:hover {
-    background: #0A0A0A;
-    color: #EBEBEB;
+    background: var(--text-primary);
+    color: var(--bg);
   }
 }
 
-/* ── Page transition ── */
 .page-enter {
   animation: slideUp 0.3s ease-out;
 }

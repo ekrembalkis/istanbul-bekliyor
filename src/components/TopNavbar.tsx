@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { getDayCount } from '../lib/utils'
+import { getTheme, toggleTheme } from '../lib/themeToggle'
 import MoreMenu from './MoreMenu'
 
 const mainNav = [
@@ -26,6 +27,7 @@ export default function TopNavbar() {
   const day = getDayCount()
   const [moreOpen, setMoreOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [theme, setThemeState] = useState(getTheme)
 
   return (
     <header className="sticky top-0 z-50 bg-[#0A0A0A] border-b-3 border-[#0A0A0A]">
@@ -88,6 +90,23 @@ export default function TopNavbar() {
             </svg>
             <span className="hidden sm:block font-bold">ÜRET</span>
           </NavLink>
+
+          {/* Theme Toggle */}
+          <button
+            onClick={() => setThemeState(toggleTheme())}
+            aria-label={theme === 'light' ? 'Koyu temaya geç' : 'Açık temaya geç'}
+            className="flex items-center justify-center w-9 h-9 text-[rgba(235,235,235,0.5)] hover:text-[#EBEBEB] hover:bg-[rgba(227,10,23,0.08)] transition-colors shrink-0"
+          >
+            {theme === 'light' ? (
+              <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+              </svg>
+            ) : (
+              <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+              </svg>
+            )}
+          </button>
 
           {/* Profile Badge */}
           <div className="hidden md:flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-[rgba(227,10,23,0.08)] transition-colors shrink-0">

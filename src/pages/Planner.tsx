@@ -127,13 +127,13 @@ export default function Planner() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#0A0A0A]">Tweet Planlayıcı</h1>
+          <h1 className="text-2xl font-bold text-x-text-primary">Tweet Planlayıcı</h1>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-2xl">{plan.emoji}</span>
           <div className="text-right">
-            <div className="text-sm text-[#E30A17] font-bold">GUN {day}</div>
-            <div className="text-xs text-[rgba(10,10,10,0.4)]">{plan.theme}</div>
+            <div className="text-sm text-x-accent font-bold">GUN {day}</div>
+            <div className="text-xs text-x-text-secondary">{plan.theme}</div>
           </div>
         </div>
       </div>
@@ -142,16 +142,16 @@ export default function Planner() {
         {/* Left: Composer */}
         <div className="space-y-5">
           <div className="card p-6">
-            <label className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider block mb-3">TWEET METNI</label>
+            <label className="text-[10px] font-bold text-x-text-secondary tracking-wider block mb-3">TWEET METNI</label>
             <textarea
               value={tweetText}
               onChange={e => { setTweetText(e.target.value); setSaved(false) }}
               rows={10}
-              className="w-full input-field p-4 text-[#0A0A0A] text-sm leading-relaxed resize-none"
+              className="w-full input-field p-4 text-x-text-primary text-sm leading-relaxed resize-none"
               placeholder="Tweet metnini buraya yaz..."
             />
             <div className="flex items-center justify-between mt-3">
-              <span className={`text-xs ${tweetText.length > 280 ? 'text-[#E30A17]' : tweetText.length > 250 ? 'text-[#D4A843]' : 'text-[rgba(10,10,10,0.4)]'}`}>
+              <span className={`text-xs ${tweetText.length > 280 ? 'text-x-accent' : tweetText.length > 250 ? 'text-campaign-gold' : 'text-x-text-secondary'}`}>
                 {tweetText.length}/280
               </span>
               <div className="flex gap-2">
@@ -159,7 +159,7 @@ export default function Planner() {
                 <button
                   onClick={saveTweet}
                   disabled={saving}
-                  className={`btn text-xs py-1.5 ${saved ? 'bg-[rgba(10,10,10,0.05)] text-[#0A0A0A] border-[rgba(10,10,10,0.1)]' : 'btn-primary'} disabled:opacity-50`}
+                  className={`btn text-xs py-1.5 ${saved ? 'bg-x-surface-active text-x-text-primary border-x-border-light' : 'btn-primary'} disabled:opacity-50`}
                 >
                   {saving ? '...' : saved ? '✓ Kaydedildi' : 'Kaydet'}
                 </button>
@@ -168,14 +168,14 @@ export default function Planner() {
           </div>
 
           <div className="card p-5">
-            <label className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider block mb-3">GÖRSEL BİLGİSİ</label>
+            <label className="text-[10px] font-bold text-x-text-secondary tracking-wider block mb-3">GÖRSEL BİLGİSİ</label>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <div className="text-[10px] text-[rgba(10,10,10,0.4)] mb-1 font-semibold">SAHNE</div>
-                <div className="text-[#0A0A0A]">{plan.scene}</div>
+                <div className="text-[10px] text-x-text-secondary mb-1 font-semibold">SAHNE</div>
+                <div className="text-x-text-primary">{plan.scene}</div>
               </div>
               <div>
-                <div className="text-[10px] text-[rgba(10,10,10,0.4)] mb-1 font-semibold">ALTIN ELEMAN</div>
+                <div className="text-[10px] text-x-text-secondary mb-1 font-semibold">ALTIN ELEMAN</div>
                 <div className="text-campaign-gold font-medium">{plan.goldenElement}</div>
               </div>
             </div>
@@ -183,23 +183,23 @@ export default function Planner() {
 
           <div className="card p-5">
             <div className="flex items-center justify-between mb-3">
-              <label className="text-[10px] font-bold text-[#E30A17] tracking-wider">NANO BANANA PRO PROMPT</label>
+              <label className="text-[10px] font-bold text-x-accent tracking-wider">NANO BANANA PRO PROMPT</label>
               {activePrompt && <CopyBtn text={activePrompt} label="Kopyala" />}
             </div>
-            <div className="bg-[rgba(10,10,10,0.02)] rounded-none p-4 text-xs text-[rgba(10,10,10,0.4)] leading-relaxed max-h-48 overflow-y-auto border border-[#0A0A0A]">
+            <div className="bg-x-surface-hover rounded-none p-4 text-xs text-x-text-secondary leading-relaxed max-h-48 overflow-y-auto border border-x-border">
               {promptLoading ? (
-                <div className="flex items-center gap-2 py-4 justify-center text-[rgba(10,10,10,0.4)]">
+                <div className="flex items-center gap-2 py-4 justify-center text-x-text-secondary">
                   <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" /><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" /></svg>
                   Prompt üretiliyor...
                 </div>
               ) : activePrompt ? activePrompt : (
-                <div className="text-center py-4 text-[rgba(10,10,10,0.4)]">
+                <div className="text-center py-4 text-x-text-secondary">
                   "Prompt Üret" ile AI destekli prompt oluştur
                 </div>
               )}
             </div>
             <div className="mt-3 flex items-center justify-between">
-              <div className="flex gap-4 text-[10px] text-[rgba(10,10,10,0.4)]">
+              <div className="flex gap-4 text-[10px] text-x-text-secondary">
                 <span>aspectRatio: 1:1</span>
                 <span>resolution: 2K</span>
                 <span>temperature: 0.7</span>
@@ -222,7 +222,7 @@ export default function Planner() {
               </button>
             </div>
             {promptError && (
-              <div className="mt-2 text-[10px] text-[#E30A17]">{promptError}</div>
+              <div className="mt-2 text-[10px] text-x-accent">{promptError}</div>
             )}
           </div>
 
@@ -238,7 +238,7 @@ export default function Planner() {
             </div>
 
             {plan.quote && (
-              <div className="mb-3 p-2.5 rounded-none bg-[rgba(227,10,23,0.05)] border-l-3 border-l-[#E30A17] text-[11px] italic text-[rgba(10,10,10,0.4)]">
+              <div className="mb-3 p-2.5 rounded-none bg-[rgba(227,10,23,0.05)] border-l-3 border-l-x-accent text-[11px] italic text-x-text-secondary">
                 &ldquo;{plan.quote.text}&rdquo;
               </div>
             )}
@@ -248,7 +248,7 @@ export default function Planner() {
                 <img
                   src={`data:${generatedImage.mimeType};base64,${generatedImage.base64}`}
                   alt={`GUN ${day} — ${plan.theme}`}
-                  className="w-full rounded-none border border-[#0A0A0A]"
+                  className="w-full rounded-none border border-x-border"
                 />
                 {generatedImage.url && (
                   <div className="mt-2 flex items-center gap-2">
@@ -257,7 +257,7 @@ export default function Planner() {
                       href={generatedImage.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[10px] text-[#E30A17] hover:text-[#B80813]"
+                      className="text-[10px] text-x-accent hover:text-x-accent-hover"
                     >
                       Tam boyut
                     </a>
@@ -265,7 +265,7 @@ export default function Planner() {
                 )}
               </div>
             ) : imageLoading ? (
-              <div className="flex flex-col items-center gap-3 py-12 text-[rgba(10,10,10,0.4)]">
+              <div className="flex flex-col items-center gap-3 py-12 text-x-text-secondary">
                 <svg className="w-8 h-8 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" />
                   <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" />
@@ -273,7 +273,7 @@ export default function Planner() {
                 <div className="text-xs">Görsel üretiliyor... (30-60 sn)</div>
               </div>
             ) : (
-              <div className="text-center py-8 text-[rgba(10,10,10,0.4)] text-xs">
+              <div className="text-center py-8 text-x-text-secondary text-xs">
                 Referans fotoğraflarla İmamoğlu görseli üret
               </div>
             )}
@@ -286,7 +286,7 @@ export default function Planner() {
               {imageLoading ? 'Üretiliyor...' : generatedImage ? 'Yeniden Üret' : 'Görsel Üret'}
             </button>
             {imageError && (
-              <div className="mt-2 text-[10px] text-[#E30A17]">{imageError}</div>
+              <div className="mt-2 text-[10px] text-x-accent">{imageError}</div>
             )}
           </div>
         </div>
@@ -294,24 +294,24 @@ export default function Planner() {
         {/* Right: Scores + Checklist */}
         <div className="space-y-5">
           {/* Xquik Algorithm Score */}
-          <div className={`card rounded-none p-6 ${algoResult ? (algoResult.passed ? getScoreBg(100) : getScoreBg(algoScore)) : 'bg-[rgba(10,10,10,0.02)]'}`}>
+          <div className={`card rounded-none p-6 ${algoResult ? (algoResult.passed ? getScoreBg(100) : getScoreBg(algoScore)) : 'bg-x-surface-hover'}`}>
             <div className="flex items-center justify-between cursor-pointer select-none" onClick={() => algoResult && setAlgoExpanded(e => !e)}>
               <div>
-                <label className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider pointer-events-none">ALGORITMA SKORU</label>
-                <div className="text-[10px] text-[rgba(10,10,10,0.4)] mt-0.5">Xquik canlı 11 kontrol</div>
+                <label className="text-[10px] font-bold text-x-text-secondary tracking-wider pointer-events-none">ALGORITMA SKORU</label>
+                <div className="text-[10px] text-x-text-secondary mt-0.5">Xquik canlı 11 kontrol</div>
               </div>
               <div className="flex items-center gap-2">
                 {algoLoading ? (
-                  <svg className="w-8 h-8 animate-spin text-[rgba(10,10,10,0.4)]" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" /><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" /></svg>
+                  <svg className="w-8 h-8 animate-spin text-x-text-secondary" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" /><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" /></svg>
                 ) : algoResult ? (
-                  <span className={`stat-number text-5xl ${algoResult.passed ? 'text-[#0A0A0A]' : getScoreColor(algoScore)}`}>
+                  <span className={`stat-number text-5xl ${algoResult.passed ? 'text-x-text-primary' : getScoreColor(algoScore)}`}>
                     {algoResult.passedCount}/{algoResult.totalChecks}
                   </span>
                 ) : (
-                  <span className="text-2xl text-[rgba(10,10,10,0.4)]">—</span>
+                  <span className="text-2xl text-x-text-secondary">—</span>
                 )}
                 {algoResult && (
-                  <svg className={`w-5 h-5 text-[rgba(10,10,10,0.4)] transition-transform ${algoExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                  <svg className={`w-5 h-5 text-x-text-secondary transition-transform ${algoExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                 )}
               </div>
             </div>
@@ -319,10 +319,10 @@ export default function Planner() {
               <div className="space-y-2 mt-4">
                 {algoResult.checklist.map((check, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm">
-                    <span className={`text-xs font-bold ${check.passed ? 'text-[#0A0A0A]' : 'text-[#E30A17]'}`}>
+                    <span className={`text-xs font-bold ${check.passed ? 'text-x-text-primary' : 'text-x-accent'}`}>
                       {check.passed ? '✓' : '✕'}
                     </span>
-                    <span className={check.passed ? 'text-[rgba(10,10,10,0.4)]' : 'text-[#0A0A0A] font-medium'}>{check.factor}</span>
+                    <span className={check.passed ? 'text-x-text-secondary' : 'text-x-text-primary font-medium'}>{check.factor}</span>
                   </div>
                 ))}
               </div>
@@ -332,7 +332,7 @@ export default function Planner() {
           {/* Campaign Rules */}
           <div className={`card rounded-none p-5 ${getScoreBg(campaignAnalysis.score)}`}>
             <div className="flex items-center justify-between mb-3">
-              <label className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider">KAMPANYA UYUMU</label>
+              <label className="text-[10px] font-bold text-x-text-secondary tracking-wider">KAMPANYA UYUMU</label>
               <span className={`stat-number text-3xl ${getScoreColor(campaignAnalysis.score)}`}>
                 {campaignAnalysis.checks.filter(c => c.passed).length}/{campaignAnalysis.checks.length}
               </span>
@@ -340,10 +340,10 @@ export default function Planner() {
             <div className="space-y-2">
               {campaignAnalysis.checks.map((check, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm">
-                  <span className={`text-xs font-bold ${check.passed ? 'text-[#0A0A0A]' : 'text-[#E30A17]'}`}>
+                  <span className={`text-xs font-bold ${check.passed ? 'text-x-text-primary' : 'text-x-accent'}`}>
                     {check.passed ? '✓' : '✕'}
                   </span>
-                  <span className={check.passed ? 'text-[rgba(10,10,10,0.4)]' : 'text-[#0A0A0A]'}>{check.rule}</span>
+                  <span className={check.passed ? 'text-x-text-secondary' : 'text-x-text-primary'}>{check.rule}</span>
                 </div>
               ))}
             </div>
@@ -351,14 +351,14 @@ export default function Planner() {
 
           {/* Pre-publish checklist */}
           <div className="card p-5">
-            <label className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider block mb-4">PAYLAŞIM ÖNCESİ KONTROL</label>
+            <label className="text-[10px] font-bold text-x-text-secondary tracking-wider block mb-4">PAYLAŞIM ÖNCESİ KONTROL</label>
             {[
               'Nano Banana Pro ile görseli ürettim',
               'Görsel 1:1 kare format, siyah/beyaz + tek altın eleman',
               'Display name güncellendi (GÜN sayısı)',
               'Sabah 09:00 TSİ civarında paylaşacağım',
             ].map((item, i) => (
-              <label key={i} className="flex items-center gap-3 py-2 text-sm text-[rgba(10,10,10,0.4)] cursor-pointer hover:text-[#0A0A0A] transition-colors border-b border-[#0A0A0A] last:border-0">
+              <label key={i} className="flex items-center gap-3 py-2 text-sm text-x-text-secondary cursor-pointer hover:text-x-text-primary transition-colors border-b border-x-border last:border-0">
                 <input type="checkbox" className="rounded w-4 h-4" />
                 <span>{item}</span>
               </label>

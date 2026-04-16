@@ -25,10 +25,10 @@ function UsageBar({ label, value, max, color }: { label: string; value: number; 
   return (
     <div>
       <div className="flex justify-between text-[10px] mb-1">
-        <span className="text-[rgba(10,10,10,0.4)]">{label}</span>
-        <span className="text-[rgba(10,10,10,0.4)]">{formatTokens(value)}</span>
+        <span className="text-x-text-secondary">{label}</span>
+        <span className="text-x-text-secondary">{formatTokens(value)}</span>
       </div>
-      <div className="h-1.5 bg-[rgba(10,10,10,0.02)] rounded-full overflow-hidden">
+      <div className="h-1.5 bg-x-surface-hover rounded-full overflow-hidden">
         <div className={`h-full rounded-full ${color}`} style={{ width: `${Math.max(2, pct)}%` }} />
       </div>
     </div>
@@ -38,19 +38,19 @@ function UsageBar({ label, value, max, color }: { label: string; value: number; 
 function GeminiCard({ title, usage, period }: { title: string; usage: GeminiUsage; period: string }) {
   const cost = calculateGeminiCost(usage)
   return (
-    <div className="bg-[rgba(10,10,10,0.02)] rounded-none p-4 border border-[#0A0A0A]">
+    <div className="bg-x-surface-hover rounded-none p-4 border border-x-border">
       <div className="flex items-center justify-between mb-3">
         <div>
-          <div className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider">{title}</div>
-          <div className="text-[10px] text-[rgba(10,10,10,0.4)]">{period}</div>
+          <div className="text-[10px] font-bold text-x-text-secondary tracking-wider">{title}</div>
+          <div className="text-[10px] text-x-text-secondary">{period}</div>
         </div>
         <div className="text-right">
-          <div className="text-lg font-bold text-[#E30A17]">{formatCost(cost)}</div>
-          <div className="text-[10px] text-[rgba(10,10,10,0.4)]">{usage.calls} istek</div>
+          <div className="text-lg font-bold text-x-accent">{formatCost(cost)}</div>
+          <div className="text-[10px] text-x-text-secondary">{usage.calls} istek</div>
         </div>
       </div>
       <div className="space-y-2">
-        <UsageBar label="Input tokens" value={usage.promptTokens} max={Math.max(usage.promptTokens, usage.completionTokens)} color="bg-[#E30A17]" />
+        <UsageBar label="Input tokens" value={usage.promptTokens} max={Math.max(usage.promptTokens, usage.completionTokens)} color="bg-x-accent" />
         <UsageBar label="Output tokens" value={usage.completionTokens} max={Math.max(usage.promptTokens, usage.completionTokens)} color="bg-[#7856FF]" />
       </div>
     </div>
@@ -199,39 +199,39 @@ export default function Settings() {
   return (
     <div className="space-y-8 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-[#0A0A0A]">Ayarlar</h1>
+        <h1 className="text-2xl font-bold text-x-text-primary">Ayarlar</h1>
       </div>
 
       {/* ═══════════ COST TRACKER ═══════════ */}
       <div className="card p-6">
-        <h2 className="text-sm font-bold text-[rgba(10,10,10,0.4)] mb-5 tracking-wider">API KULLANIM PANELİ</h2>
+        <h2 className="text-sm font-bold text-x-text-secondary mb-5 tracking-wider">API KULLANIM PANELİ</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Xquik Subscription */}
           <div className="space-y-4">
-            <div className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider">XQUIK ABONELİK</div>
+            <div className="text-[10px] font-bold text-x-text-secondary tracking-wider">XQUIK ABONELİK</div>
             {accountLoading ? (
-              <div className="bg-[rgba(10,10,10,0.02)] rounded-none p-6 border border-[#0A0A0A] text-center">
-                <div className="text-xs text-[rgba(10,10,10,0.4)] animate-pulse">Yükleniyor...</div>
+              <div className="bg-x-surface-hover rounded-none p-6 border border-x-border text-center">
+                <div className="text-xs text-x-text-secondary animate-pulse">Yükleniyor...</div>
               </div>
             ) : accountError ? (
-              <div className="bg-[#E30A17]/10 rounded-none p-4 border border-[#E30A17]/20">
-                <div className="text-xs text-[#E30A17]">{accountError}</div>
+              <div className="bg-x-accent/10 rounded-none p-4 border border-x-accent/20">
+                <div className="text-xs text-x-accent">{accountError}</div>
               </div>
             ) : account ? (
-              <div className="bg-[rgba(10,10,10,0.02)] rounded-none p-4 border border-[#0A0A0A] space-y-4">
+              <div className="bg-x-surface-hover rounded-none p-4 border border-x-border space-y-4">
                 {/* Status + Plan */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className={`w-2.5 h-2.5 rounded-full ${isActive ? 'bg-[#0A0A0A] animate-pulse' : 'bg-[#E30A17]'}`} />
-                    <span className="text-sm font-bold text-[#0A0A0A]">
+                    <span className={`w-2.5 h-2.5 rounded-full ${isActive ? 'bg-[#0A0A0A] animate-pulse' : 'bg-x-accent'}`} />
+                    <span className="text-sm font-bold text-x-text-primary">
                       Xquik Pro
                     </span>
                   </div>
                   <span className={`text-[10px] px-2.5 py-1 rounded-none font-bold ${
                     isActive
-                      ? 'bg-[#0A0A0A]/10 text-[#0A0A0A]'
-                      : 'bg-[#E30A17]/10 text-[#E30A17]'
+                      ? 'bg-[#0A0A0A]/10 text-x-text-primary'
+                      : 'bg-x-accent/10 text-x-accent'
                   }`}>
                     {isActive ? 'Aktif' : 'Pasif'}
                   </span>
@@ -240,18 +240,18 @@ export default function Settings() {
                 {/* Usage gauge */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] text-[rgba(10,10,10,0.4)]">Dönem Kullanımı</span>
-                    <span className="text-sm font-bold text-[#0A0A0A]">{usagePct}%</span>
+                    <span className="text-[10px] text-x-text-secondary">Dönem Kullanımı</span>
+                    <span className="text-sm font-bold text-x-text-primary">{usagePct}%</span>
                   </div>
-                  <div className="h-3 bg-[rgba(10,10,10,0.02)] rounded-full overflow-hidden">
+                  <div className="h-3 bg-x-surface-hover rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
-                        usagePct > 80 ? 'bg-[#E30A17]' : usagePct > 50 ? 'bg-[#D4A843]' : 'bg-[#0A0A0A]'
+                        usagePct > 80 ? 'bg-x-accent' : usagePct > 50 ? 'bg-campaign-gold' : 'bg-[#0A0A0A]'
                       }`}
                       style={{ width: `${Math.max(2, usagePct)}%` }}
                     />
                   </div>
-                  <div className="flex justify-between mt-1 text-[10px] text-[rgba(10,10,10,0.4)]">
+                  <div className="flex justify-between mt-1 text-[10px] text-x-text-secondary">
                     <span>{usagePct}% kullanıldı</span>
                     <span>{100 - usagePct}% kaldı</span>
                   </div>
@@ -259,27 +259,27 @@ export default function Settings() {
 
                 {/* Period + Monitors */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-[#FFFFFF] rounded-none p-2.5 border border-[#0A0A0A]">
-                    <div className="text-[10px] text-[rgba(10,10,10,0.4)] mb-0.5">Dönem</div>
-                    <div className="text-[11px] text-[#0A0A0A]">
+                  <div className="bg-x-surface rounded-none p-2.5 border border-x-border">
+                    <div className="text-[10px] text-x-text-secondary mb-0.5">Dönem</div>
+                    <div className="text-[11px] text-x-text-primary">
                       {period ? new Date(period.start).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : '-'}
                       {' — '}
                       {period ? new Date(period.end).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : '-'}
                     </div>
                   </div>
-                  <div className="bg-[#FFFFFF] rounded-none p-2.5 border border-[#0A0A0A]">
-                    <div className="text-[10px] text-[rgba(10,10,10,0.4)] mb-0.5">Kalan Gün</div>
-                    <div className="text-[11px] font-bold text-[#0A0A0A]">{daysLeft} gün</div>
+                  <div className="bg-x-surface rounded-none p-2.5 border border-x-border">
+                    <div className="text-[10px] text-x-text-secondary mb-0.5">Kalan Gün</div>
+                    <div className="text-[11px] font-bold text-x-text-primary">{daysLeft} gün</div>
                   </div>
-                  <div className="bg-[#FFFFFF] rounded-none p-2.5 border border-[#0A0A0A]">
-                    <div className="text-[10px] text-[rgba(10,10,10,0.4)] mb-0.5">Monitörler</div>
-                    <div className="text-[11px] text-[#0A0A0A]">
+                  <div className="bg-x-surface rounded-none p-2.5 border border-x-border">
+                    <div className="text-[10px] text-x-text-secondary mb-0.5">Monitörler</div>
+                    <div className="text-[11px] text-x-text-primary">
                       {account.monitorsUsed} / {account.monitorsAllowed}
                     </div>
                   </div>
-                  <div className="bg-[#FFFFFF] rounded-none p-2.5 border border-[#0A0A0A]">
-                    <div className="text-[10px] text-[rgba(10,10,10,0.4)] mb-0.5">API Versiyonu</div>
-                    <div className="text-[11px] text-[#0A0A0A]">v{account.pricingVersion}</div>
+                  <div className="bg-x-surface rounded-none p-2.5 border border-x-border">
+                    <div className="text-[10px] text-x-text-secondary mb-0.5">API Versiyonu</div>
+                    <div className="text-[11px] text-x-text-primary">v{account.pricingVersion}</div>
                   </div>
                 </div>
               </div>
@@ -289,10 +289,10 @@ export default function Settings() {
           {/* Gemini Usage */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <div className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider">GEMİNİ 2.0 FLASH</div>
+              <div className="text-[10px] font-bold text-x-text-secondary tracking-wider">GEMİNİ 2.0 FLASH</div>
               <button
                 onClick={() => { if (confirm('Gemini kullanım verilerini sıfırla?')) { resetCostTracker(); setCostSummary(getCostSummary()) } }}
-                className="text-[10px] text-[rgba(10,10,10,0.4)] hover:text-[#E30A17] transition-colors"
+                className="text-[10px] text-x-text-secondary hover:text-x-accent transition-colors"
               >
                 Sıfırla
               </button>
@@ -301,7 +301,7 @@ export default function Settings() {
             <GeminiCard title="SON 30 GÜN" usage={costSummary.last30Days} period="Aylık toplam" />
 
             {/* Pricing reference */}
-            <div className="text-[10px] text-[rgba(10,10,10,0.4)] flex items-center gap-3">
+            <div className="text-[10px] text-x-text-secondary flex items-center gap-3">
               <span>Fiyat: Input $0.10/1M</span>
               <span>Output $0.40/1M</span>
             </div>
@@ -310,18 +310,18 @@ export default function Settings() {
 
         {/* Daily chart - last 7 days */}
         {costSummary.dailyRecords.length > 1 && (
-          <div className="mt-6 border-t border-[#0A0A0A] pt-4">
-            <div className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider mb-3">SON 7 GÜN</div>
+          <div className="mt-6 border-t border-x-border pt-4">
+            <div className="text-[10px] font-bold text-x-text-secondary tracking-wider mb-3">SON 7 GÜN</div>
             <div className="flex items-end gap-1 h-16">
               {costSummary.dailyRecords.slice(-7).map((r, i) => {
                 const maxTokens = Math.max(...costSummary.dailyRecords.slice(-7).map(d => d.gemini.totalTokens), 1)
                 const pct = (r.gemini.totalTokens / maxTokens) * 100
                 return (
                   <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                    <div className="w-full bg-[#E30A17]/20 rounded-none" style={{ height: `${Math.max(2, pct)}%` }}
+                    <div className="w-full bg-x-accent/20 rounded-none" style={{ height: `${Math.max(2, pct)}%` }}
                       title={`${r.date}: ${formatTokens(r.gemini.totalTokens)} token, ${r.gemini.calls} istek`}
                     />
-                    <span className="text-[8px] text-[rgba(10,10,10,0.4)]">{r.date.slice(5)}</span>
+                    <span className="text-[8px] text-x-text-secondary">{r.date.slice(5)}</span>
                   </div>
                 )
               })}
@@ -333,43 +333,43 @@ export default function Settings() {
       {/* ═══════════ X ACCOUNT CONNECTION ═══════════ */}
       <div className="card p-6">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-sm font-bold text-[rgba(10,10,10,0.4)] tracking-wider">X HESAP BAĞLANTISI</h2>
+          <h2 className="text-sm font-bold text-x-text-secondary tracking-wider">X HESAP BAĞLANTISI</h2>
           <button
             onClick={() => setShowConnect(!showConnect)}
-            className="text-[10px] px-3 py-1.5 rounded-none border border-[#E30A17]/20 text-[#E30A17] hover:bg-[#E30A17]/10 font-bold transition-all"
+            className="text-[10px] px-3 py-1.5 rounded-none border border-x-accent/20 text-x-accent hover:bg-x-accent/10 font-bold transition-all"
           >
             {showConnect ? 'Kapat' : 'Hesap Bağla'}
           </button>
         </div>
 
         {xError && (
-          <div className="bg-[#E30A17]/10 rounded-none p-3 border border-[#E30A17]/20 mb-4">
-            <div className="text-xs text-[#E30A17]">{xError}</div>
+          <div className="bg-x-accent/10 rounded-none p-3 border border-x-accent/20 mb-4">
+            <div className="text-xs text-x-accent">{xError}</div>
           </div>
         )}
 
         {/* Connected accounts list */}
         {xLoading ? (
-          <div className="text-xs text-[rgba(10,10,10,0.4)] animate-pulse">Yükleniyor...</div>
+          <div className="text-xs text-x-text-secondary animate-pulse">Yükleniyor...</div>
         ) : xAccounts.length === 0 ? (
-          <div className="bg-[rgba(10,10,10,0.02)] rounded-none p-6 border border-[#0A0A0A] text-center">
-            <div className="text-sm text-[rgba(10,10,10,0.4)]">Bağlı hesap yok</div>
-            <div className="text-[10px] text-[rgba(10,10,10,0.4)] mt-1">Tweet paylaşmak için bir X hesabı bağlayın</div>
+          <div className="bg-x-surface-hover rounded-none p-6 border border-x-border text-center">
+            <div className="text-sm text-x-text-secondary">Bağlı hesap yok</div>
+            <div className="text-[10px] text-x-text-secondary mt-1">Tweet paylaşmak için bir X hesabı bağlayın</div>
           </div>
         ) : (
           <div className="space-y-2">
             {xAccounts.map(acc => (
-              <div key={acc.id} className="flex items-center justify-between bg-[rgba(10,10,10,0.02)] rounded-none p-4 border border-[#0A0A0A]">
+              <div key={acc.id} className="flex items-center justify-between bg-x-surface-hover rounded-none p-4 border border-x-border">
                 <div className="flex items-center gap-3">
-                  <span className={`w-2.5 h-2.5 rounded-full ${acc.status === 'active' || acc.status === 'connected' ? 'bg-[#0A0A0A]' : 'bg-[#D4A843]'}`} />
+                  <span className={`w-2.5 h-2.5 rounded-full ${acc.status === 'active' || acc.status === 'connected' ? 'bg-[#0A0A0A]' : 'bg-campaign-gold'}`} />
                   <div>
-                    <div className="text-sm font-bold text-[#0A0A0A]">@{acc.xUsername}</div>
-                    <div className="text-[10px] text-[rgba(10,10,10,0.4)]">{acc.status}</div>
+                    <div className="text-sm font-bold text-x-text-primary">@{acc.xUsername}</div>
+                    <div className="text-[10px] text-x-text-secondary">{acc.status}</div>
                   </div>
                 </div>
                 <button
                   onClick={() => handleDisconnect(acc.id, acc.xUsername)}
-                  className="text-[10px] text-[rgba(10,10,10,0.4)] hover:text-[#E30A17] transition-colors"
+                  className="text-[10px] text-x-text-secondary hover:text-x-accent transition-colors"
                 >
                   Bağlantıyı Kes
                 </button>
@@ -380,8 +380,8 @@ export default function Settings() {
 
         {/* Connect form */}
         {showConnect && (
-          <div className="mt-4 bg-[rgba(10,10,10,0.02)] rounded-none p-4 border border-[#0A0A0A] space-y-3">
-            <div className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider">YENİ HESAP BAĞLA</div>
+          <div className="mt-4 bg-x-surface-hover rounded-none p-4 border border-x-border space-y-3">
+            <div className="text-[10px] font-bold text-x-text-secondary tracking-wider">YENİ HESAP BAĞLA</div>
             <input
               type="text"
               placeholder="X kullanıcı adı (@ olmadan)"
@@ -417,7 +417,7 @@ export default function Settings() {
             >
               {connecting ? 'Bağlanıyor...' : 'Hesabı Bağla'}
             </button>
-            <div className="text-[10px] text-[rgba(10,10,10,0.4)]">
+            <div className="text-[10px] text-x-text-secondary">
               Bilgiler Xquik API'ye gönderilir. Şifreler bu panelde saklanmaz.
             </div>
           </div>
@@ -427,39 +427,39 @@ export default function Settings() {
       {/* ═══════════ AUTOMATIONS ═══════════ */}
       <div className="card p-6">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-sm font-bold text-[rgba(10,10,10,0.4)] tracking-wider">OTOMASYONLAR</h2>
-          <span className="text-[10px] text-[rgba(10,10,10,0.4)]">Ücretsiz: max 2 flow</span>
+          <h2 className="text-sm font-bold text-x-text-secondary tracking-wider">OTOMASYONLAR</h2>
+          <span className="text-[10px] text-x-text-secondary">Ücretsiz: max 2 flow</span>
         </div>
 
         {autoError && (
-          <div className={`rounded-none p-3 border mb-4 ${autoError === 'Test çalıştırıldı' ? 'bg-[#0A0A0A]/10 border-[#0A0A0A]/20' : 'bg-[#E30A17]/10 border-[#E30A17]/20'}`}>
-            <div className={`text-xs ${autoError === 'Test çalıştırıldı' ? 'text-[#0A0A0A]' : 'text-[#E30A17]'}`}>{autoError}</div>
+          <div className={`rounded-none p-3 border mb-4 ${autoError === 'Test çalıştırıldı' ? 'bg-[#0A0A0A]/10 border-x-border/20' : 'bg-x-accent/10 border-x-accent/20'}`}>
+            <div className={`text-xs ${autoError === 'Test çalıştırıldı' ? 'text-x-text-primary' : 'text-x-accent'}`}>{autoError}</div>
           </div>
         )}
 
         {autoLoading ? (
-          <div className="text-xs text-[rgba(10,10,10,0.4)] animate-pulse">Yükleniyor...</div>
+          <div className="text-xs text-x-text-secondary animate-pulse">Yükleniyor...</div>
         ) : (
           <div className="space-y-3">
             {automations.length === 0 ? (
-              <div className="bg-[rgba(10,10,10,0.02)] rounded-none p-6 border border-[#0A0A0A] text-center">
-                <div className="text-sm text-[rgba(10,10,10,0.4)]">Otomasyon yok</div>
-                <div className="text-[10px] text-[rgba(10,10,10,0.4)] mt-1">Trend takibi veya zamanlı tweet için otomasyon oluşturun</div>
+              <div className="bg-x-surface-hover rounded-none p-6 border border-x-border text-center">
+                <div className="text-sm text-x-text-secondary">Otomasyon yok</div>
+                <div className="text-[10px] text-x-text-secondary mt-1">Trend takibi veya zamanlı tweet için otomasyon oluşturun</div>
               </div>
             ) : (
               automations.map(flow => (
-                <div key={flow.id} className="flex items-center justify-between bg-[rgba(10,10,10,0.02)] rounded-none p-4 border border-[#0A0A0A]">
+                <div key={flow.id} className="flex items-center justify-between bg-x-surface-hover rounded-none p-4 border border-x-border">
                   <div className="flex items-center gap-3">
                     <span className={`w-2.5 h-2.5 rounded-full ${flow.isActive ? 'bg-[#0A0A0A] animate-pulse' : 'bg-[rgba(10,10,10,0.4)]'}`} />
                     <div>
-                      <div className="text-sm font-bold text-[#0A0A0A]">{flow.name}</div>
-                      <div className="text-[10px] text-[rgba(10,10,10,0.4)]">Tetik: {flow.triggerType} | {flow.isActive ? 'Aktif' : 'Pasif'}</div>
+                      <div className="text-sm font-bold text-x-text-primary">{flow.name}</div>
+                      <div className="text-[10px] text-x-text-secondary">Tetik: {flow.triggerType} | {flow.isActive ? 'Aktif' : 'Pasif'}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleTestAutomation(flow.id)}
-                      className="text-[10px] text-[#E30A17] hover:text-[#E30A17]/80 transition-colors"
+                      className="text-[10px] text-x-accent hover:text-x-accent/80 transition-colors"
                     >
                       Test
                     </button>
@@ -467,15 +467,15 @@ export default function Settings() {
                       onClick={() => handleToggleAutomation(flow)}
                       className={`text-[10px] px-2 py-1 rounded-none border transition-all ${
                         flow.isActive
-                          ? 'text-[#D4A843] border-[#D4A843]/20 hover:bg-[rgba(10,10,10,0.05)]'
-                          : 'text-[#0A0A0A] border-[#0A0A0A]/20 hover:bg-[rgba(10,10,10,0.05)]'
+                          ? 'text-campaign-gold border-[#D4A843]/20 hover:bg-x-surface-active'
+                          : 'text-x-text-primary border-x-border/20 hover:bg-x-surface-active'
                       }`}
                     >
                       {flow.isActive ? 'Durdur' : 'Başlat'}
                     </button>
                     <button
                       onClick={() => handleDeleteAutomation(flow.id, flow.name)}
-                      className="text-[10px] text-[rgba(10,10,10,0.4)] hover:text-[#E30A17] transition-colors"
+                      className="text-[10px] text-x-text-secondary hover:text-x-accent transition-colors"
                     >
                       Sil
                     </button>
@@ -509,7 +509,7 @@ export default function Settings() {
 
       {/* Campaign Info */}
       <div className="card p-6">
-        <h2 className="text-sm font-bold text-[rgba(10,10,10,0.4)] mb-5 tracking-wider">KAMPANYA BİLGİLERİ</h2>
+        <h2 className="text-sm font-bold text-x-text-secondary mb-5 tracking-wider">KAMPANYA BİLGİLERİ</h2>
         <div className="grid grid-cols-2 gap-5 text-sm">
           {[
             { label: 'Hesap', value: '@istbekliyor' },
@@ -518,8 +518,8 @@ export default function Settings() {
             { label: 'Hashtag', value: '#İstanbulBekliyor' },
           ].map(item => (
             <div key={item.label}>
-              <div className="text-[10px] text-[rgba(10,10,10,0.4)] tracking-wider font-semibold mb-1">{item.label.toUpperCase()}</div>
-              <div className="text-[#0A0A0A] font-semibold">{item.value}</div>
+              <div className="text-[10px] text-x-text-secondary tracking-wider font-semibold mb-1">{item.label.toUpperCase()}</div>
+              <div className="text-x-text-primary font-semibold">{item.value}</div>
             </div>
           ))}
         </div>
@@ -527,7 +527,7 @@ export default function Settings() {
 
       {/* Brand Colors */}
       <div className="card p-6">
-        <h2 className="text-sm font-bold text-[rgba(10,10,10,0.4)] mb-5 tracking-wider">MARKA RENKLERİ</h2>
+        <h2 className="text-sm font-bold text-x-text-secondary mb-5 tracking-wider">MARKA RENKLERİ</h2>
         <div className="grid grid-cols-2 gap-5">
           {[
             { name: 'Marka Kırmızı', hex: '#E30A17', usage: 'Profil, banner' },
@@ -536,11 +536,11 @@ export default function Settings() {
             { name: 'Kart Koyu', hex: '#16161E', usage: 'Dark mode kartlar' },
           ].map(c => (
             <div key={c.hex} className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-none border border-[#0A0A0A] flex-shrink-0" style={{ backgroundColor: c.hex }} />
+              <div className="w-12 h-12 rounded-none border border-x-border flex-shrink-0" style={{ backgroundColor: c.hex }} />
               <div>
-                <div className="text-xs text-[#0A0A0A] font-semibold">{c.name}</div>
-                <div className="text-[10px] text-[rgba(10,10,10,0.4)]">{c.hex}</div>
-                <div className="text-[10px] text-[rgba(10,10,10,0.4)]">{c.usage}</div>
+                <div className="text-xs text-x-text-primary font-semibold">{c.name}</div>
+                <div className="text-[10px] text-x-text-secondary">{c.hex}</div>
+                <div className="text-[10px] text-x-text-secondary">{c.usage}</div>
               </div>
             </div>
           ))}
@@ -550,22 +550,22 @@ export default function Settings() {
       {/* Prompt Template */}
       <div className="card p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-bold text-[#E30A17] tracking-wider">NANO BANANA PRO PROMPT ŞABLONU</h2>
+          <h2 className="text-sm font-bold text-x-accent tracking-wider">NANO BANANA PRO PROMPT ŞABLONU</h2>
           <CopyBtn text={promptTemplate} label="Şablon Kopyala" />
         </div>
-        <div className="bg-[rgba(10,10,10,0.02)] rounded-none p-4 text-xs text-[rgba(10,10,10,0.4)] leading-relaxed border border-[#0A0A0A]">
+        <div className="bg-x-surface-hover rounded-none p-4 text-xs text-x-text-secondary leading-relaxed border border-x-border">
           {promptTemplate}
         </div>
-        <div className="mt-3 grid grid-cols-3 gap-3 text-[10px] text-[rgba(10,10,10,0.4)]">
-          <div><span className="font-semibold text-[#0A0A0A]">API:</span> aspectRatio "1:1"</div>
-          <div><span className="font-semibold text-[#0A0A0A]">Resolution:</span> 2K</div>
-          <div><span className="font-semibold text-[#0A0A0A]">Temperature:</span> 0.7</div>
+        <div className="mt-3 grid grid-cols-3 gap-3 text-[10px] text-x-text-secondary">
+          <div><span className="font-semibold text-x-text-primary">API:</span> aspectRatio "1:1"</div>
+          <div><span className="font-semibold text-x-text-primary">Resolution:</span> 2K</div>
+          <div><span className="font-semibold text-x-text-primary">Temperature:</span> 0.7</div>
         </div>
       </div>
 
       {/* Visual Rules */}
       <div className="card p-6">
-        <h2 className="text-sm font-bold text-[rgba(10,10,10,0.4)] mb-5 tracking-wider">GÖRSEL ÜRETİM KURALLARI</h2>
+        <h2 className="text-sm font-bold text-x-text-secondary mb-5 tracking-wider">GÖRSEL ÜRETİM KURALLARI</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {[
             { num: '1', rule: 'Arka plan siyah veya koyu gri' },
@@ -575,9 +575,9 @@ export default function Settings() {
             { num: '5', rule: '"GÜN [SAYI]" yazısı, temiz sans-serif' },
             { num: '6', rule: '1:1 kare format, 2K çözünürlük' },
           ].map(r => (
-            <div key={r.num} className="flex items-start gap-3 text-sm p-3 bg-[rgba(10,10,10,0.02)] rounded-none">
+            <div key={r.num} className="flex items-start gap-3 text-sm p-3 bg-x-surface-hover rounded-none">
               <span className="w-7 h-7 rounded-none bg-campaign-gold/10 text-campaign-gold text-xs font-bold flex items-center justify-center flex-shrink-0">{r.num}</span>
-              <span className="text-[#0A0A0A] mt-0.5">{r.rule}</span>
+              <span className="text-x-text-primary mt-0.5">{r.rule}</span>
             </div>
           ))}
         </div>
@@ -585,19 +585,19 @@ export default function Settings() {
 
       {/* Theme Pool */}
       <div className="card p-6">
-        <h2 className="text-sm font-bold text-[rgba(10,10,10,0.4)] mb-5 tracking-wider">TEMA HAVUZU ({DAY_PLANS.length} Tema)</h2>
+        <h2 className="text-sm font-bold text-x-text-secondary mb-5 tracking-wider">TEMA HAVUZU ({DAY_PLANS.length} Tema)</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
           {DAY_PLANS.map((plan, i) => {
             const isActive = (day - 1) % DAY_PLANS.length === i
             return (
               <div key={i} className={`flex items-center gap-3 px-3 py-2.5 rounded-none text-sm transition-all ${
-                isActive ? 'bg-[#E30A17]/[0.05] border border-[#E30A17]/15' : 'hover:bg-[rgba(10,10,10,0.05)]'
+                isActive ? 'bg-x-accent/[0.05] border border-x-accent/15' : 'hover:bg-x-surface-active'
               }`}>
-                <span className="text-[10px] text-[rgba(10,10,10,0.4)] w-5 text-right">{i + 1}</span>
+                <span className="text-[10px] text-x-text-secondary w-5 text-right">{i + 1}</span>
                 <span className="text-base">{plan.emoji}</span>
-                <span className={`font-medium ${isActive ? 'text-[#E30A17]' : 'text-[#0A0A0A]'}`}>{plan.theme}</span>
-                <span className="text-[10px] text-[rgba(10,10,10,0.4)] ml-auto truncate max-w-[140px]">{plan.scene}</span>
-                {isActive && <span className="chip bg-[#E30A17]/10 text-[#E30A17] border-[#E30A17]/20 text-[10px]">BUGUN</span>}
+                <span className={`font-medium ${isActive ? 'text-x-accent' : 'text-x-text-primary'}`}>{plan.theme}</span>
+                <span className="text-[10px] text-x-text-secondary ml-auto truncate max-w-[140px]">{plan.scene}</span>
+                {isActive && <span className="chip bg-x-accent/10 text-x-accent border-x-accent/20 text-[10px]">BUGUN</span>}
               </div>
             )
           })}
@@ -606,9 +606,9 @@ export default function Settings() {
 
       {/* Campaign Rules */}
       <div className="card p-6">
-        <h2 className="text-sm font-bold text-[rgba(10,10,10,0.4)] mb-2 tracking-wider">KAMPANYA KURALLARI</h2>
-        <p className="text-[10px] text-[rgba(10,10,10,0.4)] mb-4">Marka kimliği ve içerik formatı</p>
-        <div className="space-y-2.5 text-sm text-[rgba(10,10,10,0.4)]">
+        <h2 className="text-sm font-bold text-x-text-secondary mb-2 tracking-wider">KAMPANYA KURALLARI</h2>
+        <p className="text-[10px] text-x-text-secondary mb-4">Marka kimliği ve içerik formatı</p>
+        <div className="space-y-2.5 text-sm text-x-text-secondary">
           {[
             'Tweet her zaman "GÜN [SAYI]." ile başlar',
             '2-4 satır kısa, şiirsel metin',
@@ -618,7 +618,7 @@ export default function Settings() {
             'Paylaşım saati: 09:00 TSİ',
             'Ton: yapıcı, umut dolu, asla saldırgan değil',
           ].map((rule, i) => (
-            <div key={i} className="flex gap-3 items-start p-2.5 rounded-none hover:bg-[rgba(10,10,10,0.05)] transition-colors">
+            <div key={i} className="flex gap-3 items-start p-2.5 rounded-none hover:bg-x-surface-active transition-colors">
               <span className="w-6 h-6 rounded-none bg-campaign-gold/10 text-campaign-gold text-[10px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
               <span className="mt-0.5">{rule}</span>
             </div>
@@ -630,31 +630,31 @@ export default function Settings() {
       <div className="card p-6">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-sm font-bold text-[rgba(10,10,10,0.4)] tracking-wider">X ALGORİTMA REHBERİ</h2>
-            <p className="text-[10px] text-[rgba(10,10,10,0.4)] mt-1">Xquik canlı veri + x-algorithm-main kaynak kodu</p>
+            <h2 className="text-sm font-bold text-x-text-secondary tracking-wider">X ALGORİTMA REHBERİ</h2>
+            <p className="text-[10px] text-x-text-secondary mt-1">Xquik canlı veri + x-algorithm-main kaynak kodu</p>
           </div>
           {algoData?.source && (
-            <span className="text-[9px] px-2 py-1 rounded-none bg-[#E30A17]/10 text-[#E30A17] border border-[#E30A17]/20">
+            <span className="text-[9px] px-2 py-1 rounded-none bg-x-accent/10 text-x-accent border border-x-accent/20">
               {algoData.source.substring(0, 40)}
             </span>
           )}
         </div>
 
         {algoLoading ? (
-          <div className="text-xs text-[rgba(10,10,10,0.4)] animate-pulse text-center py-8">Algoritma verileri yükleniyor...</div>
+          <div className="text-xs text-x-text-secondary animate-pulse text-center py-8">Algoritma verileri yükleniyor...</div>
         ) : !algoData ? (
-          <div className="text-xs text-[rgba(10,10,10,0.4)] text-center py-8">Algoritma verileri yüklenemedi</div>
+          <div className="text-xs text-x-text-secondary text-center py-8">Algoritma verileri yüklenemedi</div>
         ) : (
           <div className="space-y-6">
             {/* Content Rules */}
             {algoData.contentRules.length > 0 && (
               <div>
-                <h3 className="text-xs font-bold text-[rgba(10,10,10,0.4)] tracking-wider mb-3">İÇERİK KURALLARI ({algoData.contentRules.length})</h3>
+                <h3 className="text-xs font-bold text-x-text-secondary tracking-wider mb-3">İÇERİK KURALLARI ({algoData.contentRules.length})</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {algoData.contentRules.map((rule, i) => (
-                    <div key={i} className="flex gap-2 items-start p-2.5 rounded-none bg-[rgba(10,10,10,0.02)] border border-[#0A0A0A]">
-                      <span className="w-5 h-5 rounded bg-[#E30A17]/10 text-[#E30A17] text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
-                      <span className="text-[11px] text-[#0A0A0A] leading-relaxed">{rule.rule}</span>
+                    <div key={i} className="flex gap-2 items-start p-2.5 rounded-none bg-x-surface-hover border border-x-border">
+                      <span className="w-5 h-5 rounded bg-x-accent/10 text-x-accent text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                      <span className="text-[11px] text-x-text-primary leading-relaxed">{rule.rule}</span>
                     </div>
                   ))}
                 </div>
@@ -664,8 +664,8 @@ export default function Settings() {
             {/* Scorer Weights */}
             {algoData.scorerWeights.length > 0 && (
               <div>
-                <h3 className="text-xs font-bold text-[rgba(10,10,10,0.4)] tracking-wider mb-1">PHOENIX SKORLAMA SİNYALLERİ ({algoData.scorerWeights.length})</h3>
-                <p className="text-[9px] text-[rgba(10,10,10,0.4)] mb-3">Ağırlıklar tahmin — transformer öğreniyor, sabit değerler yok</p>
+                <h3 className="text-xs font-bold text-x-text-secondary tracking-wider mb-1">PHOENIX SKORLAMA SİNYALLERİ ({algoData.scorerWeights.length})</h3>
+                <p className="text-[9px] text-x-text-secondary mb-3">Ağırlıklar tahmin — transformer öğreniyor, sabit değerler yok</p>
                 <div className="space-y-1.5">
                   {algoData.scorerWeights.map((sw, i) => {
                     const isPositive = sw.weight > 0
@@ -676,13 +676,13 @@ export default function Settings() {
                     return (
                       <div key={i} className="flex items-center gap-2">
                         <div className="w-32 flex-shrink-0 flex items-center gap-1">
-                          <span className="text-[10px] text-[#0A0A0A]">{sw.signal}</span>
-                          {isConfirmed && <span className="text-[7px] px-1 rounded bg-[#0A0A0A]/10 text-[#0A0A0A]">kaynak</span>}
+                          <span className="text-[10px] text-x-text-primary">{sw.signal}</span>
+                          {isConfirmed && <span className="text-[7px] px-1 rounded bg-[#0A0A0A]/10 text-x-text-primary">kaynak</span>}
                         </div>
-                        <div className="flex-1 h-2.5 bg-[rgba(10,10,10,0.02)] rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${isPositive ? 'bg-[#0A0A0A]/60' : 'bg-[#E30A17]/60'}`} style={{ width: barWidth }} />
+                        <div className="flex-1 h-2.5 bg-x-surface-hover rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full ${isPositive ? 'bg-[#0A0A0A]/60' : 'bg-x-accent/60'}`} style={{ width: barWidth }} />
                         </div>
-                        <span className={`w-10 text-right text-[10px] font-bold ${isPositive ? 'text-[#0A0A0A]' : 'text-[#E30A17]'}`}>
+                        <span className={`w-10 text-right text-[10px] font-bold ${isPositive ? 'text-x-text-primary' : 'text-x-accent'}`}>
                           {sw.weight > 0 ? '+' : ''}{sw.weight}
                         </span>
                       </div>
@@ -695,13 +695,13 @@ export default function Settings() {
             {/* Engagement Multipliers + Penalties side by side */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {algoData.engagementMultipliers.length > 0 && (
-                <div className="bg-[rgba(10,10,10,0.02)] rounded-none p-4 border border-[#0A0A0A]">
-                  <h3 className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider mb-3">ENGAGEMENT ÇARPANLARI</h3>
+                <div className="bg-x-surface-hover rounded-none p-4 border border-x-border">
+                  <h3 className="text-[10px] font-bold text-x-text-secondary tracking-wider mb-3">ENGAGEMENT ÇARPANLARI</h3>
                   <div className="space-y-1.5">
                     {algoData.engagementMultipliers.map((em, i) => (
                       <div key={i} className="flex items-center justify-between text-[11px]">
-                        <span className="text-[rgba(10,10,10,0.4)]">{em.action}</span>
-                        <span className="font-bold text-[#E30A17]">{em.multiplier}</span>
+                        <span className="text-x-text-secondary">{em.action}</span>
+                        <span className="font-bold text-x-accent">{em.multiplier}</span>
                       </div>
                     ))}
                   </div>
@@ -709,12 +709,12 @@ export default function Settings() {
               )}
 
               {algoData.topPenalties.length > 0 && (
-                <div className="bg-[#E30A17]/5 rounded-none p-4 border border-[#E30A17]/10">
-                  <h3 className="text-[10px] font-bold text-[#E30A17] tracking-wider mb-3">CEZALAR</h3>
+                <div className="bg-x-accent/5 rounded-none p-4 border border-x-accent/10">
+                  <h3 className="text-[10px] font-bold text-x-accent tracking-wider mb-3">CEZALAR</h3>
                   <div className="space-y-1.5">
                     {algoData.topPenalties.map((p, i) => (
-                      <div key={i} className="flex gap-2 text-[11px] text-[rgba(10,10,10,0.4)]">
-                        <span className="text-[#E30A17] flex-shrink-0 font-bold">!</span>
+                      <div key={i} className="flex gap-2 text-[11px] text-x-text-secondary">
+                        <span className="text-x-accent flex-shrink-0 font-bold">!</span>
                         <span>{p}</span>
                       </div>
                     ))}
@@ -727,16 +727,16 @@ export default function Settings() {
             {algoData.engagementVelocity && (
               <div className="bg-campaign-gold/5 rounded-none p-4 border-l-4 border-l-campaign-gold">
                 <h3 className="text-[10px] font-bold text-campaign-gold tracking-wider mb-1">ENGAGEMENT HIZI</h3>
-                <p className="text-[11px] text-[rgba(10,10,10,0.4)] leading-relaxed">{algoData.engagementVelocity}</p>
+                <p className="text-[11px] text-x-text-secondary leading-relaxed">{algoData.engagementVelocity}</p>
               </div>
             )}
 
             {/* System Architecture */}
             <details className="group">
-              <summary className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider cursor-pointer hover:text-[#0A0A0A] transition-colors">
+              <summary className="text-[10px] font-bold text-x-text-secondary tracking-wider cursor-pointer hover:text-x-text-primary transition-colors">
                 SİSTEM MİMARİSİ (kaynak koddan)
               </summary>
-              <div className="text-[10px] text-[rgba(10,10,10,0.4)] leading-loose space-y-0.5 mt-3 pl-2 border-l-2 border-[#0A0A0A]">
+              <div className="text-[10px] text-x-text-secondary leading-loose space-y-0.5 mt-3 pl-2 border-l-2 border-x-border">
                 {[
                   '1. Query Hydration → User Action Sequence + Features',
                   '2. Candidate Sources → Thunder (in-network) + Phoenix (OON)',
@@ -746,7 +746,7 @@ export default function Settings() {
                   '6. Selection → Top K',
                   '7. Post-Selection → VF Filter (safety)',
                 ].map((step, i) => (
-                  <div key={i} className="py-0.5 hover:text-[#0A0A0A] transition-colors">{step}</div>
+                  <div key={i} className="py-0.5 hover:text-x-text-primary transition-colors">{step}</div>
                 ))}
               </div>
             </details>
@@ -756,8 +756,8 @@ export default function Settings() {
 
       {/* Milestone Strategy */}
       <div className="card p-6">
-        <h2 className="text-sm font-bold text-[rgba(10,10,10,0.4)] mb-5 tracking-wider">MILESTONE STRATEJİSİ</h2>
-        <div className="space-y-3 text-sm text-[rgba(10,10,10,0.4)]">
+        <h2 className="text-sm font-bold text-x-text-secondary mb-5 tracking-wider">MILESTONE STRATEJİSİ</h2>
+        <div className="space-y-3 text-sm text-x-text-secondary">
           {[
             { label: 'Her 50. gün', desc: 'Özet thread (son 50 günün en iyi görselleri)' },
             { label: 'Her 100. gün', desc: 'Özel görsel + daha uzun metin' },

@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import './index.css'
+import { initTheme } from './lib/themeToggle'
 
-// Ensure dark mode is always active
-document.documentElement.classList.add('dark')
+// Apply saved theme (light/dark) on startup
+initTheme()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

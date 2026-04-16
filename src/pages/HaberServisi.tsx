@@ -17,22 +17,22 @@ import {
 import { searchImages, type SearchImage } from '../lib/imageSearch'
 
 const SOURCE_COLORS: Record<string, string> = {
-  aa: 'bg-[#E30A17]/10 text-[#E30A17]',
-  ntv: 'bg-[#0A0A0A]/10 text-[#0A0A0A]',
+  aa: 'bg-x-accent/10 text-x-accent',
+  ntv: 'bg-[#0A0A0A]/10 text-x-text-primary',
   cnnturk: 'bg-[#38BDF8]/10 text-[#38BDF8]',
   diken: 'bg-[#FB923C]/10 text-[#FB923C]',
   bianet: 'bg-[#A855F7]/10 text-[#A855F7]',
-  bbc: 'bg-[rgba(10,10,10,0.04)] text-[#0A0A0A]',
-  sozcu: 'bg-[#E30A17]/10 text-[#E30A17]',
+  bbc: 'bg-x-surface-active text-x-text-primary',
+  sozcu: 'bg-x-accent/10 text-x-accent',
   cumhuriyet: 'bg-[#FB7185]/10 text-[#FB7185]',
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  siyaset: 'bg-[#E30A17]/10 text-[#E30A17]',
-  ekonomi: 'bg-[#0A0A0A]/10 text-[#0A0A0A]',
-  dunya: 'bg-[#E30A17]/10 text-[#E30A17]',
+  siyaset: 'bg-x-accent/10 text-x-accent',
+  ekonomi: 'bg-[#0A0A0A]/10 text-x-text-primary',
+  dunya: 'bg-x-accent/10 text-x-accent',
   teknoloji: 'bg-[#8B5CF6]/10 text-[#8B5CF6]',
-  toplum: 'bg-[#D4A843]/10 text-[#D4A843]',
+  toplum: 'bg-campaign-gold/10 text-campaign-gold',
   spor: 'bg-[#22D3EE]/10 text-[#22D3EE]',
 }
 
@@ -129,22 +129,22 @@ export default function HaberServisi() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#0A0A0A]">
+          <h1 className="text-2xl sm:text-3xl font-bold text-x-text-primary">
             Haber Servisi
           </h1>
-          <p className="text-sm text-[rgba(10,10,10,0.4)] mt-1">
+          <p className="text-sm text-x-text-secondary mt-1">
             Türkiye gündemi, canlı ve kategorize
           </p>
         </div>
         <div className="flex items-center gap-3">
           {fetchedAt && (
-            <span className="text-xs text-[rgba(10,10,10,0.4)]">
+            <span className="text-xs text-x-text-secondary">
               Son: {getRelativeTime(fetchedAt)}
             </span>
           )}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-[#E30A17]/[0.06] border border-[#E30A17]/10">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-x-accent/[0.06] border border-x-accent/10">
             <span className="live-dot" />
-            <span className="text-[10px] font-bold tracking-[2px] text-[#E30A17]">
+            <span className="text-[10px] font-bold tracking-[2px] text-x-accent">
               {okCount}/{totalCount} KAYNAK
             </span>
           </div>
@@ -152,7 +152,7 @@ export default function HaberServisi() {
       </div>
 
       {/* Filter Bar */}
-      <div className="border-b border-[#0A0A0A] pb-4 space-y-3">
+      <div className="border-b border-x-border pb-4 space-y-3">
         {/* Category Tabs */}
         <div className="flex flex-wrap gap-1.5">
           {CATEGORIES.map(cat => (
@@ -161,8 +161,8 @@ export default function HaberServisi() {
               onClick={() => setFilter(f => ({ ...f, category: cat.key }))}
               className={`px-3 py-1.5 text-xs font-medium rounded-none transition-all ${
                 filter.category === cat.key
-                  ? 'bg-[#E30A17] text-white'
-                  : 'bg-[rgba(10,10,10,0.02)] text-[rgba(10,10,10,0.4)] hover:bg-[rgba(10,10,10,0.05)]'
+                  ? 'bg-x-accent text-white'
+                  : 'bg-x-surface-hover text-x-text-secondary hover:bg-x-surface-active'
               }`}
             >
               {cat.label}
@@ -175,7 +175,7 @@ export default function HaberServisi() {
           <select
             value={filter.source}
             onChange={e => setFilter(f => ({ ...f, source: e.target.value }))}
-            className="px-3 py-2 text-xs rounded-none border border-[#0A0A0A] bg-[#000000] text-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-[#E30A17]/20"
+            className="px-3 py-2 text-xs rounded-none border border-x-border bg-[#000000] text-x-text-primary focus:outline-none focus:ring-2 focus:ring-x-accent/20"
           >
             {SOURCES.map(s => (
               <option key={s.key} value={s.key}>{s.label}</option>
@@ -187,15 +187,15 @@ export default function HaberServisi() {
             placeholder="Haberlerde ara..."
             value={filter.searchQuery}
             onChange={e => setFilter(f => ({ ...f, searchQuery: e.target.value }))}
-            className="flex-1 px-3 py-2 text-xs rounded-none border border-[#0A0A0A] bg-[#000000] text-[#0A0A0A] placeholder:text-[rgba(10,10,10,0.4)] focus:outline-none focus:ring-2 focus:ring-[#E30A17]/20"
+            className="flex-1 px-3 py-2 text-xs rounded-none border border-x-border bg-[#000000] text-x-text-primary placeholder:text-x-text-secondary focus:outline-none focus:ring-2 focus:ring-x-accent/20"
           />
 
           <button
             onClick={() => setFilter(f => ({ ...f, campaignOnly: !f.campaignOnly }))}
             className={`px-3 py-2 text-xs font-medium rounded-none border transition-all whitespace-nowrap ${
               filter.campaignOnly
-                ? 'bg-[#E30A17]/10 border-[#E30A17]/30 text-[#E30A17]'
-                : 'border-[#0A0A0A] text-[rgba(10,10,10,0.4)] hover:bg-[rgba(10,10,10,0.05)]'
+                ? 'bg-x-accent/10 border-x-accent/30 text-x-accent'
+                : 'border-x-border text-x-text-secondary hover:bg-x-surface-active'
             }`}
           >
             Kampanya Sinyali
@@ -205,8 +205,8 @@ export default function HaberServisi() {
 
       {/* Error */}
       {error && (
-        <div className="p-4 border-l-4 border-[#D4A843] bg-[#D4A843]/10">
-          <p className="text-xs text-[#D4A843]">{error}</p>
+        <div className="p-4 border-l-4 border-campaign-gold bg-campaign-gold/10">
+          <p className="text-xs text-campaign-gold">{error}</p>
         </div>
       )}
 
@@ -214,10 +214,10 @@ export default function HaberServisi() {
       {loading && (
         <div className="space-y-4">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="border-b border-[#0A0A0A] py-4 animate-pulse">
-              <div className="h-3 bg-[rgba(10,10,10,0.02)] rounded w-16 mb-3" />
-              <div className="h-4 bg-[rgba(10,10,10,0.02)] rounded w-3/4 mb-2" />
-              <div className="h-3 bg-[rgba(10,10,10,0.02)] rounded w-full" />
+            <div key={i} className="border-b border-x-border py-4 animate-pulse">
+              <div className="h-3 bg-x-surface-hover rounded w-16 mb-3" />
+              <div className="h-4 bg-x-surface-hover rounded w-3/4 mb-2" />
+              <div className="h-3 bg-x-surface-hover rounded w-full" />
             </div>
           ))}
         </div>
@@ -230,7 +230,7 @@ export default function HaberServisi() {
             <section>
               <div className="flex items-center gap-2 mb-3">
                 <span className="live-dot" />
-                <h2 className="text-sm font-bold text-[#E30A17] tracking-wide">
+                <h2 className="text-sm font-bold text-x-accent tracking-wide">
                   KAMPANYA SİNYALİ ({campaignSignals.length})
                 </h2>
               </div>
@@ -251,13 +251,13 @@ export default function HaberServisi() {
           {/* General News (or all if campaignOnly) */}
           <section>
             {!filter.campaignOnly && campaignSignals.length > 0 && (
-              <h2 className="text-sm font-bold text-[rgba(10,10,10,0.4)] tracking-wide mb-3">
+              <h2 className="text-sm font-bold text-x-text-secondary tracking-wide mb-3">
                 GENEL GÜNDEM ({generalNews.length})
               </h2>
             )}
             {(filter.campaignOnly ? filtered : generalNews).length === 0 && (
-              <div className="border-b border-[#0A0A0A] py-8 text-center">
-                <p className="text-sm text-[rgba(10,10,10,0.4)]">
+              <div className="border-b border-x-border py-8 text-center">
+                <p className="text-sm text-x-text-secondary">
                   {filter.searchQuery
                     ? `"${filter.searchQuery}" için sonuç bulunamadı.`
                     : 'Bu filtreye uygun haber yok.'}
@@ -277,8 +277,8 @@ export default function HaberServisi() {
           </section>
 
           {/* Source Status */}
-          <section className="border-b border-[#0A0A0A] py-4">
-            <div className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider mb-2">KAYNAK DURUMU</div>
+          <section className="border-b border-x-border py-4">
+            <div className="text-[10px] font-bold text-x-text-secondary tracking-wider mb-2">KAYNAK DURUMU</div>
             <div className="flex flex-wrap gap-2">
               {Object.entries(sourceStatus).map(([key, status]) => {
                 const label = SOURCES.find(s => s.key === key)?.label || key
@@ -287,11 +287,11 @@ export default function HaberServisi() {
                     key={key}
                     className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium ${
                       status === 'ok'
-                        ? 'bg-[#0A0A0A]/10 text-[#0A0A0A]'
-                        : 'bg-[#E30A17]/10 text-[#E30A17]'
+                        ? 'bg-[#0A0A0A]/10 text-x-text-primary'
+                        : 'bg-x-accent/10 text-x-accent'
                     }`}
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full ${status === 'ok' ? 'bg-[#0A0A0A]' : 'bg-[#E30A17]'}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full ${status === 'ok' ? 'bg-[#0A0A0A]' : 'bg-x-accent'}`} />
                     {label}
                   </span>
                 )
@@ -308,18 +308,18 @@ export default function HaberServisi() {
           onClick={() => setIgModal(null)}
         >
           <div
-            className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-none bg-[#FFFFFF] border border-[#0A0A0A]"
+            className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-none bg-x-surface border border-x-border"
             onClick={e => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-[#0A0A0A] bg-[#FFFFFF] rounded-t-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-x-border bg-x-surface rounded-t-2xl">
               <div className="flex items-center gap-2">
                 <span className="text-fuchsia-500 text-lg">&#9632;</span>
-                <h3 className="text-sm font-bold text-[#0A0A0A]">Instagram İçeriği</h3>
+                <h3 className="text-sm font-bold text-x-text-primary">Instagram İçeriği</h3>
               </div>
               <button
                 onClick={() => setIgModal(null)}
-                className="w-8 h-8 flex items-center justify-center rounded-none text-[rgba(10,10,10,0.4)] hover:bg-[rgba(10,10,10,0.05)] transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-none text-x-text-secondary hover:bg-x-surface-active transition-colors"
               >
                 &#10005;
               </button>
@@ -327,8 +327,8 @@ export default function HaberServisi() {
 
             <div className="p-4 space-y-4">
               {/* Source news title */}
-              <div className="text-xs text-[rgba(10,10,10,0.4)] leading-relaxed">
-                <span className="font-medium text-[#0A0A0A]">{igModal.item.sourceLabel}:</span>{' '}
+              <div className="text-xs text-x-text-secondary leading-relaxed">
+                <span className="font-medium text-x-text-primary">{igModal.item.sourceLabel}:</span>{' '}
                 {igModal.item.title}
               </div>
 
@@ -336,17 +336,17 @@ export default function HaberServisi() {
               {igModal.loading && (
                 <div className="py-12 text-center space-y-3">
                   <div className="inline-block w-6 h-6 border-2 border-fuchsia-500/30 border-t-fuchsia-500 rounded-full animate-spin" />
-                  <p className="text-xs text-[rgba(10,10,10,0.4)]">Gemini ile oluşturuluyor...</p>
+                  <p className="text-xs text-x-text-secondary">Gemini ile oluşturuluyor...</p>
                 </div>
               )}
 
               {/* Error */}
               {igModal.error && (
-                <div className="p-3 rounded-none bg-[#E30A17]/10 border border-[#E30A17]/20">
-                  <p className="text-xs text-[#E30A17]">{igModal.error}</p>
+                <div className="p-3 rounded-none bg-x-accent/10 border border-x-accent/20">
+                  <p className="text-xs text-x-accent">{igModal.error}</p>
                   <button
                     onClick={() => handleInstagram(igModal.item)}
-                    className="mt-2 text-xs font-medium text-[#E30A17] underline"
+                    className="mt-2 text-xs font-medium text-x-accent underline"
                   >
                     Tekrar Dene
                   </button>
@@ -390,15 +390,15 @@ export default function HaberServisi() {
                   </button>
 
                   {/* Image Search Section */}
-                  <div className="pt-4 mt-4 border-t border-[#0A0A0A]">
-                    <div className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider mb-2">GÖRSEL ARA</div>
+                  <div className="pt-4 mt-4 border-t border-x-border">
+                    <div className="text-[10px] font-bold text-x-text-secondary tracking-wider mb-2">GÖRSEL ARA</div>
                     <div className="flex gap-2 mb-3">
                       <input
                         type="text"
                         value={igModal.imageQuery}
                         onChange={e => setIgModal(prev => prev ? { ...prev, imageQuery: e.target.value } : null)}
                         onKeyDown={e => e.key === 'Enter' && handleImageSearch(igModal.imageQuery)}
-                        className="flex-1 px-3 py-2 text-xs rounded-none border border-[#0A0A0A] bg-[#000000] text-[#0A0A0A] placeholder:text-[rgba(10,10,10,0.4)] focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20"
+                        className="flex-1 px-3 py-2 text-xs rounded-none border border-x-border bg-[#000000] text-x-text-primary placeholder:text-x-text-secondary focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20"
                         placeholder="Görsel ara..."
                       />
                       <button
@@ -424,7 +424,7 @@ export default function HaberServisi() {
                           onSelect={url => setIgModal(prev => prev ? { ...prev, selectedImage: prev.selectedImage === url ? null : url } : null)}
                         />
 
-                        <p className="text-[10px] text-[rgba(10,10,10,0.4)] text-center mt-2">
+                        <p className="text-[10px] text-x-text-secondary text-center mt-2">
                           {igModal.images.length} görsel bulundu
                           {igModal.selectedImage && ' — 1 seçili'}
                         </p>
@@ -450,14 +450,14 @@ export default function HaberServisi() {
                     )}
 
                     {igModal.images.length === 0 && !igModal.imageLoading && igModal.content && (
-                      <p className="text-[10px] text-[rgba(10,10,10,0.4)] text-center py-3">Görsel bulunamadı. Farklı bir arama deneyin.</p>
+                      <p className="text-[10px] text-x-text-secondary text-center py-3">Görsel bulunamadı. Farklı bir arama deneyin.</p>
                     )}
                   </div>
 
                   {/* Regenerate */}
                   <button
                     onClick={() => handleInstagram(igModal.item)}
-                    className="w-full py-2 text-xs font-medium text-[rgba(10,10,10,0.4)] bg-[rgba(10,10,10,0.02)] hover:bg-[rgba(10,10,10,0.05)] rounded-none transition-colors"
+                    className="w-full py-2 text-xs font-medium text-x-text-secondary bg-x-surface-hover hover:bg-x-surface-active rounded-none transition-colors"
                   >
                     Yeniden Oluştur
                   </button>
@@ -482,13 +482,13 @@ function NewsCard({
   onUseTweet: (item: NewsItem) => void
   onInstagram: (item: NewsItem) => void
 }) {
-  const sourceColor = SOURCE_COLORS[item.source] || 'bg-[rgba(10,10,10,0.04)] text-[rgba(10,10,10,0.4)]'
-  const categoryColor = CATEGORY_COLORS[item.category] || 'bg-[rgba(10,10,10,0.04)] text-[rgba(10,10,10,0.4)]'
+  const sourceColor = SOURCE_COLORS[item.source] || 'bg-x-surface-active text-x-text-secondary'
+  const categoryColor = CATEGORY_COLORS[item.category] || 'bg-x-surface-active text-x-text-secondary'
   const categoryLabel = CATEGORIES.find(c => c.key === item.category)?.label || item.category
 
   return (
     <article
-      className={`border-b border-[#0A0A0A] py-4 transition-all hover:bg-[rgba(10,10,10,0.02)] ${
+      className={`border-b border-x-border py-4 transition-all hover:bg-x-surface-hover ${
         isCampaign ? 'border-l-4 border-l-campaign-red' : ''
       }`}
     >
@@ -504,12 +504,12 @@ function NewsCard({
               {categoryLabel}
             </span>
             {item.isCampaignSignal && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-[#E30A17]/10 text-[#E30A17]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#E30A17] animate-pulse" />
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-x-accent/10 text-x-accent">
+                <span className="w-1.5 h-1.5 rounded-full bg-x-accent animate-pulse" />
                 Kampanya
               </span>
             )}
-            <span className="text-[10px] text-[rgba(10,10,10,0.4)] ml-auto">
+            <span className="text-[10px] text-x-text-secondary ml-auto">
               {getRelativeTime(item.publishedAt)}
             </span>
           </div>
@@ -519,14 +519,14 @@ function NewsCard({
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="block text-sm font-semibold text-[#0A0A0A] hover:text-[#E30A17] transition-colors leading-snug mb-1"
+            className="block text-sm font-semibold text-x-text-primary hover:text-x-accent transition-colors leading-snug mb-1"
           >
             {item.title}
           </a>
 
           {/* Description */}
           {item.description && (
-            <p className="text-xs text-[rgba(10,10,10,0.4)] leading-relaxed line-clamp-2">
+            <p className="text-xs text-x-text-secondary leading-relaxed line-clamp-2">
               {item.description}
             </p>
           )}
@@ -534,7 +534,7 @@ function NewsCard({
 
         {/* Image thumbnail */}
         {item.imageUrl && (
-          <div className="hidden sm:block flex-shrink-0 w-20 h-20 rounded-none overflow-hidden bg-[rgba(10,10,10,0.02)]">
+          <div className="hidden sm:block flex-shrink-0 w-20 h-20 rounded-none overflow-hidden bg-x-surface-hover">
             <img
               src={item.imageUrl}
               alt=""
@@ -547,10 +547,10 @@ function NewsCard({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#0A0A0A]">
+      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-x-border">
         <button
           onClick={() => onUseTweet(item)}
-          className="px-3 py-1.5 text-[11px] font-medium text-[#E30A17] bg-[#E30A17]/[0.06] hover:bg-[#E30A17]/[0.12] rounded-none transition-colors"
+          className="px-3 py-1.5 text-[11px] font-medium text-x-accent bg-x-accent/[0.06] hover:bg-x-accent/[0.12] rounded-none transition-colors"
         >
           Tweet İçin Kullan
         </button>
@@ -564,7 +564,7 @@ function NewsCard({
           href={item.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="px-3 py-1.5 text-[11px] font-medium text-[rgba(10,10,10,0.4)] bg-[rgba(10,10,10,0.02)] hover:bg-[rgba(10,10,10,0.05)] rounded-none transition-colors"
+          className="px-3 py-1.5 text-[11px] font-medium text-x-text-secondary bg-x-surface-hover hover:bg-x-surface-active rounded-none transition-colors"
         >
           Habere Git
         </a>
@@ -602,7 +602,7 @@ function ImageGrid({
             className={`group relative aspect-square rounded-none overflow-hidden border-2 transition-all ${
               isSelected
                 ? 'border-fuchsia-500 ring-2 ring-fuchsia-500/30 bg-fuchsia-500/10'
-                : 'border-[#0A0A0A] hover:border-fuchsia-400/60 hover:scale-[1.03]'
+                : 'border-x-border hover:border-fuchsia-400/60 hover:scale-[1.03]'
             }`}
           >
             {!hasFailed ? (
@@ -614,7 +614,7 @@ function ImageGrid({
                 onError={() => setFailedThumbs(prev => new Set(prev).add(img.id))}
               />
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center bg-[rgba(10,10,10,0.02)] text-[rgba(10,10,10,0.4)]">
+              <div className="w-full h-full flex flex-col items-center justify-center bg-x-surface-hover text-x-text-secondary">
                 <span className="text-lg">&#128247;</span>
                 <span className="text-[9px] mt-1">Yüklenemedi</span>
               </div>
@@ -665,20 +665,20 @@ function ContentBlock({
   }
 
   return (
-    <div className="rounded-none border border-[#0A0A0A] overflow-hidden">
-      <div className="flex items-center justify-between px-3 py-2 bg-[rgba(10,10,10,0.02)]">
+    <div className="rounded-none border border-x-border overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-2 bg-x-surface-hover">
         <div>
-          <span className="text-[11px] font-bold text-[#0A0A0A]">{label}</span>
-          <span className="text-[10px] text-[rgba(10,10,10,0.4)] ml-2">{sublabel}</span>
+          <span className="text-[11px] font-bold text-x-text-primary">{label}</span>
+          <span className="text-[10px] text-x-text-secondary ml-2">{sublabel}</span>
         </div>
         <button
           onClick={handleClick}
-          className="px-2 py-1 text-[10px] font-medium text-[rgba(10,10,10,0.4)] hover:text-fuchsia-400 transition-colors"
+          className="px-2 py-1 text-[10px] font-medium text-x-text-secondary hover:text-fuchsia-400 transition-colors"
         >
           {copied ? 'Kopyalandı' : 'Kopyala'}
         </button>
       </div>
-      <div className={`px-3 py-3 text-xs leading-relaxed text-[#0A0A0A] whitespace-pre-wrap ${mono ? 'text-base font-black tracking-wide text-white' : ''}`}>
+      <div className={`px-3 py-3 text-xs leading-relaxed text-x-text-primary whitespace-pre-wrap ${mono ? 'text-base font-black tracking-wide text-white' : ''}`}>
         {content}
       </div>
     </div>
