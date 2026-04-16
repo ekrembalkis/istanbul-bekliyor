@@ -38,6 +38,7 @@ export default function InstagramPreview() {
   const [assets, setAssets] = useState<PreviewAsset[]>(() => loadPreviewAssets())
   const [selectedId, setSelectedId] = useState<string>(() => loadPreviewAssets()[0]?.id || SAMPLE_ASSETS[0].id)
   const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState('')
   const [showEditor, setShowEditor] = useState(false)
 
   useEffect(() => { savePreviewAssets(assets) }, [assets])
@@ -45,12 +46,21 @@ export default function InstagramPreview() {
   const selectedAsset = assets.find(a => a.id === selectedId) || assets[0] || null
   const selectedIndex = assets.findIndex(a => a.id === selectedAsset?.id)
   const reelsAssets = assets.filter(a => a.kind === 'reel')
-  const displayAssets = surface === 'reels' ? reelsAssets : assets
+
+  // Auto-select first matching asset when switching tabs
+  function handleSurfaceChange(s: PreviewSurface) {
+    setSurface(s)
+    if (s === 'reels') {
+      const firstReel = assets.find(a => a.kind === 'reel')
+      if (firstReel) setSelectedId(firstReel.id)
+    }
+  }
 
   async function handleUpload(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files || [])
     if (files.length === 0) return
     setUploading(true)
+    setUploadError('')
     try {
       const uploaded = await Promise.all(files.map(async file => {
         const dataUrl = await readFileAsDataUrl(file)
@@ -59,6 +69,9 @@ export default function InstagramPreview() {
       }))
       setAssets(cur => [...uploaded, ...cur])
       setSelectedId(uploaded[0].id)
+    } catch (err) {
+      console.error('Upload failed:', err)
+      setUploadError(err instanceof Error ? err.message : 'Görsel yüklenemedi')
     } finally {
       setUploading(false)
       event.target.value = ''
@@ -66,8 +79,8 @@ export default function InstagramPreview() {
   }
 
   function updateSelected(patch: Partial<PreviewAsset>) {
-    if (!selectedAsset) return
-    setAssets(cur => cur.map(a => a.id === selectedAsset.id ? { ...a, ...patch } : a))
+    if (!selectedId) return
+    setAssets(cur => cur.map(a => a.id === selectedId ? { ...a, ...patch } : a))
   }
 
   function moveSelected(dir: -1 | 1) {
@@ -76,16 +89,16 @@ export default function InstagramPreview() {
   }
 
   function removeSelected() {
-    if (!selectedAsset || assets.length === 1) return
+    if (!selectedAsset || assets.length <= 1) return
     const next = assets.filter(a => a.id !== selectedAsset.id)
     setAssets(next)
-    setSelectedId(next[0].id)
+    if (next.length > 0) setSelectedId(next[0].id)
   }
 
   return (
     <div className="animate-fade-in">
       {/* Instagram-Native Dark Container */}
-      <div className="max-w-[480px] mx-auto bg-black min-h-[80vh] overflow-hidden" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}>
+      <div className="w-full max-w-[480px] mx-auto bg-black min-h-[80vh] overflow-hidden" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}>
 
         {/* IG Profile Header */}
         <div className="px-4 pt-4 pb-3">
@@ -122,7 +135,7 @@ export default function InstagramPreview() {
           {/* Action Buttons */}
           <div className="flex gap-2 mt-3">
             <label className="flex-1 bg-[#363636] text-white text-[13px] font-semibold text-center py-[7px] rounded-lg cursor-pointer">
-              <input type="file" accept="image/*" multiple className="hidden" onChange={handleUpload} />
+              <input type="file" accept="image/*" multiple className="absolute w-0 h-0 opacity-0" onChange={handleUpload} />
               {uploading ? 'Yükleniyor...' : 'Görsel Yükle'}
             </label>
             <button
@@ -135,11 +148,15 @@ export default function InstagramPreview() {
             </button>
             <button
               onClick={() => { setAssets(SAMPLE_ASSETS); setSelectedId(SAMPLE_ASSETS[0].id) }}
+              aria-label="Örnek seti geri yükle"
               className="bg-[#363636] text-white text-[13px] font-semibold px-3 py-[7px] rounded-lg"
             >
               ↺
             </button>
           </div>
+          {uploadError && (
+            <div className="mt-2 text-[12px] text-[#E30A17] bg-[#E30A17]/10 px-3 py-2 rounded-lg">{uploadError}</div>
+          )}
         </div>
 
         {/* IG Tabs */}
@@ -147,7 +164,7 @@ export default function InstagramPreview() {
           {(['profile', 'reels', 'explore'] as PreviewSurface[]).map(s => (
             <button
               key={s}
-              onClick={() => setSurface(s)}
+              onClick={() => handleSurfaceChange(s)}
               className={`flex-1 py-[10px] text-[12px] font-semibold text-center transition-colors border-b-[1px] ${
                 surface === s
                   ? 'text-white border-white'
@@ -231,7 +248,7 @@ export default function InstagramPreview() {
 
       {/* ===== EDITOR PANEL (outside IG frame) ===== */}
       {showEditor && selectedAsset && (
-        <div className="max-w-[480px] mx-auto mt-4 space-y-3">
+        <div className="w-full max-w-[480px] mx-auto mt-0 pt-4 pb-4 px-4 space-y-3 bg-[#111] border-t-2 border-[#262626]" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
           {/* Selected Card Info */}
           <div className="border-2 border-[#0A0A0A] bg-white p-5">
             <div className="flex items-center justify-between mb-4">
