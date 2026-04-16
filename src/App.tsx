@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Link } from 'react-router-dom'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import Planner from './pages/Planner'
@@ -11,6 +11,16 @@ import InstagramPreview from './pages/InstagramPreview'
 import HaberServisi from './pages/HaberServisi'
 import AlgorithmCheck from './pages/AlgorithmCheck'
 import AlgorithmGuide from './pages/AlgorithmGuide'
+
+function NotFound() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-6">
+      <div className="font-display text-8xl text-[#0A0A0A] mb-4">404</div>
+      <p className="font-mono text-sm text-[rgba(10,10,10,0.4)] tracking-[2px] uppercase mb-8">Sayfa bulunamadı</p>
+      <Link to="/" className="btn btn-primary">PANELE DÖN</Link>
+    </div>
+  )
+}
 
 export default function App() {
   return (
@@ -27,6 +37,7 @@ export default function App() {
         <Route path="/check" element={<AlgorithmCheck />} />
         <Route path="/algorithm" element={<AlgorithmGuide />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   )

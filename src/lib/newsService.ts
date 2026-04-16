@@ -105,28 +105,30 @@ export function startNewsPolling(
 ): () => void {
   let intervalId: ReturnType<typeof setInterval> | null = null
   let isVisible = true
+  let polling = false
 
   const poll = async () => {
-    if (!isVisible) return
+    if (!isVisible || polling) return
+    polling = true
     try {
-      // Clear cache to force fresh fetch
       localStorage.removeItem(CACHE_KEY)
       const data = await fetchNews()
       callback(data)
     } catch (err) {
       onError?.(err instanceof Error ? err : new Error(String(err)))
+    } finally {
+      polling = false
     }
   }
 
   const handleVisibility = () => {
     isVisible = document.visibilityState === 'visible'
-    if (isVisible) poll() // Fetch immediately when tab becomes visible
+    if (isVisible) poll()
   }
 
   document.addEventListener('visibilitychange', handleVisibility)
   intervalId = setInterval(poll, POLL_INTERVAL)
 
-  // Cleanup
   return () => {
     if (intervalId) clearInterval(intervalId)
     document.removeEventListener('visibilitychange', handleVisibility)

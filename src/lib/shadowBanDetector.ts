@@ -69,10 +69,10 @@ async function probeMonitor(username: string): Promise<CheckResult> {
           try {
             const probe = await createMonitor(target)
             await deleteMonitor(probe.id)
-            try { await createMonitor(savedUsername) } catch { /* best effort restore */ }
+            try { await createMonitor(savedUsername) } catch (restoreErr) { console.error('Monitor restore failed for', savedUsername, restoreErr) }
             return { status: 'pass', detail: 'Monitor probe başarılı — shadow ban yok', confidence: 95 }
           } catch (probeErr: unknown) {
-            try { await createMonitor(savedUsername) } catch { /* best effort restore */ }
+            try { await createMonitor(savedUsername) } catch (restoreErr) { console.error('Monitor restore failed for', savedUsername, restoreErr) }
             const probeMsg = probeErr instanceof Error ? probeErr.message : String(probeErr)
             if (probeMsg.toLowerCase().includes('shadow')) {
               return { status: 'fail', detail: 'X shadow ban tespit etti', confidence: 95 }
@@ -80,8 +80,8 @@ async function probeMonitor(username: string): Promise<CheckResult> {
             return { status: 'error', detail: `Probe hatası: ${probeMsg}`, confidence: 0 }
           }
         }
-      } catch {
-        // listMonitors failed during retry
+      } catch (swapErr) {
+        console.error('Monitor slot swap failed:', swapErr)
       }
       return { status: 'skipped', detail: 'Monitor limiti dolu, slot açılamadı', confidence: 0 }
     }

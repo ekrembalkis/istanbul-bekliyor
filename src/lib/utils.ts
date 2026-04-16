@@ -18,8 +18,9 @@ export function formatDate(date: Date): string {
 
 export function getTimeBreakdown(days: number) {
   const years = Math.floor(days / 365);
-  const months = Math.floor((days % 365) / 30);
-  const remainingDays = days % 30;
+  const afterYears = days - years * 365;
+  const months = Math.floor(afterYears / 30);
+  const remainingDays = afterYears - months * 30;
   return { years, months, days: remainingDays, total: days };
 }
 

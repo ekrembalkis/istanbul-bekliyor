@@ -408,7 +408,7 @@ export async function lookupTweet(tweetIdOrUrl: string): Promise<TweetInfo> {
   // Extract ID from URL if needed
   const idMatch = tweetIdOrUrl.match(/status\/(\d+)/)
   const tweetId = idMatch ? idMatch[1] : tweetIdOrUrl.replace(/\D/g, '')
-  if (!tweetId) throw new Error('Geçersiz tweet URL veya ID')
+  if (!tweetId || tweetId.length < 10) throw new Error('Geçersiz tweet URL veya ID')
 
   const raw = await api<{ tweet: { id: string; text: string; likeCount?: number }; author?: { username: string; name?: string } }>(`/x/tweets/${tweetId}`)
 
