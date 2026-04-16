@@ -47,17 +47,17 @@ export default function MoreMenu({ onClose }: { onClose: () => void }) {
   }, [onClose])
 
   return (
-    <div ref={ref} className="absolute bottom-full left-0 mb-2 w-64 rounded-xl border border-x-border bg-x-bg shadow-[0_0_15px_rgba(255,255,255,0.1)] py-1 z-50">
+    <div ref={ref} className="absolute bottom-full left-0 mb-2 w-64 border-2 border-[#0A0A0A] bg-[#EBEBEB] shadow-[4px_4px_0_#0A0A0A] py-1 z-50">
       {moreItems.map(item => (
         <NavLink
           key={item.to}
           to={item.to}
           onClick={onClose}
           className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-3 text-[15px] transition-colors ${
+            `flex items-center gap-3 px-4 py-3 font-mono text-xs tracking-[1px] transition-colors ${
               isActive
-                ? 'font-bold text-x-text-primary'
-                : 'text-x-text-primary hover:bg-[rgba(231,233,234,0.1)]'
+                ? 'font-bold text-[#E30A17] bg-[rgba(227,10,23,0.05)]'
+                : 'text-[#0A0A0A] hover:bg-[rgba(10,10,10,0.05)]'
             }`
           }
         >

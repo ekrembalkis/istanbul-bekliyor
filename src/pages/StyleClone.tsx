@@ -596,20 +596,20 @@ export default function StyleClone() {
     return (
       <div className="space-y-6 animate-fade-in">
         <div >
-          <h1 className="text-2xl font-bold text-[#E7E9EA]">Stil Klonlama</h1>
+          <h1 className="text-2xl font-bold text-[#0A0A0A]">Stil Klonlama</h1>
         </div>
         <div className="card text-center py-20 px-6">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[rgba(231,233,234,0.03)] flex items-center justify-center">
-            <svg className="w-8 h-8 text-[#E7E9EA]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <div className="w-16 h-16 mx-auto mb-4 rounded-none bg-[rgba(10,10,10,0.02)] flex items-center justify-center">
+            <svg className="w-8 h-8 text-[#0A0A0A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
             </svg>
           </div>
-          <div className="text-[#E7E9EA] font-semibold">Xquik API Key Gerekli</div>
-          <div className="text-[#71767B] text-sm mt-2 max-w-md mx-auto">
-            Stil klonlama için <code className="chip text-[#1D9BF0]">.env</code> dosyasına Xquik API key ekle.
+          <div className="text-[#0A0A0A] font-semibold">Xquik API Key Gerekli</div>
+          <div className="text-[rgba(10,10,10,0.4)] text-sm mt-2 max-w-md mx-auto">
+            Stil klonlama için <code className="chip text-[#E30A17]">.env</code> dosyasına Xquik API key ekle.
           </div>
-          <div className="mt-6 bg-[rgba(231,233,234,0.03)] rounded-xl p-4 max-w-sm mx-auto text-left border border-[#2F3336]">
-            <code className="text-xs text-[#71767B] leading-loose">
+          <div className="mt-6 bg-[rgba(10,10,10,0.02)] rounded-none p-4 max-w-sm mx-auto text-left border border-[#0A0A0A]">
+            <code className="text-xs text-[rgba(10,10,10,0.4)] leading-loose">
               VITE_XQUIK_API_KEY=xq_your_key_here
             </code>
           </div>
@@ -621,14 +621,14 @@ export default function StyleClone() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div >
-        <h1 className="text-2xl font-bold text-[#E7E9EA]">Stil Klonlama</h1>
-        <p className="text-sm text-[#71767B] mt-1">
+        <h1 className="text-2xl font-bold text-[#0A0A0A]">Stil Klonlama</h1>
+        <p className="text-sm text-[rgba(10,10,10,0.4)] mt-1">
           Kullanıcı adı gir → tweetleri otomatik çek → stili kopyala → birebir aynı tonda tweet üret.
         </p>
       </div>
 
       {/* Tab Nav */}
-      <div className="flex gap-1.5 border-b border-[#2F3336] pb-0">
+      <div className="flex gap-1.5 border-b border-[#0A0A0A] pb-0">
         {([
           { key: 'analyze' as Tab, label: 'Profil Analizi', count: styles.length },
           { key: 'compose' as Tab, label: 'Tweet Üret' },
@@ -639,8 +639,8 @@ export default function StyleClone() {
             onClick={() => { setTab(t.key); setError('') }}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-all -mb-[1px] ${
               tab === t.key
-                ? 'border-[#1D9BF0] text-[#E7E9EA] font-bold'
-                : 'border-transparent text-[#71767B] hover:bg-[rgba(231,233,234,0.1)]'
+                ? 'border-[#E30A17] text-[#0A0A0A] font-bold'
+                : 'border-transparent text-[rgba(10,10,10,0.4)] hover:bg-[rgba(10,10,10,0.05)]'
             }`}
           >
             {t.label}
@@ -650,9 +650,9 @@ export default function StyleClone() {
       </div>
 
       {error && (
-        <div className="card border-l-4 border-l-[#F91880] p-4 bg-[#F91880]/5">
-          <div className="text-sm text-[#F91880]">{error}</div>
-          <button onClick={() => setError('')} className="text-[10px] text-[#F91880] mt-1 hover:underline">Kapat</button>
+        <div className="card border-l-4 border-l-[#E30A17] p-4 bg-[#E30A17]/5">
+          <div className="text-sm text-[#E30A17]">{error}</div>
+          <button onClick={() => setError('')} className="text-[10px] text-[#E30A17] mt-1 hover:underline">Kapat</button>
         </div>
       )}
 
@@ -663,14 +663,14 @@ export default function StyleClone() {
           <div className="card p-5">
             <div className="flex gap-3">
               <div className="flex-1 relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#71767B] text-sm">@</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[rgba(10,10,10,0.4)] text-sm">@</span>
                 <input
                   type="text"
                   value={username}
                   onChange={e => setUsername(e.target.value.replace('@', ''))}
                   onKeyDown={e => e.key === 'Enter' && handleAnalyze()}
-                  placeholder="kullaniciadi"
-                  className="w-full input-field pl-8 pr-3 py-2.5 text-sm text-[#E7E9EA]"
+                  placeholder="kullanıcıadı"
+                  className="w-full input-field pl-8 pr-3 py-2.5 text-sm text-[#0A0A0A]"
                   disabled={analyzing}
                 />
               </div>
@@ -688,13 +688,13 @@ export default function StyleClone() {
               </button>
             </div>
             {deepProgress && (
-              <div className="mt-3 flex items-center gap-2 text-xs text-[#1D9BF0]">
+              <div className="mt-3 flex items-center gap-2 text-xs text-[#E30A17]">
                 <svg className="w-3 h-3 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" /><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" /></svg>
                 {deepProgress}
               </div>
             )}
             <div className="flex items-center gap-3 mt-3">
-              <button onClick={() => setShowManual(!showManual)} className="text-xs text-[#71767B] hover:text-[#1D9BF0] transition-colors">
+              <button onClick={() => setShowManual(!showManual)} className="text-xs text-[rgba(10,10,10,0.4)] hover:text-[#E30A17] transition-colors">
                 {showManual ? '✕ Manuel girişi kapat' : '+ Manuel tweet yapıştır'}
               </button>
             </div>
@@ -708,7 +708,7 @@ export default function StyleClone() {
                 value={manualTweets}
                 onChange={e => setManualTweets(e.target.value)}
                 rows={6}
-                className="w-full input-field p-3 text-sm text-[#E7E9EA] leading-relaxed resize-none"
+                className="w-full input-field p-3 text-sm text-[#0A0A0A] leading-relaxed resize-none"
                 placeholder={"Birinci tweet buraya...\n---\nİkinci tweet buraya...\n---\nÜçüncü tweet buraya..."}
               />
               <button onClick={handleSaveManual} className="btn btn-primary mt-3 w-full justify-center">
@@ -729,19 +729,19 @@ export default function StyleClone() {
                         return pic ? (
                           <img src={proxyImageUrl(pic)} alt="" className="w-12 h-12 rounded-full object-cover" />
                         ) : (
-                          <div className="w-12 h-12 rounded-full bg-[rgba(29,155,240,0.1)] flex items-center justify-center text-[#1D9BF0] font-bold text-lg">
+                          <div className="w-12 h-12 rounded-full bg-[rgba(227,10,23,0.15)] flex items-center justify-center text-[#E30A17] font-bold text-lg">
                             {currentStyle.xUsername[0]?.toUpperCase()}
                           </div>
                         )
                       })()}
                       <div>
-                        <h3 className="font-bold text-[#E7E9EA]">@{currentStyle.xUsername}</h3>
+                        <h3 className="font-bold text-[#0A0A0A]">@{currentStyle.xUsername}</h3>
                         {(userInfo || userCache[currentStyle.xUsername]) && (
-                          <div className="text-xs text-[#71767B]">
+                          <div className="text-xs text-[rgba(10,10,10,0.4)]">
                             {(userInfo || userCache[currentStyle.xUsername])?.name} · {(userInfo || userCache[currentStyle.xUsername])?.followers?.toLocaleString()} takipçi
                           </div>
                         )}
-                        {!userInfo && !userCache[currentStyle.xUsername] && <div className="text-xs text-[#71767B]">{currentStyle.tweetCount} tweet analiz edildi</div>}
+                        {!userInfo && !userCache[currentStyle.xUsername] && <div className="text-xs text-[rgba(10,10,10,0.4)]">{currentStyle.tweetCount} tweet analiz edildi</div>}
                       </div>
                     </div>
                     <button
@@ -753,7 +753,7 @@ export default function StyleClone() {
                   </div>
 
                   {userInfo?.description && (
-                    <div className="bg-[rgba(231,233,234,0.03)] rounded-xl p-3 mb-4 text-sm text-[#71767B] border border-[#2F3336]">
+                    <div className="bg-[rgba(10,10,10,0.02)] rounded-none p-3 mb-4 text-sm text-[rgba(10,10,10,0.4)] border border-[#0A0A0A]">
                       {userInfo.description}
                     </div>
                   )}
@@ -762,14 +762,14 @@ export default function StyleClone() {
                   {(currentStyle.tweets?.length ?? 0) > 0 ? (
                     <div className="space-y-2 max-h-72 overflow-y-auto">
                       {(currentStyle.tweets ?? []).map((tweet, i) => (
-                        <div key={tweet.id} className="bg-[rgba(231,233,234,0.03)] rounded-xl p-3 border border-[#2F3336]">
-                          <p className="text-sm text-[#E7E9EA] leading-relaxed whitespace-pre-line">{tweet.text}</p>
-                          <div className="text-[10px] text-[#71767B] mt-1.5">{tweet.createdAt ? new Date(tweet.createdAt).toLocaleDateString('tr-TR') : ''}</div>
+                        <div key={tweet.id} className="bg-[rgba(10,10,10,0.02)] rounded-none p-3 border border-[#0A0A0A]">
+                          <p className="text-sm text-[#0A0A0A] leading-relaxed whitespace-pre-line">{tweet.text}</p>
+                          <div className="text-[10px] text-[rgba(10,10,10,0.4)] mt-1.5">{tweet.createdAt ? new Date(tweet.createdAt).toLocaleDateString('tr-TR') : ''}</div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-6 text-sm text-[#71767B]">
+                    <div className="text-center py-6 text-sm text-[rgba(10,10,10,0.4)]">
                       Bu hesabın tweetleri henüz cache'lenmemiş.
                       <br/>
                       <span className="text-xs">Manuel tweet yapıştırarak stil profili oluşturabilirsin.</span>
@@ -778,23 +778,23 @@ export default function StyleClone() {
 
                   {/* Style analysis */}
                   {(currentStyle.tweets?.length ?? 0) > 0 && (
-                    <div className="mt-4 bg-[rgba(231,233,234,0.03)] rounded-xl p-4 border border-[#2F3336]">
-                      <div className="text-[10px] font-bold text-[#71767B] tracking-wider mb-2">STİL PROFİLİ</div>
-                      <div className="grid grid-cols-2 gap-3 text-xs text-[#71767B]">
+                    <div className="mt-4 bg-[rgba(10,10,10,0.02)] rounded-none p-4 border border-[#0A0A0A]">
+                      <div className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider mb-2">STİL PROFİLİ</div>
+                      <div className="grid grid-cols-2 gap-3 text-xs text-[rgba(10,10,10,0.4)]">
                         <div>
-                          <span className="font-semibold text-[#E7E9EA]">Ort. uzunluk:</span>{' '}
+                          <span className="font-semibold text-[#0A0A0A]">Ort. uzunluk:</span>{' '}
                           {Math.round((currentStyle.tweets ?? []).reduce((s, t) => s + t.text.length, 0) / (currentStyle.tweets?.length ?? 0))} karakter
                         </div>
                         <div>
-                          <span className="font-semibold text-[#E7E9EA]">Emoji:</span>{' '}
+                          <span className="font-semibold text-[#0A0A0A]">Emoji:</span>{' '}
                           {(currentStyle.tweets ?? []).filter(t => /[\u{1F600}-\u{1F6FF}]/u.test(t.text)).length}/{(currentStyle.tweets?.length ?? 0)}
                         </div>
                         <div>
-                          <span className="font-semibold text-[#E7E9EA]">Soru:</span>{' '}
+                          <span className="font-semibold text-[#0A0A0A]">Soru:</span>{' '}
                           {(currentStyle.tweets ?? []).filter(t => t.text.includes('?')).length}/{(currentStyle.tweets?.length ?? 0)}
                         </div>
                         <div>
-                          <span className="font-semibold text-[#E7E9EA]">Satır arası:</span>{' '}
+                          <span className="font-semibold text-[#0A0A0A]">Satır arası:</span>{' '}
                           Ort. {Math.round((currentStyle.tweets ?? []).reduce((s, t) => s + (t.text.match(/\n/g) || []).length, 0) / (currentStyle.tweets?.length ?? 0))}
                         </div>
                       </div>
@@ -805,24 +805,24 @@ export default function StyleClone() {
 
               {!currentStyle && !analyzing && (
                 <div className="card p-12 text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[rgba(231,233,234,0.03)] flex items-center justify-center">
-                    <svg className="w-8 h-8 text-[#E7E9EA]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-none bg-[rgba(10,10,10,0.02)] flex items-center justify-center">
+                    <svg className="w-8 h-8 text-[#0A0A0A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                     </svg>
                   </div>
-                  <div className="text-[#71767B] font-medium">Kullanıcı adı girerek başla</div>
-                  <div className="text-[#71767B] text-xs mt-1">Xquik otomatik olarak tweetleri çekip stilini analiz edecek.</div>
+                  <div className="text-[rgba(10,10,10,0.4)] font-medium">Kullanıcı adı girerek başla</div>
+                  <div className="text-[rgba(10,10,10,0.4)] text-xs mt-1">Xquik otomatik olarak tweetleri çekip stilini analiz edecek.</div>
                 </div>
               )}
             </div>
 
             {/* Saved Styles List */}
             <div className="card p-6">
-              <h3 className="text-sm font-bold text-[#E7E9EA] mb-4">
-                Kayıtlı Stiller {styles.length > 0 && <span className="text-[#71767B]">({styles.length})</span>}
+              <h3 className="text-sm font-bold text-[#0A0A0A] mb-4">
+                Kayıtlı Stiller {styles.length > 0 && <span className="text-[rgba(10,10,10,0.4)]">({styles.length})</span>}
               </h3>
               {styles.length === 0 ? (
-                <div className="text-center py-8 text-sm text-[#71767B]">
+                <div className="text-center py-8 text-sm text-[rgba(10,10,10,0.4)]">
                   Henüz kayıtlı stil yok.
                 </div>
               ) : (
@@ -830,10 +830,10 @@ export default function StyleClone() {
                   {styles.map(style => (
                     <div
                       key={style.xUsername}
-                      className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${
+                      className={`flex items-center justify-between p-3 rounded-none cursor-pointer transition-all ${
                         currentStyle?.xUsername === style.xUsername
-                          ? 'bg-[#1D9BF0]/[0.08] border border-[#1D9BF0]/15'
-                          : 'bg-[rgba(231,233,234,0.03)] hover:bg-[rgba(231,233,234,0.1)]'
+                          ? 'bg-[#E30A17]/[0.08] border border-[#E30A17]/15'
+                          : 'bg-[rgba(10,10,10,0.02)] hover:bg-[rgba(10,10,10,0.05)]'
                       }`}
                       onClick={() => handleLoadStyle(style.xUsername)}
                     >
@@ -841,18 +841,18 @@ export default function StyleClone() {
                         {userCache[style.xUsername]?.profilePicture ? (
                           <img src={proxyImageUrl(userCache[style.xUsername].profilePicture)} alt="" className="w-8 h-8 rounded-full object-cover" />
                         ) : (
-                          <div className="w-8 h-8 rounded-full bg-[rgba(231,233,234,0.08)] flex items-center justify-center text-xs font-bold text-[#E7E9EA]">
+                          <div className="w-8 h-8 rounded-full bg-[rgba(10,10,10,0.06)] flex items-center justify-center text-xs font-bold text-[#0A0A0A]">
                             {style.xUsername[0]?.toUpperCase()}
                           </div>
                         )}
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <span className="text-sm font-semibold text-[#E7E9EA]">@{style.xUsername}</span>
+                            <span className="text-sm font-semibold text-[#0A0A0A]">@{style.xUsername}</span>
                             {library.find(e => e.username === style.xUsername)?.isPinned && (
                               <span className="text-[9px] text-campaign-gold">*</span>
                             )}
                           </div>
-                          <div className="text-[10px] text-[#71767B]">
+                          <div className="text-[10px] text-[rgba(10,10,10,0.4)]">
                             {style.tweetCount} tweet
                             {(() => { const le = library.find(e => e.username === style.xUsername); return le?.generatedCount ? ` · ${le.generatedCount} üretim` : '' })()}
                           </div>
@@ -864,8 +864,8 @@ export default function StyleClone() {
                             onClick={e => { e.stopPropagation(); toggleMonitor(style.xUsername) }}
                             className={`btn text-[10px] py-1 px-2 ${
                               monitors.some(m => m.username === style.xUsername)
-                                ? 'text-[#00BA7C] bg-[#00BA7C]/10'
-                                : 'text-[#71767B]'
+                                ? 'text-[#0A0A0A] bg-[#0A0A0A]/10'
+                                : 'text-[rgba(10,10,10,0.4)]'
                             }`}
                             title={monitors.some(m => m.username === style.xUsername) ? 'Canlı takip aktif' : 'Canlı takibi aç'}
                           >
@@ -888,7 +888,7 @@ export default function StyleClone() {
                         </button>
                         <button
                           onClick={e => { e.stopPropagation(); handleDeleteStyle(style.xUsername) }}
-                          className="btn text-[10px] py-1 px-2 text-[#F91880] hover:bg-[#F91880]/10"
+                          className="btn text-[10px] py-1 px-2 text-[#E30A17] hover:bg-[#E30A17]/10"
                         >
                           ✕
                         </button>
@@ -908,22 +908,22 @@ export default function StyleClone() {
 
         {/* News context banner when coming from Haber Servisi */}
         {newsData && (
-          <div className="card p-4 border-l-4 border-l-brand-red bg-[rgba(29,155,240,0.03)]">
+          <div className="card p-4 border-l-4 border-l-brand-red bg-[rgba(227,10,23,0.03)]">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-[10px] font-bold text-[#1D9BF0] tracking-wider mb-1">HABERDEN TWEET ÜRET</div>
-                <p className="text-sm font-medium text-[#E7E9EA] leading-snug">{newsData.title}</p>
+                <div className="text-[10px] font-bold text-[#E30A17] tracking-wider mb-1">HABERDEN TWEET ÜRET</div>
+                <p className="text-sm font-medium text-[#0A0A0A] leading-snug">{newsData.title}</p>
                 {newsData.context && (
-                  <p className="text-xs text-[#71767B] mt-1 line-clamp-2">{newsData.context}</p>
+                  <p className="text-xs text-[rgba(10,10,10,0.4)] mt-1 line-clamp-2">{newsData.context}</p>
                 )}
               </div>
               {newsData.url && (
-                <a href={newsData.url} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 ml-4 px-3 py-1.5 text-[10px] font-medium text-[#1D9BF0] bg-[rgba(29,155,240,0.06)] hover:bg-[rgba(29,155,240,0.12)] rounded-lg transition-colors">
+                <a href={newsData.url} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 ml-4 px-3 py-1.5 text-[10px] font-medium text-[#E30A17] bg-[rgba(227,10,23,0.06)] hover:bg-[rgba(227,10,23,0.12)] rounded-none transition-colors">
                   Kaynağa Git
                 </a>
               )}
             </div>
-            <p className="text-[10px] text-[#71767B] mt-2">Aşağıdan stil seç, ayarları yap ve "Üret" butonuna bas.</p>
+            <p className="text-[10px] text-[rgba(10,10,10,0.4)] mt-2">Aşağıdan stil seç, ayarları yap ve "Üret" butonuna bas.</p>
           </div>
         )}
 
@@ -932,10 +932,10 @@ export default function StyleClone() {
           <div className="space-y-5">
             {/* Config */}
             <div className="card p-6">
-              <div className="text-[10px] font-bold text-[#71767B] tracking-widest mb-4">ADIM 01 — YAPILANDIRMA</div>
+              <div className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-widest mb-4">ADIM 01 — YAPILANDIRMA</div>
               <div className="space-y-3">
                 {/* Mode tabs */}
-                <div className="flex gap-1 p-1 bg-[rgba(231,233,234,0.03)] rounded-lg">
+                <div className="flex gap-1 p-1 bg-[rgba(10,10,10,0.02)] rounded-none">
                   {([
                     { key: 'tweet' as const, label: 'Tweet' },
                     { key: 'quote' as const, label: 'Quote' },
@@ -945,10 +945,10 @@ export default function StyleClone() {
                     <button
                       key={m.key}
                       onClick={() => setComposeMode(m.key)}
-                      className={`flex-1 text-[10px] py-1.5 rounded-md font-medium transition-all ${
+                      className={`flex-1 text-[10px] py-1.5 rounded-none font-medium transition-all ${
                         composeMode === m.key
-                          ? 'bg-[#16181C] text-[#E7E9EA]'
-                          : 'text-[#71767B] hover:text-[#E7E9EA]'
+                          ? 'bg-[#FFFFFF] text-[#0A0A0A]'
+                          : 'text-[rgba(10,10,10,0.4)] hover:text-[#0A0A0A]'
                       }`}
                     >
                       {m.label}
@@ -958,9 +958,9 @@ export default function StyleClone() {
 
                 {/* Style selector with profile pics */}
                 <div>
-                  <label className="text-[10px] font-bold text-[#71767B] tracking-wider block mb-1.5">KLONLANACAK STİL</label>
+                  <label className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider block mb-1.5">KLONLANACAK STİL</label>
                   {styles.length === 0 ? (
-                    <div className="input-field px-3 py-2.5 text-sm text-[#71767B]">Önce bir profil analiz et</div>
+                    <div className="input-field px-3 py-2.5 text-sm text-[rgba(10,10,10,0.4)]">Önce bir profil analiz et</div>
                   ) : (
                     <div className="flex flex-wrap gap-2">
                       {styles.filter(s => isValidXUsername(s.xUsername)).map(s => {
@@ -970,27 +970,27 @@ export default function StyleClone() {
                           <button
                             key={s.xUsername}
                             onClick={() => setComposeStyle(isSelected ? '' : s.xUsername)}
-                            className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all ${
+                            className={`flex items-center gap-2 px-3 py-2 rounded-none border transition-all ${
                               isSelected
-                                ? 'bg-[rgba(29,155,240,0.1)] border-[#1D9BF0]/30 ring-2 ring-brand-red/20'
-                                : 'bg-[rgba(231,233,234,0.03)] border-[#2F3336] hover:border-[#2F3336]'
+                                ? 'bg-[rgba(227,10,23,0.15)] border-[#E30A17]/30 ring-2 ring-brand-red/20'
+                                : 'bg-[rgba(10,10,10,0.02)] border-[#0A0A0A] hover:border-[#0A0A0A]'
                             }`}
                           >
                             {pic ? (
                               <img src={proxyImageUrl(pic)} alt="" className="w-6 h-6 rounded-full object-cover" />
                             ) : (
-                              <div className="w-6 h-6 rounded-full bg-[rgba(231,233,234,0.08)] flex items-center justify-center text-[10px] font-bold text-[#71767B]">
+                              <div className="w-6 h-6 rounded-full bg-[rgba(10,10,10,0.06)] flex items-center justify-center text-[10px] font-bold text-[rgba(10,10,10,0.4)]">
                                 {s.xUsername[0]?.toUpperCase()}
                               </div>
                             )}
                             <div className="text-left">
                               <div className="flex items-center gap-1">
-                                <span className={`text-xs font-semibold ${isSelected ? 'text-[#1D9BF0]' : 'text-[#E7E9EA]'}`}>@{s.xUsername}</span>
+                                <span className={`text-xs font-semibold ${isSelected ? 'text-[#E30A17]' : 'text-[#0A0A0A]'}`}>@{s.xUsername}</span>
                                 {library.find(e => e.username === s.xUsername)?.personalityDNA && (
                                   <span className="text-[8px] px-1 py-0.5 rounded bg-[#7856FF]/10 text-[#7856FF] border border-[#7856FF]/20 font-bold">DNA</span>
                                 )}
                               </div>
-                              <div className="text-[10px] text-[#71767B]">{s.tweetCount} tweet</div>
+                              <div className="text-[10px] text-[rgba(10,10,10,0.4)]">{s.tweetCount} tweet</div>
                             </div>
                           </button>
                         )
@@ -1002,7 +1002,7 @@ export default function StyleClone() {
                 {/* Quote/Reply: tweet URL input */}
                 {(composeMode === 'quote' || composeMode === 'reply') && (
                   <div>
-                    <label className="text-[10px] font-bold text-[#71767B] tracking-wider block mb-1.5">
+                    <label className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider block mb-1.5">
                       {composeMode === 'quote' ? 'QUOTE EDILECEK TWEET' : 'REPLY YAZILACAK TWEET'}
                     </label>
                     <div className="flex gap-2">
@@ -1011,39 +1011,39 @@ export default function StyleClone() {
                         value={quoteTweetUrl}
                         onChange={e => setQuoteTweetUrl(e.target.value)}
                         placeholder="Tweet URL yapıştır..."
-                        className="flex-1 input-field px-3 py-2 text-sm text-[#E7E9EA]"
+                        className="flex-1 input-field px-3 py-2 text-sm text-[#0A0A0A]"
                       />
                       <button onClick={handleFetchQuoteTweet} disabled={fetchingQuote} className="btn text-xs px-3 disabled:opacity-50">
                         {fetchingQuote ? '...' : 'Çek'}
                       </button>
                     </div>
                     {quoteTweetText && (
-                      <div className="mt-2 p-3 bg-[rgba(231,233,234,0.03)] rounded-lg border border-[#2F3336] text-xs text-[#71767B]">
-                        <span className="font-semibold text-[#E7E9EA]">@{quoteTweetAuthor}:</span> {quoteTweetText.substring(0, 150)}{quoteTweetText.length > 150 ? '...' : ''}
+                      <div className="mt-2 p-3 bg-[rgba(10,10,10,0.02)] rounded-none border border-[#0A0A0A] text-xs text-[rgba(10,10,10,0.4)]">
+                        <span className="font-semibold text-[#0A0A0A]">@{quoteTweetAuthor}:</span> {quoteTweetText.substring(0, 150)}{quoteTweetText.length > 150 ? '...' : ''}
                       </div>
                     )}
 
                     {/* Viral tweet discovery */}
-                    <div className="mt-3 pt-3 border-t border-[#2F3336]">
+                    <div className="mt-3 pt-3 border-t border-[#0A0A0A]">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-bold text-[#71767B] tracking-wider">VIRAL TWEET BUL</span>
+                        <span className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider">VIRAL TWEET BUL</span>
                         <button
                           onClick={() => searchViralTweets(viralCategory)}
                           disabled={viralLoading}
-                          className="text-[10px] text-[#1D9BF0] hover:text-[#1D9BF0] transition-colors"
+                          className="text-[10px] text-[#E30A17] hover:text-[#E30A17] transition-colors"
                         >
                           {viralLoading ? 'Arıyor...' : 'Ara'}
                         </button>
                       </div>
-                      <div className="flex gap-0.5 bg-[rgba(231,233,234,0.03)] rounded-md p-0.5 mb-2">
+                      <div className="flex gap-0.5 bg-[rgba(10,10,10,0.02)] rounded-none p-0.5 mb-2">
                         {TOPIC_CATEGORIES.map(cat => (
                           <button
                             key={cat.key}
                             onClick={() => { setViralCategory(cat.key); setViralTweets([]) }}
                             className={`flex-1 text-[9px] py-1 rounded transition-all ${
                               viralCategory === cat.key
-                                ? 'bg-[#16181C] text-[#E7E9EA] font-medium'
-                                : 'text-[#71767B] hover:text-[#E7E9EA]'
+                                ? 'bg-[#FFFFFF] text-[#0A0A0A] font-medium'
+                                : 'text-[rgba(10,10,10,0.4)] hover:text-[#0A0A0A]'
                             }`}
                           >
                             {cat.label}
@@ -1051,7 +1051,7 @@ export default function StyleClone() {
                         ))}
                       </div>
                       {viralLoading && (
-                        <div className="flex items-center justify-center py-4 text-[#71767B]">
+                        <div className="flex items-center justify-center py-4 text-[rgba(10,10,10,0.4)]">
                           <svg className="w-4 h-4 animate-spin mr-2" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" /><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" /></svg>
                           <span className="text-[10px]">Viral tweet'ler aranıyor...</span>
                         </div>
@@ -1059,10 +1059,10 @@ export default function StyleClone() {
                       {viralTweets.length > 0 && (
                         <div className="space-y-1.5 max-h-64 overflow-y-auto">
                           {viralTweets.map(vt => (
-                            <div key={vt.id} className="bg-[#16181C] rounded-lg p-2.5 border border-[#2F3336] hover:border-[#1D9BF0]/20 transition-colors group">
-                              <p className="text-[11px] text-[#E7E9EA] leading-relaxed line-clamp-3">{vt.text}</p>
+                            <div key={vt.id} className="bg-[#FFFFFF] rounded-none p-2.5 border border-[#0A0A0A] hover:border-[#E30A17]/20 transition-colors group">
+                              <p className="text-[11px] text-[#0A0A0A] leading-relaxed line-clamp-3">{vt.text}</p>
                               <div className="flex items-center justify-between mt-1.5">
-                                <div className="flex items-center gap-3 text-[10px] text-[#71767B]">
+                                <div className="flex items-center gap-3 text-[10px] text-[rgba(10,10,10,0.4)]">
                                   <span className="font-medium">@{vt.author}</span>
                                   <span>♥ {vt.likeCount.toLocaleString()}</span>
                                   {vt.retweetCount > 0 && <span>↻ {vt.retweetCount.toLocaleString()}</span>}
@@ -1072,7 +1072,7 @@ export default function StyleClone() {
                                     setQuoteTweetText(vt.text)
                                     setQuoteTweetAuthor(vt.author)
                                   }}
-                                  className="text-[10px] text-[#1D9BF0] hover:text-[#1D9BF0] font-medium opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="text-[10px] text-[#E30A17] hover:text-[#E30A17] font-medium opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
                                   Quote Et
                                 </button>
@@ -1089,17 +1089,17 @@ export default function StyleClone() {
                 {(composeMode === 'tweet' || composeMode === 'thread') && (
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-[10px] font-bold text-[#71767B] tracking-wider">KONU</label>
+                      <label className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider">KONU</label>
                       <div className="flex items-center gap-2">
-                        <div className="flex gap-0.5 bg-[rgba(231,233,234,0.03)] rounded-md p-0.5">
+                        <div className="flex gap-0.5 bg-[rgba(10,10,10,0.02)] rounded-none p-0.5">
                           {TOPIC_CATEGORIES.map(cat => (
                             <button
                               key={cat.key}
                               onClick={() => { setTopicCategory(cat.key); setTopicSuggestions([]); setExpandedTopic(null) }}
                               className={`text-[9px] px-1.5 py-0.5 rounded transition-all ${
                                 topicCategory === cat.key
-                                  ? 'bg-[#16181C] text-[#E7E9EA] font-medium'
-                                  : 'text-[#71767B] hover:text-[#E7E9EA]'
+                                  ? 'bg-[#FFFFFF] text-[#0A0A0A] font-medium'
+                                  : 'text-[rgba(10,10,10,0.4)] hover:text-[#0A0A0A]'
                               }`}
                             >
                               {cat.label}
@@ -1109,7 +1109,7 @@ export default function StyleClone() {
                         <button
                           onClick={loadTopicSuggestions}
                           disabled={loadingTopics}
-                          className="text-[10px] text-[#1D9BF0] hover:text-[#1D9BF0] transition-colors"
+                          className="text-[10px] text-[#E30A17] hover:text-[#E30A17] transition-colors"
                         >
                           {loadingTopics ? 'Yükleniyor...' : 'Öner'}
                         </button>
@@ -1120,7 +1120,7 @@ export default function StyleClone() {
                       value={composeTopic}
                       onChange={e => setComposeTopic(e.target.value)}
                       placeholder="Istanbul bekliyor, ozgurluk, demokrasi..."
-                      className="w-full input-field px-3 py-2 text-sm text-[#E7E9EA]"
+                      className="w-full input-field px-3 py-2 text-sm text-[#0A0A0A]"
                     />
                     {topicSuggestions.length > 0 && (
                       <div className="space-y-1.5 mt-2">
@@ -1129,12 +1129,12 @@ export default function StyleClone() {
                             <button
                               key={i}
                               onClick={() => { setComposeTopic(s.title); setTopicContext(s.context || ''); setExpandedTopic(null) }}
-                              className={`text-[10px] px-2 py-1 rounded-lg border transition-all hover:scale-105 ${
+                              className={`text-[10px] px-2 py-1 rounded-none border transition-all hover:scale-105 ${
                                 composeTopic === s.title ? 'ring-2 ring-offset-1 ' : ''
                               }${
-                                s.source === 'campaign' ? 'bg-[rgba(29,155,240,0.1)] text-[#1D9BF0] border-[#1D9BF0]/20' :
-                                s.source === 'live' ? 'bg-[#00BA7C]/10 text-[#00BA7C] border-[#00BA7C]/20' :
-                                'bg-[rgba(231,233,234,0.03)] text-[#71767B] border-[#2F3336]'
+                                s.source === 'campaign' ? 'bg-[rgba(227,10,23,0.15)] text-[#E30A17] border-[#E30A17]/20' :
+                                s.source === 'live' ? 'bg-[#0A0A0A]/10 text-[#0A0A0A] border-[#0A0A0A]/20' :
+                                'bg-[rgba(10,10,10,0.02)] text-[rgba(10,10,10,0.4)] border-[#0A0A0A]'
                               }`}
                               title={s.reason}
                             >
@@ -1152,17 +1152,17 @@ export default function StyleClone() {
                         </div>
                         {/* Expanded topic tweet cards */}
                         {expandedTopic !== null && topicSuggestions[expandedTopic]?.tweets && topicSuggestions[expandedTopic].tweets!.length > 0 && (
-                          <div className="bg-[rgba(231,233,234,0.02)] rounded-xl border border-[#2F3336] p-3 space-y-2 animate-fade-in">
+                          <div className="bg-[rgba(10,10,10,0.01)] rounded-none border border-[#0A0A0A] p-3 space-y-2 animate-fade-in">
                             <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-bold text-[#71767B] tracking-wider">
+                              <span className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider">
                                 {topicSuggestions[expandedTopic].title}
                               </span>
-                              <button onClick={() => setExpandedTopic(null)} className="text-[#71767B] hover:text-[#E7E9EA] text-xs">✕</button>
+                              <button onClick={() => setExpandedTopic(null)} className="text-[rgba(10,10,10,0.4)] hover:text-[#0A0A0A] text-xs">✕</button>
                             </div>
                             {topicSuggestions[expandedTopic].tweets!.map((tw, ti) => (
-                              <div key={ti} className="bg-[#16181C] rounded-lg p-3 border border-[#2F3336]">
-                                <p className="text-[11px] text-[#E7E9EA] leading-relaxed">{tw.text}</p>
-                                <div className="flex items-center gap-3 mt-1.5 text-[10px] text-[#71767B]">
+                              <div key={ti} className="bg-[#FFFFFF] rounded-none p-3 border border-[#0A0A0A]">
+                                <p className="text-[11px] text-[#0A0A0A] leading-relaxed">{tw.text}</p>
+                                <div className="flex items-center gap-3 mt-1.5 text-[10px] text-[rgba(10,10,10,0.4)]">
                                   {tw.author && <span className="font-medium">@{tw.author}</span>}
                                   <span className="flex items-center gap-0.5">♥ {tw.likeCount.toLocaleString()}</span>
                                   {tw.retweetCount > 0 && <span className="flex items-center gap-0.5">↻ {tw.retweetCount.toLocaleString()}</span>}
@@ -1178,11 +1178,11 @@ export default function StyleClone() {
                     <div className="mt-2">
                       <button
                         onClick={() => setShowHint(!showHint)}
-                        className="text-[10px] text-[#71767B] hover:text-[#E7E9EA] transition-colors flex items-center gap-1"
+                        className="text-[10px] text-[rgba(10,10,10,0.4)] hover:text-[#0A0A0A] transition-colors flex items-center gap-1"
                       >
                         <span className={`transition-transform ${showHint ? 'rotate-90' : ''}`}>▸</span>
                         {showHint ? 'İpucu gizle' : 'İpucu ekle (opsiyonel)'}
-                        {userHint.trim() && !showHint && <span className="w-1.5 h-1.5 rounded-full bg-[#1D9BF0]" />}
+                        {userHint.trim() && !showHint && <span className="w-1.5 h-1.5 rounded-full bg-[#E30A17]" />}
                       </button>
                       {showHint && (
                         <textarea
@@ -1191,7 +1191,7 @@ export default function StyleClone() {
                           placeholder="Tweet'in konusuna dair detay yaz... Örn: 'yağmurlu bir akşam, vapurda eve dönüş, camdan dışarı bakmak'"
                           rows={2}
                           maxLength={280}
-                          className="w-full input-field px-3 py-2 text-xs text-[#E7E9EA] mt-1.5 resize-none"
+                          className="w-full input-field px-3 py-2 text-xs text-[#0A0A0A] mt-1.5 resize-none"
                         />
                       )}
                     </div>
@@ -1201,9 +1201,9 @@ export default function StyleClone() {
                 {/* Ton + Hedef + Count row */}
                 <div className="grid grid-cols-3 gap-2">
                   <div>
-                    <label className="text-[10px] font-bold text-[#71767B] tracking-wider block mb-1.5">TON</label>
+                    <label className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider block mb-1.5">TON</label>
                     <select value={composeTone} onChange={e => setComposeTone(e.target.value)}
-                      className="w-full input-field px-2 py-2 text-xs text-[#E7E9EA]">
+                      className="w-full input-field px-2 py-2 text-xs text-[#0A0A0A]">
                       <option value="duygusal, umut dolu">Umutlu</option>
                       <option value="sarkastik, keskin">Sarkastik</option>
                       <option value="ofkeli, isyankar">Öfkeli</option>
@@ -1213,9 +1213,9 @@ export default function StyleClone() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-[#71767B] tracking-wider block mb-1.5">HEDEF</label>
+                    <label className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider block mb-1.5">HEDEF</label>
                     <select value={composeGoal} onChange={e => setComposeGoal(e.target.value)}
-                      className="w-full input-field px-2 py-2 text-xs text-[#E7E9EA]">
+                      className="w-full input-field px-2 py-2 text-xs text-[#0A0A0A]">
                       <option value="engagement">Etkileşim</option>
                       <option value="followers">Takipçi</option>
                       <option value="authority">Otorite</option>
@@ -1223,14 +1223,14 @@ export default function StyleClone() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-[#71767B] tracking-wider block mb-1.5">
+                    <label className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider block mb-1.5">
                       {composeMode === 'thread' ? 'TWEET' : 'ADET'}
                     </label>
                     {composeMode === 'thread' ? (
-                      <div className="input-field px-2 py-2 text-xs text-[#71767B] text-center">4-8</div>
+                      <div className="input-field px-2 py-2 text-xs text-[rgba(10,10,10,0.4)] text-center">4-8</div>
                     ) : (
                       <select value={tweetCount} onChange={e => setTweetCount(Number(e.target.value))}
-                        className="w-full input-field px-2 py-2 text-xs text-[#E7E9EA]">
+                        className="w-full input-field px-2 py-2 text-xs text-[#0A0A0A]">
                         {[1,2,3,4,5,6,7,8,9,10].map(n => (
                           <option key={n} value={n}>{n}</option>
                         ))}
@@ -1242,7 +1242,7 @@ export default function StyleClone() {
                 {/* Format hint (only when no style or campaign mode) */}
                 {composeMode === 'tweet' && (
                   <div>
-                    <label className="text-[10px] font-bold text-[#71767B] tracking-wider block mb-1.5">UZUNLUK</label>
+                    <label className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider block mb-1.5">UZUNLUK</label>
                     <div className="flex gap-1.5">
                       {[
                         { value: '', label: 'Otomatik' },
@@ -1253,10 +1253,10 @@ export default function StyleClone() {
                         <button
                           key={f.value}
                           onClick={() => setLengthHint(f.value)}
-                          className={`flex-1 text-[10px] py-1.5 rounded-md border transition-all ${
+                          className={`flex-1 text-[10px] py-1.5 rounded-none border transition-all ${
                             lengthHint === f.value
-                              ? 'bg-[rgba(29,155,240,0.1)] text-[#1D9BF0] border-[#1D9BF0]/20 font-bold'
-                              : 'text-[#71767B] border-[#2F3336] hover:text-[#E7E9EA]'
+                              ? 'bg-[rgba(227,10,23,0.15)] text-[#E30A17] border-[#E30A17]/20 font-bold'
+                              : 'text-[rgba(10,10,10,0.4)] border-[#0A0A0A] hover:text-[#0A0A0A]'
                           }`}
                         >
                           {f.label}
@@ -1266,24 +1266,24 @@ export default function StyleClone() {
                   </div>
                 )}
                 <div className="flex items-center justify-between py-2">
-                  <label className="text-[10px] font-bold text-[#71767B] tracking-wider">ÜRETİM MODU</label>
+                  <label className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider">ÜRETİM MODU</label>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setCloneMode(true)}
-                      className={`text-[10px] px-3 py-1.5 rounded-lg border transition-all ${
+                      className={`text-[10px] px-3 py-1.5 rounded-none border transition-all ${
                         cloneMode
-                          ? 'bg-[rgba(29,155,240,0.1)] text-[#1D9BF0] border-[#1D9BF0]/20 font-bold'
-                          : 'text-[#71767B] border-[#2F3336] hover:text-[#E7E9EA]'
+                          ? 'bg-[rgba(227,10,23,0.15)] text-[#E30A17] border-[#E30A17]/20 font-bold'
+                          : 'text-[rgba(10,10,10,0.4)] border-[#0A0A0A] hover:text-[#0A0A0A]'
                       }`}
                     >
                       Birebir Klon
                     </button>
                     <button
                       onClick={() => setCloneMode(false)}
-                      className={`text-[10px] px-3 py-1.5 rounded-lg border transition-all ${
+                      className={`text-[10px] px-3 py-1.5 rounded-none border transition-all ${
                         !cloneMode
-                          ? 'bg-[#1D9BF0]/10 text-[#1D9BF0] border-[#1D9BF0]/20 font-bold'
-                          : 'text-[#71767B] border-[#2F3336] hover:text-[#E7E9EA]'
+                          ? 'bg-[#E30A17]/10 text-[#E30A17] border-[#E30A17]/20 font-bold'
+                          : 'text-[rgba(10,10,10,0.4)] border-[#0A0A0A] hover:text-[#0A0A0A]'
                       }`}
                     >
                       Optimize
@@ -1317,7 +1317,7 @@ export default function StyleClone() {
                     <button
                       onClick={handleTrendGenerate}
                       disabled={trendLoading || !composeStyle}
-                      className="btn w-full justify-center disabled:opacity-50 text-xs bg-[#00BA7C]/10 text-[#00BA7C] border-[#00BA7C]/20 hover:bg-[#00BA7C]/20"
+                      className="btn w-full justify-center disabled:opacity-50 text-xs bg-[#0A0A0A]/10 text-[#0A0A0A] border-[#0A0A0A]/20 hover:bg-[#0A0A0A]/20"
                     >
                       {trendLoading ? (
                         <span className="flex items-center gap-1.5">
@@ -1336,29 +1336,29 @@ export default function StyleClone() {
           {/* Right: Score + Reference */}
           <div className="space-y-5">
             {scoreResult && (
-              <div className={`card rounded-2xl p-6 ${scoreResult.passed
-                ? 'bg-[#00BA7C]/10 border border-[#00BA7C]/20'
-                : 'bg-[#F91880]/10 border border-[#F91880]/20'
+              <div className={`card rounded-none p-6 ${scoreResult.passed
+                ? 'bg-[#0A0A0A]/10 border border-[#0A0A0A]/20'
+                : 'bg-[#E30A17]/10 border border-[#E30A17]/20'
               }`}>
                 <div className="flex items-center justify-between mb-5">
                   <div>
-                    <label className="text-[10px] font-bold text-[#71767B] tracking-wider">ALGORİTMA SKORU</label>
-                    <div className="text-xs text-[#71767B] mt-1">{scoreResult.topSuggestion}</div>
+                    <label className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider">ALGORİTMA SKORU</label>
+                    <div className="text-xs text-[rgba(10,10,10,0.4)] mt-1">{scoreResult.topSuggestion}</div>
                   </div>
                   <div className="text-right">
-                    <span className={`stat-number text-5xl ${scoreResult.passed ? 'text-[#00BA7C]' : 'text-[#F91880]'}`}>
+                    <span className={`stat-number text-5xl ${scoreResult.passed ? 'text-[#0A0A0A]' : 'text-[#E30A17]'}`}>
                       {scoreResult.passedCount}
                     </span>
-                    <span className="text-lg text-[#71767B]">/{scoreResult.totalChecks}</span>
+                    <span className="text-lg text-[rgba(10,10,10,0.4)]">/{scoreResult.totalChecks}</span>
                   </div>
                 </div>
                 <div className="space-y-2">
                   {scoreResult.checklist.map((check, i) => (
                     <div key={i} className="flex items-center gap-3 text-sm">
-                      <span className={`text-xs font-bold ${check.passed ? 'text-[#00BA7C]' : 'text-[#F91880]'}`}>
+                      <span className={`text-xs font-bold ${check.passed ? 'text-[#0A0A0A]' : 'text-[#E30A17]'}`}>
                         {check.passed ? '✓' : '✕'}
                       </span>
-                      <span className={check.passed ? 'text-[#71767B]' : 'text-[#E7E9EA] font-medium'}>
+                      <span className={check.passed ? 'text-[rgba(10,10,10,0.4)]' : 'text-[#0A0A0A] font-medium'}>
                         {check.factor}
                       </span>
                     </div>
@@ -1375,14 +1375,14 @@ export default function StyleClone() {
 
             {/* Generated Tweets */}
             {publishError && (
-              <div className="bg-[#F91880]/10 rounded-xl p-3 border border-[#F91880]/20">
-                <div className="text-xs text-[#F91880]">{publishError}</div>
+              <div className="bg-[#E30A17]/10 rounded-none p-3 border border-[#E30A17]/20">
+                <div className="text-xs text-[#E30A17]">{publishError}</div>
               </div>
             )}
             {generatedTweets.length > 0 && (
               <div className="card p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="text-[10px] font-bold text-[#71767B] tracking-widest">
+                  <div className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-widest">
                     {composeMode === 'thread' ? `THREAD — ${generatedTweets.length} TWEET` : 'ÜRETİLEN TWEETLER'}
                   </div>
                   <div className="flex items-center gap-2">
@@ -1392,10 +1392,10 @@ export default function StyleClone() {
                         label="Tümünü Kopyala"
                       />
                     )}
-                    <span className={`text-[10px] px-2 py-0.5 rounded-lg ${
+                    <span className={`text-[10px] px-2 py-0.5 rounded-none ${
                       cloneMode
-                        ? 'bg-[rgba(29,155,240,0.1)] text-[#1D9BF0]'
-                        : 'bg-[#1D9BF0]/10 text-[#1D9BF0]'
+                        ? 'bg-[rgba(227,10,23,0.15)] text-[#E30A17]'
+                        : 'bg-[#E30A17]/10 text-[#E30A17]'
                     }`}>
                       {cloneMode ? 'Birebir Klon' : 'Optimize'}
                     </span>
@@ -1404,7 +1404,7 @@ export default function StyleClone() {
 
                 {/* Thread mode: connected chain visual */}
                 {composeMode === 'thread' && (
-                  <div className="text-[10px] text-[#71767B] mb-3 flex items-center gap-1.5">
+                  <div className="text-[10px] text-[rgba(10,10,10,0.4)] mb-3 flex items-center gap-1.5">
                     <span>↳</span> Her tweet öncekine reply olarak atılır (self-reply zinciri)
                   </div>
                 )}
@@ -1412,7 +1412,7 @@ export default function StyleClone() {
                 {generateWarnings.length > 0 && (
                   <div className="mb-3 space-y-1.5">
                     {generateWarnings.map((w, i) => (
-                      <div key={i} className="flex items-start gap-2 px-3 py-2 rounded-lg bg-[#FFD400]/10 border border-[#FFD400]/20 text-[#FFD400] text-[11px]">
+                      <div key={i} className="flex items-start gap-2 px-3 py-2 rounded-none bg-[#D4A843]/10 border border-[#D4A843]/20 text-[#D4A843] text-[11px]">
                         <span className="mt-0.5 shrink-0">&#9888;</span>
                         <span>{w}</span>
                       </div>
@@ -1435,44 +1435,44 @@ export default function StyleClone() {
                         {/* Thread chain line + number */}
                         {isThread && (
                           <>
-                            <div className="absolute left-3 top-0 bottom-0 w-px bg-[rgba(231,233,234,0.08)]" />
+                            <div className="absolute left-3 top-0 bottom-0 w-px bg-[rgba(10,10,10,0.06)]" />
                             <div className={`absolute left-0 top-4 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold z-10 ${
                               i === 0
-                                ? 'bg-[#1D9BF0] text-white'
+                                ? 'bg-[#E30A17] text-white'
                                 : displayPassed
-                                  ? 'bg-[#00BA7C]/20 text-[#00BA7C] border border-[#00BA7C]/30'
-                                  : 'bg-[rgba(231,233,234,0.06)] text-[#71767B] border border-[#2F3336]'
+                                  ? 'bg-[#0A0A0A]/20 text-[#0A0A0A] border border-[#0A0A0A]/30'
+                                  : 'bg-[rgba(10,10,10,0.04)] text-[rgba(10,10,10,0.4)] border border-[#0A0A0A]'
                             }`}>
                               {i + 1}
                             </div>
                           </>
                         )}
-                        <div className={`${isThread ? 'py-3' : ''} ${!isThread ? `p-4 rounded-xl border ${
+                        <div className={`${isThread ? 'py-3' : ''} ${!isThread ? `p-4 rounded-none border ${
                           displayPassed
-                            ? 'bg-[#00BA7C] border-[#00BA7C]/20'
-                            : 'bg-[rgba(231,233,234,0.03)] border-[#2F3336]'
+                            ? 'bg-[#0A0A0A] border-[#0A0A0A]/20'
+                            : 'bg-[rgba(10,10,10,0.02)] border-[#0A0A0A]'
                         }` : ''}`}>
-                          <p className="text-sm text-[#E7E9EA] leading-relaxed whitespace-pre-line">{gt.tweet}</p>
+                          <p className="text-sm text-[#0A0A0A] leading-relaxed whitespace-pre-line">{gt.tweet}</p>
                           <div className="flex items-center justify-between mt-1.5">
                             <div className="flex items-center gap-2 flex-wrap">
                               {gt.score && (
-                                <span className={`text-[10px] font-bold ${displayPassed ? 'text-[#00BA7C]' : 'text-[#FFD400]'}`}>
+                                <span className={`text-[10px] font-bold ${displayPassed ? 'text-[#0A0A0A]' : 'text-[#D4A843]'}`}>
                                   {gt.score.count}/{gt.score.total}
                                 </span>
                               )}
                               {isStylePass && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(231,233,234,0.06)] text-[#71767B]">
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(10,10,10,0.04)] text-[rgba(10,10,10,0.4)]">
                                   stil uyumu
                                 </span>
                               )}
-                              <span className="text-[10px] text-[#71767B]">{gt.tweet.length} chr</span>
+                              <span className="text-[10px] text-[rgba(10,10,10,0.4)]">{gt.tweet.length} chr</span>
                               {gt.styleMatch != null && (
-                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${gt.styleMatch >= 80 ? 'bg-[#00BA7C]/10 text-[#00BA7C]' : gt.styleMatch >= 60 ? 'bg-[#FFD400]/10 text-[#FFD400]' : 'bg-[#F91880]/10 text-[#F91880]'}`}>
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${gt.styleMatch >= 80 ? 'bg-[#0A0A0A]/10 text-[#0A0A0A]' : gt.styleMatch >= 60 ? 'bg-[#D4A843]/10 text-[#D4A843]' : 'bg-[#E30A17]/10 text-[#E30A17]'}`}>
                                   stil {gt.styleMatch}%
                                 </span>
                               )}
                               {isThread && i === 0 && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(29,155,240,0.1)] text-[#1D9BF0] font-medium">
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(227,10,23,0.15)] text-[#E30A17] font-medium">
                                   hook
                                 </span>
                               )}
@@ -1483,20 +1483,20 @@ export default function StyleClone() {
                                 <button
                                   onClick={() => handlePublish(gt.tweet, i)}
                                   disabled={publishing === i}
-                                  className="text-[10px] px-2 py-1 rounded-md border border-[#1D9BF0]/20 text-[#1D9BF0] hover:bg-[rgba(29,155,240,0.1)] transition-all disabled:opacity-50"
+                                  className="text-[10px] px-2 py-1 rounded-none border border-[#E30A17]/20 text-[#E30A17] hover:bg-[rgba(227,10,23,0.15)] transition-all disabled:opacity-50"
                                 >
                                   {publishing === i ? 'Gönderiliyor...' : 'Paylaş'}
                                 </button>
                               )}
                               {publishSuccess[i] && (
-                                <span className="text-[10px] text-[#00BA7C] font-bold">
+                                <span className="text-[10px] text-[#0A0A0A] font-bold">
                                   Paylaşıldı
                                 </span>
                               )}
                             </div>
                           </div>
                           {hasStyleOverride && (
-                            <div className="mt-1.5 text-[10px] text-[#71767B] italic">
+                            <div className="mt-1.5 text-[10px] text-[rgba(10,10,10,0.4)] italic">
                               {gt.styleOverrides?.join(' · ')}
                             </div>
                           )}
@@ -1511,7 +1511,7 @@ export default function StyleClone() {
             {/* Style reference */}
             {composeStyle && (
               <div className="card p-6">
-                <div className="text-[10px] font-bold text-[#71767B] tracking-wider mb-3">REFERANS: @{composeStyle}</div>
+                <div className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider mb-3">REFERANS: @{composeStyle}</div>
                 <StyleReference username={composeStyle} styles={styles} />
               </div>
             )}
@@ -1519,7 +1519,7 @@ export default function StyleClone() {
             {/* How it works */}
             <div className="card p-6">
               <div >
-                <h3 className="text-sm font-bold text-[#E7E9EA]">Akış</h3>
+                <h3 className="text-sm font-bold text-[#0A0A0A]">Akış</h3>
               </div>
               <div className="space-y-2 mt-3">
                 {[
@@ -1529,10 +1529,10 @@ export default function StyleClone() {
                   { n: '04', t: 'Otomatik üret', d: '11 kontrol testi ile skorlanmış tweetler' },
                 ].map(s => (
                   <div key={s.n} className="flex gap-3 items-start p-2">
-                    <span className="w-6 h-6 rounded-md bg-[rgba(29,155,240,0.1)] text-[#1D9BF0] text-[10px] font-bold flex items-center justify-center flex-shrink-0">{s.n}</span>
+                    <span className="w-6 h-6 rounded-none bg-[rgba(227,10,23,0.15)] text-[#E30A17] text-[10px] font-bold flex items-center justify-center flex-shrink-0">{s.n}</span>
                     <div>
-                      <div className="text-xs font-medium text-[#E7E9EA]">{s.t}</div>
-                      <div className="text-[10px] text-[#71767B]">{s.d}</div>
+                      <div className="text-xs font-medium text-[#0A0A0A]">{s.t}</div>
+                      <div className="text-[10px] text-[rgba(10,10,10,0.4)]">{s.d}</div>
                     </div>
                   </div>
                 ))}
@@ -1545,7 +1545,7 @@ export default function StyleClone() {
         <div className="mt-6">
           <button
             onClick={() => setCheckOpen(!checkOpen)}
-            className="flex items-center gap-2 text-[11px] font-bold text-[#71767B] tracking-wider hover:text-[#E7E9EA] transition-colors"
+            className="flex items-center gap-2 text-[11px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider hover:text-[#0A0A0A] transition-colors"
           >
             <svg className={`w-3 h-3 transition-transform ${checkOpen ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 12 12" stroke="currentColor" strokeWidth="2"><path d="M4 2l4 4-4 4"/></svg>
             TWEET KONTROL
@@ -1556,11 +1556,11 @@ export default function StyleClone() {
                 value={checkText}
                 onChange={e => setCheckText(e.target.value)}
                 rows={4}
-                className="w-full input-field p-3 text-sm text-[#E7E9EA] leading-relaxed resize-none"
+                className="w-full input-field p-3 text-sm text-[#0A0A0A] leading-relaxed resize-none"
                 placeholder="Tweet metnini yapıştır, algoritma + kampanya kontrolü yap..."
               />
               <div className="flex items-center justify-between mt-2">
-                <span className={`text-[10px] ${checkText.length > 280 ? 'text-[#F91880]' : 'text-[#71767B]'}`}>
+                <span className={`text-[10px] ${checkText.length > 280 ? 'text-[#E30A17]' : 'text-[rgba(10,10,10,0.4)]'}`}>
                   {checkText.length}/280
                 </span>
                 <div className="flex gap-2">
@@ -1582,18 +1582,18 @@ export default function StyleClone() {
                 <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
                   {/* Xquik 11 check */}
                   {checkResult && (
-                    <div className={`rounded-xl p-3 ${checkResult.passed ? getScoreBg(100) : getScoreBg(Math.round((checkResult.passedCount / checkResult.totalChecks) * 100))}`}>
+                    <div className={`rounded-none p-3 ${checkResult.passed ? getScoreBg(100) : getScoreBg(Math.round((checkResult.passedCount / checkResult.totalChecks) * 100))}`}>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-bold text-[#71767B] tracking-wider">ALGORİTMA</span>
-                        <span className={`text-lg font-bold ${checkResult.passed ? 'text-[#00BA7C]' : getScoreColor(Math.round((checkResult.passedCount / checkResult.totalChecks) * 100))}`}>
+                        <span className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider">ALGORİTMA</span>
+                        <span className={`text-lg font-bold ${checkResult.passed ? 'text-[#0A0A0A]' : getScoreColor(Math.round((checkResult.passedCount / checkResult.totalChecks) * 100))}`}>
                           {checkResult.passedCount}/{checkResult.totalChecks}
                         </span>
                       </div>
                       <div className="space-y-1">
                         {checkResult.checklist.map((c, i) => (
                           <div key={i} className="flex items-center gap-1.5 text-[10px]">
-                            <span className={c.passed ? 'text-[#00BA7C]' : 'text-[#F91880]'}>{c.passed ? '✓' : '✕'}</span>
-                            <span className={c.passed ? 'text-[#71767B]' : 'text-[#E7E9EA]'}>{c.factor}</span>
+                            <span className={c.passed ? 'text-[#0A0A0A]' : 'text-[#E30A17]'}>{c.passed ? '✓' : '✕'}</span>
+                            <span className={c.passed ? 'text-[rgba(10,10,10,0.4)]' : 'text-[#0A0A0A]'}>{c.factor}</span>
                           </div>
                         ))}
                       </div>
@@ -1602,9 +1602,9 @@ export default function StyleClone() {
 
                   {/* Campaign 3 check */}
                   {campaignCheck && (
-                    <div className={`rounded-xl p-3 ${getScoreBg(campaignCheck.score)}`}>
+                    <div className={`rounded-none p-3 ${getScoreBg(campaignCheck.score)}`}>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-bold text-[#71767B] tracking-wider">KAMPANYA</span>
+                        <span className="text-[10px] font-bold text-[rgba(10,10,10,0.4)] tracking-wider">KAMPANYA</span>
                         <span className={`text-lg font-bold ${getScoreColor(campaignCheck.score)}`}>
                           {campaignCheck.checks.filter(c => c.passed).length}/{campaignCheck.checks.length}
                         </span>
@@ -1612,8 +1612,8 @@ export default function StyleClone() {
                       <div className="space-y-1">
                         {campaignCheck.checks.map((c, i) => (
                           <div key={i} className="flex items-center gap-1.5 text-[10px]">
-                            <span className={c.passed ? 'text-[#00BA7C]' : 'text-[#F91880]'}>{c.passed ? '✓' : '✕'}</span>
-                            <span className={c.passed ? 'text-[#71767B]' : 'text-[#E7E9EA]'}>{c.rule}</span>
+                            <span className={c.passed ? 'text-[#0A0A0A]' : 'text-[#E30A17]'}>{c.passed ? '✓' : '✕'}</span>
+                            <span className={c.passed ? 'text-[rgba(10,10,10,0.4)]' : 'text-[#0A0A0A]'}>{c.rule}</span>
                           </div>
                         ))}
                       </div>
@@ -1632,35 +1632,35 @@ export default function StyleClone() {
         <div className="space-y-3">
           {drafts.length === 0 ? (
             <div className="card text-center py-20">
-              <div className="text-[#71767B] font-medium">Henüz taslak yok.</div>
-              <div className="text-[#71767B] text-sm mt-1">Tweet üretip skor kontrolünden geçirdiğinde otomatik kaydedilir.</div>
+              <div className="text-[rgba(10,10,10,0.4)] font-medium">Henüz taslak yok.</div>
+              <div className="text-[rgba(10,10,10,0.4)] text-sm mt-1">Tweet üretip skor kontrolünden geçirdiğinde otomatik kaydedilir.</div>
             </div>
           ) : (
             drafts.map(draft => (
               <div key={draft.id} className="card p-5">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <span className="chip bg-[rgba(29,155,240,0.1)] text-[#1D9BF0] border-[#1D9BF0]/20 text-[10px]">@{draft.styleUsername}</span>
-                    {draft.topic && <span className="text-xs text-[#71767B]">{draft.topic}</span>}
+                    <span className="chip bg-[rgba(227,10,23,0.15)] text-[#E30A17] border-[#E30A17]/20 text-[10px]">@{draft.styleUsername}</span>
+                    {draft.topic && <span className="text-xs text-[rgba(10,10,10,0.4)]">{draft.topic}</span>}
                   </div>
                   <div className="flex items-center gap-2">
                     {draft.score !== undefined && (
                       <span className={`chip text-[10px] ${
-                        draft.score === 11 ? 'bg-[#00BA7C]/10 text-[#00BA7C] border-[#00BA7C]/20'
-                        : 'bg-[#FFD400]/10 text-[#FFD400] border-[#FFD400]/20'
+                        draft.score === 11 ? 'bg-[#0A0A0A]/10 text-[#0A0A0A] border-[#0A0A0A]/20'
+                        : 'bg-[#D4A843]/10 text-[#D4A843] border-[#D4A843]/20'
                       }`}>{draft.score}/11</span>
                     )}
                     <CopyBtn text={draft.text} />
                     <button
                       onClick={() => { deleteDraft(draft.id); setDrafts(getSavedDrafts()) }}
-                      className="btn text-[10px] py-1 px-2 text-[#F91880] hover:bg-[#F91880]/10"
+                      className="btn text-[10px] py-1 px-2 text-[#E30A17] hover:bg-[#E30A17]/10"
                     >
                       Sil
                     </button>
                   </div>
                 </div>
-                <div className="text-sm text-[#E7E9EA] whitespace-pre-line leading-relaxed">{draft.text}</div>
-                <div className="text-[10px] text-[#71767B] mt-2">{new Date(draft.createdAt).toLocaleString('tr-TR')}</div>
+                <div className="text-sm text-[#0A0A0A] whitespace-pre-line leading-relaxed">{draft.text}</div>
+                <div className="text-[10px] text-[rgba(10,10,10,0.4)] mt-2">{new Date(draft.createdAt).toLocaleString('tr-TR')}</div>
               </div>
             ))
           )}
@@ -1673,12 +1673,12 @@ export default function StyleClone() {
 // ── Style Reference Sub-component ──
 function StyleReference({ username, styles }: { username: string; styles: StyleProfile[] }) {
   const style = styles.find(s => s.xUsername === username)
-  if (!style || !style.tweets?.length) return <div className="text-xs text-[#71767B]">Stil verisi yok.</div>
+  if (!style || !style.tweets?.length) return <div className="text-xs text-[rgba(10,10,10,0.4)]">Stil verisi yok.</div>
 
   return (
     <div className="space-y-2 max-h-48 overflow-y-auto">
       {style.tweets.slice(0, 5).map((tweet) => (
-        <div key={tweet.id} className="bg-[rgba(231,233,234,0.03)] rounded-lg p-2.5 text-xs text-[#71767B] border border-[#2F3336]">
+        <div key={tweet.id} className="bg-[rgba(10,10,10,0.02)] rounded-none p-2.5 text-xs text-[rgba(10,10,10,0.4)] border border-[#0A0A0A]">
           {tweet.text}
         </div>
       ))}

@@ -11,16 +11,16 @@ export default {
     extend: {
       colors: {
         x: {
-          bg: '#000000',
-          surface: '#16181C',
-          border: '#2F3336',
-          'text-primary': '#E7E9EA',
-          'text-secondary': '#71767B',
-          accent: '#1D9BF0',
-          'accent-hover': '#1A8CD8',
-          like: '#F91880',
-          retweet: '#00BA7C',
-          warning: '#FFD400',
+          bg: '#EBEBEB',
+          surface: '#FFFFFF',
+          border: '#0A0A0A',
+          'text-primary': '#0A0A0A',
+          'text-secondary': 'rgba(10,10,10,0.45)',
+          accent: '#E30A17',
+          'accent-hover': '#B80813',
+          like: '#E30A17',
+          retweet: '#0A0A0A',
+          warning: '#E30A17',
         },
         campaign: {
           red: '#E30A17',
@@ -29,11 +29,16 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+        sans: ['"DM Sans"', 'sans-serif'],
+        display: ['"Archivo Black"', 'sans-serif'],
+        mono: ['"Space Mono"', 'monospace'],
+      },
+      borderWidth: {
+        '3': '3px',
       },
       animation: {
-        'fade-in': 'fadeIn 0.5s ease-out',
-        'slide-up': 'slideUp 0.5s ease-out',
+        'fade-in': 'fadeIn 0.3s ease-out',
+        'slide-up': 'slideUp 0.3s ease-out',
       },
       keyframes: {
         fadeIn: {
@@ -41,7 +46,7 @@ export default {
           '100%': { opacity: 1 },
         },
         slideUp: {
-          '0%': { opacity: 0, transform: 'translateY(12px)' },
+          '0%': { opacity: 0, transform: 'translateY(8px)' },
           '100%': { opacity: 1, transform: 'translateY(0)' },
         },
       },

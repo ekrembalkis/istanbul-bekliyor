@@ -8,31 +8,32 @@
 }
 
 html, body {
-  background: #000000;
-  color: #E7E9EA;
+  background: #EBEBEB;
+  color: #0A0A0A;
   min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+/* Scrollbar — brutalist */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #EBEBEB; }
+::-webkit-scrollbar-thumb { background: #0A0A0A; }
+::-webkit-scrollbar-thumb:hover { background: #E30A17; }
 
 /* Checkbox */
-input[type="checkbox"] { accent-color: #1D9BF0; }
+input[type="checkbox"] { accent-color: #E30A17; }
 
 /* Selection */
-::selection { background: rgba(29,155,240,0.3); color: #fff; }
+::selection { background: rgba(227,10,23,0.25); color: #0A0A0A; }
 
 @layer components {
 
-  /* ── Card (X flat style) ── */
+  /* ── Card (brutalist) ── */
   .card {
-    background: #16181C;
-    border: 1px solid #2F3336;
-    border-radius: 1rem;
-    transition: background-color 0.2s ease;
+    background: #FFFFFF;
+    border: 2px solid #0A0A0A;
+    border-radius: 0;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
   }
 
   /* ── Chip / Badge ── */
@@ -41,68 +42,77 @@ input[type="checkbox"] { accent-color: #1D9BF0; }
     align-items: center;
     gap: 4px;
     padding: 4px 12px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    border-radius: 9999px;
-    border: 1px solid #2F3336;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-radius: 0;
+    border: 2px solid #0A0A0A;
     background: transparent;
-    color: #71767B;
-    transition: all 0.2s;
+    color: rgba(10,10,10,0.5);
+    transition: all 0.1s;
   }
 
   /* ── Input ── */
   .input-field {
-    background: #000000;
-    border: 1px solid #2F3336;
-    border-radius: 0.75rem;
-    color: #E7E9EA;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #FFFFFF;
+    border: 2px solid #0A0A0A;
+    border-radius: 0;
+    color: #0A0A0A;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color 0.15s;
   }
   .input-field:focus {
-    border-color: #1D9BF0;
-    box-shadow: 0 0 0 3px rgba(29,155,240,0.15);
+    border-color: #E30A17;
+    box-shadow: none;
     outline: none;
   }
   select.input-field option {
-    background: #16181C;
-    color: #E7E9EA;
+    background: #FFFFFF;
+    color: #0A0A0A;
   }
 
-  /* ── Button ── */
+  /* ── Button (brutalist offset shadow) ── */
   .btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 8px 16px;
-    font-size: 13px;
-    font-weight: 600;
-    border-radius: 9999px;
-    border: 1px solid #2F3336;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-radius: 0;
+    border: 2px solid #0A0A0A;
     background: transparent;
-    color: #E7E9EA;
-    transition: all 0.2s;
+    color: #0A0A0A;
     cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: 3px 3px 0 #0A0A0A;
   }
 
   .btn-primary {
-    background: #1D9BF0;
+    background: #E30A17;
     color: #FFFFFF;
-    border-color: #1D9BF0;
+    border-color: #0A0A0A;
+    box-shadow: 4px 4px 0 #0A0A0A;
   }
 
   /* ── Stat Number ── */
   .stat-number {
-    font-weight: 800;
+    font-family: 'Archivo Black', sans-serif;
+    font-weight: 400;
     line-height: 1;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.04em;
   }
 
   /* ── Divider ── */
   .divider {
-    height: 1px;
+    height: 2px;
     width: 100%;
-    background: #2F3336;
+    background: #0A0A0A;
   }
 
   /* ── Live Indicator ── */
@@ -110,34 +120,38 @@ input[type="checkbox"] { accent-color: #1D9BF0; }
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #1D9BF0;
+    background: #E30A17;
     animation: livePulse 2s ease-in-out infinite;
   }
 }
 
 @keyframes livePulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(29,155,240,0.4); }
-  50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(29,155,240,0); }
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(227,10,23,0.4); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(227,10,23,0); }
 }
 
-/* ── Hover effects ── */
+/* ── Hover effects (brutalist) ── */
 @media (hover: hover) {
   .card:hover {
-    background: rgba(231,233,234,0.03);
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 #0A0A0A;
   }
   .btn:hover {
-    background: rgba(231,233,234,0.1);
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0 #0A0A0A;
   }
   .btn-primary:hover {
-    background: #1A8CD8;
-    border-color: #1A8CD8;
+    background: #B80813;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #0A0A0A;
   }
   .chip:hover {
-    background: rgba(231,233,234,0.08);
+    background: #0A0A0A;
+    color: #EBEBEB;
   }
 }
 
 /* ── Page transition ── */
 .page-enter {
-  animation: slideUp 0.4s ease-out;
+  animation: slideUp 0.3s ease-out;
 }
