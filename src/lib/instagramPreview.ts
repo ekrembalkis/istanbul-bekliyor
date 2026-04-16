@@ -14,7 +14,7 @@ export interface PreviewAsset {
   highlight: boolean
 }
 
-const STORAGE_KEY = 'istanbul-bekliyor-instagram-preview-v1'
+const STORAGE_KEY = 'istanbul-bekliyor-instagram-preview-v2'
 
 function buildPlaceholder(num: number): string {
   const svg = `
