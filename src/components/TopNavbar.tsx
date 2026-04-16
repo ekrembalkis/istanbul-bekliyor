@@ -104,6 +104,9 @@ export default function TopNavbar() {
           {/* Mobile Hamburger */}
           <button
             onClick={() => setMobileOpen(o => !o)}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
+            aria-label={mobileOpen ? 'Menüyü kapat' : 'Menüyü aç'}
             className="md:hidden flex items-center justify-center w-10 h-10 text-[#EBEBEB] hover:bg-[rgba(227,10,23,0.15)] transition-colors"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -118,7 +121,7 @@ export default function TopNavbar() {
 
       {/* Mobile Dropdown */}
       {mobileOpen && (
-        <div className="md:hidden border-t-2 border-[rgba(235,235,235,0.1)] bg-[#0A0A0A]">
+        <div id="mobile-menu" className="md:hidden border-t-2 border-[rgba(235,235,235,0.1)] bg-[#0A0A0A]" role="navigation" aria-label="Mobil menü">
           <nav className="px-4 py-3 space-y-1">
             {mainNav.map(item => (
               <NavLink
