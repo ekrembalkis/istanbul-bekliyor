@@ -102,7 +102,7 @@ export function loadPreviewAssets(): PreviewAsset[] {
     const safe = parsed
       .filter(value => value && typeof value === 'object')
       .map(value => normalizePreviewAsset(value as Partial<PreviewAsset>))
-      .filter(Boolean) as PreviewAsset[]
+      .filter((a): a is PreviewAsset => a !== null && a.dataUrl.length > 0)
 
     return safe.length > 0 ? safe : SAMPLE_ASSETS
   } catch (err) {
@@ -113,7 +113,20 @@ export function loadPreviewAssets(): PreviewAsset[] {
 
 export function savePreviewAssets(assets: PreviewAsset[]) {
   if (typeof window === 'undefined') return
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(assets))
+  // Save metadata only — strip large dataUrl for uploaded images to avoid localStorage quota
+  const slim = assets.map(a => ({
+    ...a,
+    dataUrl: a.dataUrl.startsWith('data:image/svg') ? a.dataUrl : '', // keep SVG placeholders, drop uploaded images
+  }))
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(slim))
+  } catch {
+    // Quota exceeded — clear old data and retry with metadata only
+    try {
+      window.localStorage.removeItem(STORAGE_KEY)
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(slim))
+    } catch { /* storage full, skip persist */ }
+  }
 }
 
 function isPreviewAsset(value: unknown): value is PreviewAsset {
