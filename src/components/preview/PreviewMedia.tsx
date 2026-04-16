@@ -14,7 +14,6 @@ interface PreviewMediaProps {
 export default function PreviewMedia({
   asset,
   aspectClass,
-  title,
   selected = false,
   showGuide = false,
   guideMode = 'profile',
@@ -25,10 +24,10 @@ export default function PreviewMedia({
     <button
       type="button"
       onClick={onClick}
-      className={`group relative w-full overflow-hidden rounded-[1.35rem] border text-left transition-all ${
+      className={`group relative w-full overflow-hidden border text-left transition-all ${
         selected
-          ? 'border-[#1D9BF0]'
-          : 'border-[#2F3336]'
+          ? 'border-[#E30A17] border-2'
+          : 'border-[rgba(10,10,10,0.1)]'
       } ${className}`}
     >
       <div className={`relative ${aspectClass} bg-[#000]`}>
@@ -38,34 +37,23 @@ export default function PreviewMedia({
           className="absolute inset-0 h-full w-full object-cover"
           style={{ objectPosition: `${asset.focalX}% ${asset.focalY}%` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
+        {/* Profile safe zone guide — top/bottom 20% risk */}
         {showGuide && guideMode === 'profile' && (
-          <div className="pointer-events-none absolute inset-x-[12%] inset-y-[8%] rounded-[1rem] border border-white/70 border-dashed" />
+          <>
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-[20%] bg-red-500/15 border-b border-dashed border-white/50" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[20%] bg-red-500/15 border-t border-dashed border-white/50" />
+          </>
         )}
 
+        {/* Reels safe zone guide — real overlay positions */}
         {showGuide && guideMode === 'reel' && (
-          <div className="pointer-events-none absolute inset-x-[18%] inset-y-[13%] rounded-[1rem] border border-white/70 border-dashed" />
+          <>
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-[13%] bg-red-500/15 border-b border-dashed border-white/50" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[23%] bg-red-500/15 border-t border-dashed border-white/50" />
+            <div className="pointer-events-none absolute top-[13%] bottom-[23%] right-0 w-[11%] bg-red-500/10 border-l border-dashed border-white/40" />
+          </>
         )}
-
-        <div className="absolute left-3 top-3 flex items-center gap-2">
-          <span
-            className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-white"
-            style={{ backgroundColor: asset.accent }}
-          >
-            {asset.kind}
-          </span>
-          {asset.highlight && (
-            <span className="rounded-full border border-white/20 bg-black/35 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/90">
-              hero
-            </span>
-          )}
-        </div>
-
-        <div className="absolute inset-x-0 bottom-0 p-3">
-          <div className="text-sm font-semibold text-white">{title || asset.title}</div>
-          <div className="mt-1 text-[11px] text-white/70">{asset.note}</div>
-        </div>
       </div>
     </button>
   )

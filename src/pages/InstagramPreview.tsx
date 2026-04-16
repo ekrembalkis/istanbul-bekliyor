@@ -22,21 +22,24 @@ const SURFACE_LABELS: Record<PreviewSurface, string> = {
 }
 
 const PROFILE_NOTES = [
-  'Profil grid artık kare değil, dikey thumbnail mantığına daha yakın.',
-  '1:1 görseller yandan, 9:16 kapaklar üst-alt eksende kırpılır.',
-  'Metin ve logo güvenli alanı orta bantta tutulmalı.',
+  'Ocak 2025\'ten itibaren profil grid 3:4 dikey thumbnail gösteriyor (eskiden 1:1 idi).',
+  'Tüm görseller merkez-crop ile 3:4\'e kırpılır. 4:5 uploadlar hafif kırpılır, 1:1 kare görseller yanlardan kırpılır.',
+  'Güvenli alan: Dikeyde ortadaki %60. Üst ve alt %20 risk bölgesidir.',
+  'Grid her zaman 3 kolon, ~2px gap, 0px border radius.',
 ]
 
 const REELS_NOTES = [
-  'Reels sekmesinde dikey kapak tam boy hissi verir.',
-  'Aynı kapak profil gridde merkez 3:4 alana düşürülür.',
-  'Kapak metni üst veya alt kenara yapışmamalı.',
+  'Reels sekmesinde kapaklar tam 9:16 boy gösterilir, kırpılmaz.',
+  'Aynı reel profil gridde 3:4 olarak kırpılır — kapak metnini orta banta koy.',
+  'Safe zone: Üst %13 (kamera/saat), alt %23 (butonlar/caption), sağ %11 (like/yorum).',
+  'Grid 3 kolon, ~2px gap, 0px radius.',
 ]
 
 const EXPLORE_NOTES = [
-  'Explore herkeste aynı değildir; bu görünüm yüksek doğruluklu bir simülasyondur.',
-  'Kare kartlar temel yüzey olarak korunur, büyük dikkat çeken kutular araya girer.',
-  'Hero işaretli kartlar mozaikte büyük alan alır.',
+  'Explore grid hala 1:1 kare tile kullanıyor (profil griddan farklı olarak).',
+  'Mozaik pattern: 2 küçük kare + 1 büyük (2 satır yüksek) kart, dönüşümlü sağ/sol.',
+  'Büyük kart genelde video/reel içerik. Her 3 satırda 1 büyük kart çıkar.',
+  'Bu görünüm kişiseldir — birebir kopyalanamaz, simülasyondur.',
 ]
 
 function getInitialAssets() {
@@ -117,21 +120,40 @@ export default function InstagramPreview() {
     setSelectedId(SAMPLE_ASSETS[0].id)
   }
 
+  // Explore mosaic: repeating pattern of 2-row blocks
+  // Block A: [small][small][LARGE spanning 2 rows] (large on right)
+  // Block B: [LARGE spanning 2 rows][small][small] (large on left)
+  function getExploreMosaicClass(index: number): { className: string; aspectClass: string } {
+    const blockIndex = Math.floor(index / 3)
+    const posInBlock = index % 3
+    const isBlockA = blockIndex % 2 === 0
+
+    if (isBlockA) {
+      // Block A: items 0,1 are small squares, item 2 is large
+      if (posInBlock === 2) return { className: 'row-span-2', aspectClass: 'aspect-square' }
+      return { className: '', aspectClass: 'aspect-square' }
+    } else {
+      // Block B: item 0 is large, items 1,2 are small squares
+      if (posInBlock === 0) return { className: 'row-span-2', aspectClass: 'aspect-square' }
+      return { className: '', aspectClass: 'aspect-square' }
+    }
+  }
+
   return (
     <div className="space-y-8 animate-fade-in">
-      <section className="relative overflow-hidden rounded-none border border-[#0A0A0A] bg-[#FFFFFF] px-6 py-8 sm:px-8 border-b">
-
-        <div className="relative grid grid-cols-1 gap-6">
+      {/* Header */}
+      <section className="border-2 border-[#0A0A0A] bg-white px-6 py-8 sm:px-8">
+        <div className="grid grid-cols-1 gap-6">
           <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-none border border-[#E30A17]/15 bg-[#E30A17]/[0.06] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-[#E30A17]">
+            <div className="mb-4 inline-flex items-center gap-2 border border-[#E30A17]/15 bg-[#E30A17]/[0.06] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-[#E30A17]">
               Instagram Preview Lab
             </div>
             <h1 className="max-w-3xl text-3xl font-bold tracking-tight text-[#0A0A0A] sm:text-4xl">
-              Profil grid, reels grid ve keşfet yüzeyini tek yerde, gerçekçi crop mantığı ile gör.
+              Profil grid, reels ve keşfet yüzeyini gerçek Instagram ölçüleriyle gör.
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-[rgba(10,10,10,0.4)]">
-              Bu araç birebir profil grid ve reels kapak davranışını hedefler. Keşfet görünümü ise algoritmik olarak aynı olmayacağı için
-              açıkça simülasyon olarak işaretlenir. Temsil görselleri yükleyip doğru crop bölgesini ayarlayabilirsin.
+              Profil grid 3:4 crop, reels 9:16, explore 1:1 kare mozaik.
+              Gerçek gap (~2px), gerçek radius (0px), gerçek safe zone overlay'leri.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -144,16 +166,16 @@ export default function InstagramPreview() {
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-none border border-[#0A0A0A] bg-[rgba(10,10,10,0.02)] p-4">
+          <div className="grid gap-3 grid-cols-3">
+            <div className="border-2 border-[#0A0A0A] bg-[rgba(10,10,10,0.02)] p-4">
               <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-[rgba(10,10,10,0.4)]">Toplam kart</div>
               <div className="mt-3 stat-number text-4xl text-[#0A0A0A]">{assets.length}</div>
             </div>
-            <div className="rounded-none border border-[#0A0A0A] bg-[rgba(10,10,10,0.02)] p-4">
+            <div className="border-2 border-[#0A0A0A] bg-[rgba(10,10,10,0.02)] p-4">
               <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-[rgba(10,10,10,0.4)]">Reels kart</div>
               <div className="mt-3 stat-number text-4xl text-[#E30A17]">{reelsAssets.length}</div>
             </div>
-            <div className="rounded-none border border-[#0A0A0A] bg-[rgba(10,10,10,0.02)] p-4">
+            <div className="border-2 border-[#0A0A0A] bg-[rgba(10,10,10,0.02)] p-4">
               <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-[rgba(10,10,10,0.4)]">Hero explore</div>
               <div className="mt-3 stat-number text-4xl text-campaign-gold">{heroCount}</div>
             </div>
@@ -161,14 +183,14 @@ export default function InstagramPreview() {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 gap-6">
+      {/* Surface Preview + Controls */}
+      <section className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
         <div className="space-y-6">
+          {/* Grid Preview */}
           <div className="card overflow-hidden p-4 sm:p-6">
-            <div className="flex flex-col gap-4 border-b border-[#0A0A0A] pb-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-col gap-4 border-b-2 border-[#0A0A0A] pb-5 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <div>
-                  <h2 className="text-2xl font-bold text-[#0A0A0A]">Canlı yüzey</h2>
-                </div>
+                <h2 className="text-2xl font-bold text-[#0A0A0A]">Canlı yüzey</h2>
                 <p className="mt-2 text-sm text-[rgba(10,10,10,0.4)]">{getSurfaceSummary(surface)}</p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -177,10 +199,10 @@ export default function InstagramPreview() {
                     key={item}
                     type="button"
                     onClick={() => setSurface(item)}
-                    className={`rounded-none px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] transition-all ${
+                    className={`px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] border-2 transition-all ${
                       surface === item
-                        ? 'bg-[#E30A17] text-white'
-                        : 'bg-[rgba(10,10,10,0.02)] text-[rgba(10,10,10,0.4)]'
+                        ? 'bg-[#E30A17] text-white border-[#0A0A0A]'
+                        : 'bg-[rgba(10,10,10,0.02)] text-[rgba(10,10,10,0.4)] border-[#0A0A0A]'
                     }`}
                   >
                     {SURFACE_LABELS[item]}
@@ -189,121 +211,119 @@ export default function InstagramPreview() {
               </div>
             </div>
 
-            {surface === 'profile' && (
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                {assets.map(asset => (
-                  <PreviewMedia
-                    key={asset.id}
-                    asset={asset}
-                    aspectClass="aspect-[3/4]"
-                    selected={asset.id === selectedAsset?.id}
-                    showGuide={asset.id === selectedAsset?.id}
-                    guideMode="profile"
-                    onClick={() => setSelectedId(asset.id)}
-                  />
-                ))}
-              </div>
-            )}
+            {/* Instagram-accurate grid container */}
+            <div className="mt-6 mx-auto max-w-[375px] bg-black p-0">
 
-            {surface === 'reels' && (
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                {reelsAssets.length > 0 ? reelsAssets.map(asset => (
-                  <PreviewMedia
-                    key={asset.id}
-                    asset={asset}
-                    aspectClass="aspect-[9/16]"
-                    selected={asset.id === selectedAsset?.id}
-                    showGuide={asset.id === selectedAsset?.id}
-                    guideMode="reel"
-                    onClick={() => setSelectedId(asset.id)}
-                  />
-                )) : (
-                  <div className="col-span-full rounded-none border border-dashed border-[#0A0A0A] p-10 text-center text-sm text-[rgba(10,10,10,0.4)]">
-                    Reels grid preview için en az bir kartı <span className="font-semibold text-[#E30A17]">reel</span> türüne çevir.
-                  </div>
-                )}
-              </div>
-            )}
-
-            {surface === 'explore' && (
-              <div className="mt-6 grid auto-rows-[110px] grid-cols-3 gap-3 sm:auto-rows-[150px]">
-                {assets.map((asset, index) => {
-                  const isHero = asset.highlight && index % 3 !== 2
-                  return (
+              {/* Profile Grid: 3 cols, 3:4 thumbnails, 2px gap */}
+              {surface === 'profile' && (
+                <div className="grid grid-cols-3 gap-[2px]">
+                  {assets.map(asset => (
                     <PreviewMedia
                       key={asset.id}
                       asset={asset}
-                      aspectClass={isHero ? 'h-full' : 'aspect-square'}
+                      aspectClass="aspect-[3/4]"
                       selected={asset.id === selectedAsset?.id}
+                      showGuide={asset.id === selectedAsset?.id}
+                      guideMode="profile"
                       onClick={() => setSelectedId(asset.id)}
-                      className={isHero ? 'col-span-2 row-span-2 h-full' : 'h-full'}
-                      title={isHero ? `${asset.title} / hero` : asset.title}
                     />
-                  )
-                })}
+                  ))}
+                </div>
+              )}
+
+              {/* Reels Grid: 3 cols, 9:16 thumbnails, 2px gap */}
+              {surface === 'reels' && (
+                <div className="grid grid-cols-3 gap-[2px]">
+                  {reelsAssets.length > 0 ? reelsAssets.map(asset => (
+                    <PreviewMedia
+                      key={asset.id}
+                      asset={asset}
+                      aspectClass="aspect-[9/16]"
+                      selected={asset.id === selectedAsset?.id}
+                      showGuide={asset.id === selectedAsset?.id}
+                      guideMode="reel"
+                      onClick={() => setSelectedId(asset.id)}
+                    />
+                  )) : (
+                    <div className="col-span-full border border-dashed border-[rgba(255,255,255,0.2)] p-10 text-center text-sm text-[rgba(255,255,255,0.4)]">
+                      Reels grid preview için en az bir kartı <span className="font-semibold text-[#E30A17]">reel</span> türüne çevir.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Explore Grid: 3 cols, 1:1 kare, mosaic pattern, 2px gap */}
+              {surface === 'explore' && (
+                <div className="grid grid-cols-3 gap-[2px]">
+                  {assets.map((asset, index) => {
+                    const { className: mosaicClass, aspectClass } = getExploreMosaicClass(index)
+                    return (
+                      <PreviewMedia
+                        key={asset.id}
+                        asset={asset}
+                        aspectClass={aspectClass}
+                        selected={asset.id === selectedAsset?.id}
+                        onClick={() => setSelectedId(asset.id)}
+                        className={mosaicClass}
+                      />
+                    )
+                  })}
+                </div>
+              )}
+
+            </div>
+          </div>
+
+          {/* Expanded View */}
+          <div className="card p-5">
+            <h2 className="text-xl font-bold text-[#0A0A0A]">Açılmış görünüm</h2>
+            {selectedAsset && (
+              <div className="mt-5 bg-[#000] p-4">
+                <div className="mx-auto w-full max-w-[320px] border border-white/10 bg-[#09090f] p-3">
+                  <div className="mb-3 flex justify-center">
+                    <div className="h-1.5 w-20 rounded-full bg-white/20" />
+                  </div>
+                  <div
+                    className="relative overflow-hidden"
+                    style={{ aspectRatio: String(selectedAsset.sourceRatio) }}
+                  >
+                    <img
+                      src={selectedAsset.dataUrl}
+                      alt={selectedAsset.title}
+                      className="absolute inset-0 h-full w-full object-cover"
+                      style={{ objectPosition: `${selectedAsset.focalX}% ${selectedAsset.focalY}%` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <div className="text-xs font-bold uppercase tracking-[0.24em] text-white/70">
+                        {selectedAsset.kind} / {getRatioLabel(selectedAsset.sourceRatio)}
+                      </div>
+                      <div className="mt-1 text-lg font-semibold text-white">{selectedAsset.title}</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-6">
-            <div className="card p-5">
-              <div>
-                <h2 className="text-xl font-bold text-[#0A0A0A]">Açılmış görünüm</h2>
-              </div>
-              {selectedAsset && (
-                <div className="mt-5 rounded-none bg-[#000] p-4">
-                  <div className="mx-auto w-full max-w-[320px] rounded-none border border-white/10 bg-[#09090f] p-3">
-                    <div className="mb-3 flex justify-center">
-                      <div className="h-1.5 w-20 rounded-full bg-white/20" />
-                    </div>
-
-                    <div
-                      className="relative overflow-hidden rounded-none"
-                      style={{ aspectRatio: String(selectedAsset.sourceRatio) }}
-                    >
-                      <img
-                        src={selectedAsset.dataUrl}
-                        alt={selectedAsset.title}
-                        className="absolute inset-0 h-full w-full object-cover"
-                        style={{ objectPosition: `${selectedAsset.focalX}% ${selectedAsset.focalY}%` }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                      {selectedAsset.kind === 'reel' && (
-                        <div className="pointer-events-none absolute inset-x-[12.5%] inset-y-[12.5%] rounded-none border border-white/80 border-dashed" />
-                      )}
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <div className="text-xs font-bold uppercase tracking-[0.24em] text-white/70">
-                          {selectedAsset.kind} / {getRatioLabel(selectedAsset.sourceRatio)}
-                        </div>
-                        <div className="mt-1 text-lg font-semibold text-white">{selectedAsset.title}</div>
-                      </div>
-                    </div>
-                  </div>
+          {/* Surface Notes */}
+          <div className="card p-5">
+            <h2 className="text-xl font-bold text-[#0A0A0A]">Yüzey notları</h2>
+            <div className="mt-5 space-y-3">
+              {getPreviewNotes(surface).map(note => (
+                <div key={note} className="flex gap-3 border-2 border-[#0A0A0A] bg-[rgba(10,10,10,0.02)] p-4 text-sm leading-6 text-[#0A0A0A]">
+                  <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#E30A17]" />
+                  <span>{note}</span>
                 </div>
-              )}
-            </div>
-
-            <div className="card p-5">
-              <div>
-                <h2 className="text-xl font-bold text-[#0A0A0A]">Yüzey notları</h2>
-              </div>
-              <div className="mt-5 space-y-3">
-                {getPreviewNotes(surface).map(note => (
-                  <div key={note} className="flex gap-3 rounded-none border border-[#0A0A0A] bg-[rgba(10,10,10,0.02)] p-4 text-sm leading-6 text-[#0A0A0A]">
-                    <span className="mt-1 h-2 w-2 rounded-full bg-[#E30A17]" />
-                    <span>{note}</span>
-                  </div>
-                ))}
-              </div>
+              ))}
             </div>
           </div>
         </div>
 
+        {/* Right Sidebar — Card Controls */}
         <aside className="space-y-6">
           <div className="card p-5">
-            <div>
-              <h2 className="text-xl font-bold text-[#0A0A0A]">Seçili kart</h2>
-            </div>
+            <h2 className="text-xl font-bold text-[#0A0A0A]">Seçili kart</h2>
 
             {selectedAsset && (
               <div className="mt-5 space-y-4">
@@ -316,9 +336,9 @@ export default function InstagramPreview() {
                   />
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-4 grid-cols-2">
                   <div>
-                    <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-[rgba(10,10,10,0.4)]">Tur</label>
+                    <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-[rgba(10,10,10,0.4)]">Tür</label>
                     <select
                       value={selectedAsset.kind}
                       onChange={event => updateSelected({
@@ -341,13 +361,13 @@ export default function InstagramPreview() {
                     <button
                       type="button"
                       onClick={() => updateSelected({ highlight: !selectedAsset.highlight })}
-                      className={`w-full rounded-none border px-4 py-3 text-sm font-semibold transition-all ${
+                      className={`w-full border-2 px-4 py-3 text-sm font-semibold transition-all ${
                         selectedAsset.highlight
                           ? 'border-campaign-gold bg-campaign-gold/10 text-campaign-gold'
                           : 'border-[#0A0A0A] bg-[rgba(10,10,10,0.02)] text-[#0A0A0A]'
                       }`}
                     >
-                      {selectedAsset.highlight ? 'Hero aktif' : 'Hero kapali'}
+                      {selectedAsset.highlight ? 'Hero aktif' : 'Hero kapalı'}
                     </button>
                   </div>
                 </div>
@@ -362,12 +382,11 @@ export default function InstagramPreview() {
                   />
                 </div>
 
-                <div className="rounded-none border border-[#0A0A0A] bg-[rgba(10,10,10,0.02)] p-4">
+                <div className="border-2 border-[#0A0A0A] bg-[rgba(10,10,10,0.02)] p-4">
                   <div className="mb-3 flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.2em] text-[rgba(10,10,10,0.4)]">
-                    <span>Odak noktasi</span>
+                    <span>Odak noktası</span>
                     <span>{selectedAsset.focalX}% / {selectedAsset.focalY}%</span>
                   </div>
-
                   <div className="space-y-4">
                     <div>
                       <div className="mb-2 text-xs text-[rgba(10,10,10,0.4)]">Yatay</div>
@@ -394,11 +413,11 @@ export default function InstagramPreview() {
                   </div>
                 </div>
 
-                <div className="rounded-none border border-[#0A0A0A] bg-[rgba(10,10,10,0.02)] p-4 text-sm text-[#0A0A0A]">
+                <div className="border-2 border-[#0A0A0A] bg-[rgba(10,10,10,0.02)] p-4 text-sm text-[#0A0A0A]">
                   <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-[rgba(10,10,10,0.4)]">Kaynak oran</div>
                   <div className="mt-2 font-semibold text-[#0A0A0A]">{getRatioLabel(selectedAsset.sourceRatio)}</div>
                   <div className="mt-2 text-xs leading-6 text-[rgba(10,10,10,0.4)]">
-                    Yüklenen görselin kendi oranı saklanır. Profil grid preview ayrı, açılmış görünüm ayrı hesaplanır.
+                    Yüklenen görselin oranı. Profil gridde 3:4, explore'da 1:1 olarak kırpılır.
                   </div>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {[
@@ -411,10 +430,10 @@ export default function InstagramPreview() {
                         key={option.label}
                         type="button"
                         onClick={() => updateSelected({ sourceRatio: option.value, kind: option.value === 9 / 16 ? 'reel' : 'post' })}
-                        className={`rounded-none px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] transition-all ${
+                        className={`px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] border-2 transition-all ${
                           getRatioLabel(selectedAsset.sourceRatio) === option.label
-                            ? 'bg-[#E30A17] text-white'
-                            : 'bg-[rgba(10,10,10,0.02)] text-[#0A0A0A]'
+                            ? 'bg-[#E30A17] text-white border-[#0A0A0A]'
+                            : 'bg-[rgba(10,10,10,0.02)] text-[#0A0A0A] border-[#0A0A0A]'
                         }`}
                       >
                         {option.label}
@@ -425,10 +444,10 @@ export default function InstagramPreview() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <button type="button" className="btn justify-center" disabled={selectedIndex <= 0} onClick={() => moveSelected(-1)}>
-                    Sola tasi
+                    Sola taşı
                   </button>
                   <button type="button" className="btn justify-center" disabled={selectedIndex >= assets.length - 1} onClick={() => moveSelected(1)}>
-                    Saga tasi
+                    Sağa taşı
                   </button>
                 </div>
 
@@ -436,7 +455,7 @@ export default function InstagramPreview() {
                   <button type="button" className="btn justify-center" onClick={cloneSelected}>Çoğalt</button>
                   <button
                     type="button"
-                    className="btn justify-center border-[#E30A17]/20 text-[#E30A17]"
+                    className="btn justify-center border-[#E30A17] text-[#E30A17]"
                     onClick={removeSelected}
                     disabled={assets.length === 1}
                   >
@@ -447,17 +466,16 @@ export default function InstagramPreview() {
             )}
           </div>
 
+          {/* Card list */}
           <div className="card p-5">
-            <div>
-              <h2 className="text-xl font-bold text-[#0A0A0A]">Kart serisi</h2>
-            </div>
-            <div className="mt-5 space-y-3">
+            <h2 className="text-xl font-bold text-[#0A0A0A]">Kart serisi</h2>
+            <div className="mt-5 space-y-2">
               {assets.map((asset, index) => (
                 <button
                   key={asset.id}
                   type="button"
                   onClick={() => setSelectedId(asset.id)}
-                  className={`flex w-full items-center gap-3 rounded-none border px-3 py-3 text-left transition-all ${
+                  className={`flex w-full items-center gap-3 border-2 px-3 py-3 text-left transition-all ${
                     asset.id === selectedAsset?.id
                       ? 'border-[#E30A17] bg-[#E30A17]/[0.05]'
                       : 'border-[#0A0A0A] bg-[rgba(10,10,10,0.02)]'
@@ -466,7 +484,7 @@ export default function InstagramPreview() {
                   <img
                     src={asset.dataUrl}
                     alt={asset.title}
-                    className="h-14 w-14 rounded-none object-cover"
+                    className="h-14 w-14 object-cover"
                     style={{ objectPosition: `${asset.focalX}% ${asset.focalY}%` }}
                   />
                   <div className="min-w-0 flex-1">
