@@ -47,7 +47,7 @@ export default function MoreMenu({ onClose }: { onClose: () => void }) {
   }, [onClose])
 
   return (
-    <div ref={ref} className="absolute bottom-full left-0 mb-2 w-64 border-2 border-[#0A0A0A] bg-[#EBEBEB] shadow-[4px_4px_0_#0A0A0A] py-1 z-50">
+    <div ref={ref} className="absolute top-full left-0 mt-2 w-64 border-2 border-[#0A0A0A] bg-[#EBEBEB] shadow-[4px_4px_0_#0A0A0A] py-1 z-50">
       {moreItems.map(item => (
         <NavLink
           key={item.to}
