@@ -16,49 +16,23 @@ export interface PreviewAsset {
 
 const STORAGE_KEY = 'istanbul-bekliyor-instagram-preview-v1'
 
-function buildPlaceholder(title: string, accent: string, subtitle: string): string {
+function buildPlaceholder(num: number): string {
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200">
-      <defs>
-        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#0f172a" />
-          <stop offset="50%" stop-color="#111827" />
-          <stop offset="100%" stop-color="#1f2937" />
-        </linearGradient>
-        <linearGradient id="wash" x1="0%" y1="100%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="${accent}" stop-opacity="0.85" />
-          <stop offset="100%" stop-color="#ffffff" stop-opacity="0.08" />
-        </linearGradient>
-      </defs>
-      <rect width="1200" height="1200" rx="80" fill="url(#bg)" />
-      <circle cx="950" cy="220" r="210" fill="url(#wash)" opacity="0.55" />
-      <circle cx="300" cy="950" r="240" fill="${accent}" opacity="0.22" />
-      <rect x="96" y="96" width="1008" height="1008" rx="48" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="8" />
-      <text x="110" y="190" fill="white" font-size="60" font-family="Georgia, serif" font-weight="700">${escapeXml(title)}</text>
-      <text x="110" y="280" fill="${accent}" font-size="28" font-family="'Courier New', monospace" letter-spacing="8">${escapeXml(subtitle)}</text>
-      <text x="110" y="960" fill="rgba(255,255,255,0.78)" font-size="42" font-family="'Courier New', monospace">GRID / REELS / EXPLORE</text>
-      <text x="110" y="1025" fill="rgba(255,255,255,0.45)" font-size="28" font-family="'Courier New', monospace">Placeholder for representative upload</text>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1440">
+      <rect width="1080" height="1440" fill="#0a0a0a"/>
+      <text x="540" y="800" text-anchor="middle" fill="rgba(255,255,255,0.06)" font-size="500" font-family="sans-serif" font-weight="900">${num}</text>
     </svg>
   `.trim()
-
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`
 }
 
-function escapeXml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;')
-}
 
 export const SAMPLE_ASSETS: PreviewAsset[] = [
   {
     id: crypto.randomUUID(),
     title: 'Meydan posteri',
     kind: 'post',
-    dataUrl: buildPlaceholder('Meydan posteri', '#E30A17', 'POST / 1:1'),
+    dataUrl: buildPlaceholder(1),
     sourceRatio: 1,
     focalX: 50,
     focalY: 50,
@@ -70,7 +44,7 @@ export const SAMPLE_ASSETS: PreviewAsset[] = [
     id: crypto.randomUUID(),
     title: 'Sessiz yürüyüş',
     kind: 'post',
-    dataUrl: buildPlaceholder('Sessiz yürüyüş', '#D4A843', 'POST / 4:5'),
+    dataUrl: buildPlaceholder(2),
     sourceRatio: 4 / 5,
     focalX: 55,
     focalY: 46,
@@ -82,7 +56,7 @@ export const SAMPLE_ASSETS: PreviewAsset[] = [
     id: crypto.randomUUID(),
     title: 'Reel cover',
     kind: 'reel',
-    dataUrl: buildPlaceholder('Reel cover', '#F97316', 'REEL / 9:16'),
+    dataUrl: buildPlaceholder(3),
     sourceRatio: 9 / 16,
     focalX: 50,
     focalY: 38,
@@ -94,7 +68,7 @@ export const SAMPLE_ASSETS: PreviewAsset[] = [
     id: crypto.randomUUID(),
     title: 'Akşam karesi',
     kind: 'post',
-    dataUrl: buildPlaceholder('Akşam karesi', '#22C55E', 'POST / 3:4'),
+    dataUrl: buildPlaceholder(4),
     sourceRatio: 3 / 4,
     focalX: 50,
     focalY: 52,
@@ -106,7 +80,7 @@ export const SAMPLE_ASSETS: PreviewAsset[] = [
     id: crypto.randomUUID(),
     title: 'Reel teaser',
     kind: 'reel',
-    dataUrl: buildPlaceholder('Reel teaser', '#38BDF8', 'REEL / 9:16'),
+    dataUrl: buildPlaceholder(5),
     sourceRatio: 9 / 16,
     focalX: 48,
     focalY: 42,
