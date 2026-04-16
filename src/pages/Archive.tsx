@@ -109,7 +109,7 @@ export default function Archive() {
                   <span className="text-lg font-bold text-x-accent">GÜN {t.day_number}</span>
                   <span className="text-xs text-x-text-secondary">{t.theme}</span>
                   <span className={`chip text-[10px] ${
-                    t.status === 'posted' ? 'bg-[#0A0A0A]/10 text-x-text-primary border-x-border/20' :
+                    t.status === 'posted' ? 'bg-x-text-primary/10 text-x-text-primary border-x-border/20' :
                     t.status === 'ready' ? 'bg-x-accent/10 text-x-accent border-x-accent/20' :
                     'bg-x-surface-hover text-x-text-secondary border-x-border-light'
                   }`}>

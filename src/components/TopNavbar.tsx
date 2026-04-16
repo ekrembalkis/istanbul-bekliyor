@@ -27,7 +27,7 @@ export default function TopNavbar() {
   const day = getDayCount()
   const [moreOpen, setMoreOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [theme, setThemeState] = useState(getTheme)
+  const [theme, setThemeState] = useState(() => getTheme())
 
   return (
     <header className="sticky top-0 z-50 bg-[#0A0A0A] border-b-3 border-[#0A0A0A]">
@@ -49,7 +49,7 @@ export default function TopNavbar() {
                 className={({ isActive }) =>
                   `flex items-center gap-2 px-3 py-2 transition-colors font-mono text-[10px] tracking-[2px] ${
                     isActive
-                      ? 'font-bold text-[#E30A17] border-b-2 border-[#E30A17]'
+                      ? 'font-bold text-x-accent border-b-2 border-x-accent'
                       : 'text-[rgba(235,235,235,0.5)] hover:text-[#EBEBEB] border-b-2 border-transparent'
                   }`
                 }
@@ -82,7 +82,7 @@ export default function TopNavbar() {
           {/* ÜRET CTA */}
           <NavLink
             to="/style"
-            className="flex items-center gap-2 bg-[#E30A17] text-white font-mono text-[10px] tracking-[2px] uppercase px-4 py-2 border-2 border-[#EBEBEB] transition-all hover:bg-[#B80813] shrink-0"
+            className="flex items-center gap-2 bg-x-accent text-white font-mono text-[10px] tracking-[2px] uppercase px-4 py-2 border-2 border-[#EBEBEB] transition-all hover:bg-x-accent-hover shrink-0"
             style={{ boxShadow: '2px 2px 0 rgba(235,235,235,0.3)' }}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -110,7 +110,7 @@ export default function TopNavbar() {
 
           {/* Profile Badge */}
           <div className="hidden md:flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-[rgba(227,10,23,0.08)] transition-colors shrink-0">
-            <div className="w-8 h-8 bg-[#E30A17] flex items-center justify-center border-2 border-[#EBEBEB]">
+            <div className="w-8 h-8 bg-x-accent flex items-center justify-center border-2 border-[#EBEBEB]">
               <svg width="12" height="12" viewBox="0 0 60 60" fill="none">
                 <path d="M15 8 L45 8 L45 12 L33 28 L33 32 L45 48 L45 52 L15 52 L15 48 L27 32 L27 28 L15 12 Z" fill="white" />
               </svg>
@@ -151,7 +151,7 @@ export default function TopNavbar() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2.5 font-mono text-xs tracking-[2px] transition-colors ${
                     isActive
-                      ? 'font-bold text-[#E30A17] bg-[rgba(227,10,23,0.1)]'
+                      ? 'font-bold text-x-accent bg-[rgba(227,10,23,0.1)]'
                       : 'text-[rgba(235,235,235,0.5)] hover:text-[#EBEBEB]'
                   }`
                 }
@@ -176,7 +176,7 @@ export default function TopNavbar() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2.5 font-mono text-xs tracking-[2px] transition-colors ${
                     isActive
-                      ? 'font-bold text-[#E30A17] bg-[rgba(227,10,23,0.1)]'
+                      ? 'font-bold text-x-accent bg-[rgba(227,10,23,0.1)]'
                       : 'text-[rgba(235,235,235,0.5)] hover:text-[#EBEBEB]'
                   }`
                 }
@@ -187,7 +187,7 @@ export default function TopNavbar() {
           </nav>
           {/* Mobile profile */}
           <div className="px-4 py-3 border-t border-[rgba(235,235,235,0.1)] flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#E30A17] flex items-center justify-center border-2 border-[#EBEBEB]">
+            <div className="w-8 h-8 bg-x-accent flex items-center justify-center border-2 border-[#EBEBEB]">
               <svg width="12" height="12" viewBox="0 0 60 60" fill="none">
                 <path d="M15 8 L45 8 L45 12 L33 28 L33 32 L45 48 L45 52 L15 52 L15 48 L27 32 L27 28 L15 12 Z" fill="white" />
               </svg>

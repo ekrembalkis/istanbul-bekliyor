@@ -67,13 +67,13 @@ export default function AlgorithmGuide() {
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs text-x-text-primary font-medium">{sw.signal}</span>
                       {isConfirmed && (
-                        <span className="text-[8px] px-1 py-0.5 rounded bg-[#0A0A0A]/10 text-x-text-primary border border-x-border/20">kaynak</span>
+                        <span className="text-[8px] px-1 py-0.5 rounded bg-x-text-primary/10 text-x-text-primary border border-x-border/20">kaynak</span>
                       )}
                     </div>
                   </div>
                   <div className="flex-1 h-4 bg-x-surface-hover rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full opacity-60 ${isPositive ? 'bg-[#0A0A0A]' : 'bg-x-accent'}`}
+                      className={`h-full rounded-full opacity-60 ${isPositive ? 'bg-x-text-primary' : 'bg-x-accent'}`}
                       style={{ width: barWidth, minWidth: '4px' }}
                     />
                   </div>

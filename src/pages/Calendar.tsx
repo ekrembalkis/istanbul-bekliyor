@@ -121,7 +121,7 @@ export default function Calendar() {
                       : isMilestone
                         ? 'bg-brand-gold/10 border border-brand-gold/30 text-brand-gold'
                         : isBeforeCampaign
-                          ? 'text-[rgba(10,10,10,0.05)] cursor-default'
+                          ? 'text-x-text-muted/20 cursor-default'
                           : isPast
                             ? 'bg-x-surface-hover text-x-text-secondary hover:bg-x-surface-active'
                             : 'text-x-text-primary hover:bg-x-surface-active'

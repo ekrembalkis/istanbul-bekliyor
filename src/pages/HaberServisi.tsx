@@ -18,7 +18,7 @@ import { searchImages, type SearchImage } from '../lib/imageSearch'
 
 const SOURCE_COLORS: Record<string, string> = {
   aa: 'bg-x-accent/10 text-x-accent',
-  ntv: 'bg-[#0A0A0A]/10 text-x-text-primary',
+  ntv: 'bg-x-text-primary/10 text-x-text-primary',
   cnnturk: 'bg-[#38BDF8]/10 text-[#38BDF8]',
   diken: 'bg-[#FB923C]/10 text-[#FB923C]',
   bianet: 'bg-[#A855F7]/10 text-[#A855F7]',
@@ -29,7 +29,7 @@ const SOURCE_COLORS: Record<string, string> = {
 
 const CATEGORY_COLORS: Record<string, string> = {
   siyaset: 'bg-x-accent/10 text-x-accent',
-  ekonomi: 'bg-[#0A0A0A]/10 text-x-text-primary',
+  ekonomi: 'bg-x-text-primary/10 text-x-text-primary',
   dunya: 'bg-x-accent/10 text-x-accent',
   teknoloji: 'bg-[#8B5CF6]/10 text-[#8B5CF6]',
   toplum: 'bg-campaign-gold/10 text-campaign-gold',
@@ -287,11 +287,11 @@ export default function HaberServisi() {
                     key={key}
                     className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium ${
                       status === 'ok'
-                        ? 'bg-[#0A0A0A]/10 text-x-text-primary'
+                        ? 'bg-x-text-primary/10 text-x-text-primary'
                         : 'bg-x-accent/10 text-x-accent'
                     }`}
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full ${status === 'ok' ? 'bg-[#0A0A0A]' : 'bg-x-accent'}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full ${status === 'ok' ? 'bg-x-text-primary' : 'bg-x-accent'}`} />
                     {label}
                   </span>
                 )

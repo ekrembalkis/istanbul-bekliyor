@@ -285,7 +285,7 @@ export default function Dashboard() {
                   engagementDrop: 'K4', profileVisible: 'K5',
                 }
                 const colors: Record<string, string> = {
-                  pass: 'bg-[#0A0A0A]/10 text-x-text-primary border-x-border/20',
+                  pass: 'bg-x-text-primary/10 text-x-text-primary border-x-border/20',
                   fail: 'bg-x-accent/10 text-x-accent border-x-accent/20',
                   inconclusive: 'bg-campaign-gold/10 text-campaign-gold border-[#D4A843]/20',
                   skipped: 'bg-x-surface-hover text-x-text-secondary border-x-border',
@@ -445,7 +445,7 @@ export default function Dashboard() {
           {/* Campaign Rules */}
           <div className="border-2 border-x-border bg-x-surface p-5">
             <div className="font-mono text-[10px] font-bold text-x-text-muted tracking-[3px] mb-3 uppercase">KAMPANYA KURALLARI</div>
-            <div className="space-y-2.5 text-[13px] text-[rgba(10,10,10,0.55)]">
+            <div className="space-y-2.5 text-[13px] text-x-text-secondary">
               {['GÜN [SAYI] ile başla', '#İstanbulBekliyor (tek hashtag)', '09:00 TSİ paylaşım', '1:1 görsel (siyah/beyaz + altın)'].map((rule, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <span className="text-x-accent text-xs font-bold">&#9654;</span>

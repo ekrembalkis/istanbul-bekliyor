@@ -93,7 +93,7 @@ export default function AlgorithmCheck() {
                 <label className="text-[10px] font-bold text-x-text-secondary tracking-wider block mb-4">ALGORITMA DETAY</label>
                 <div className="space-y-2">
                   {algoResult.checklist.map((check, i) => (
-                    <div key={i} className={`flex items-start gap-3 text-sm p-2.5 rounded-none ${check.passed ? 'bg-[#0A0A0A]/5' : 'bg-x-accent/5'}`}>
+                    <div key={i} className={`flex items-start gap-3 text-sm p-2.5 rounded-none ${check.passed ? 'bg-x-text-primary/5' : 'bg-x-accent/5'}`}>
                       <span className={`mt-0.5 text-xs flex-shrink-0 font-bold ${check.passed ? 'text-x-text-primary' : 'text-x-accent'}`}>
                         {check.passed ? '✓' : '✕'}
                       </span>

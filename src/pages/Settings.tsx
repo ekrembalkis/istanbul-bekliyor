@@ -223,14 +223,14 @@ export default function Settings() {
                 {/* Status + Plan */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className={`w-2.5 h-2.5 rounded-full ${isActive ? 'bg-[#0A0A0A] animate-pulse' : 'bg-x-accent'}`} />
+                    <span className={`w-2.5 h-2.5 rounded-full ${isActive ? 'bg-x-text-primary animate-pulse' : 'bg-x-accent'}`} />
                     <span className="text-sm font-bold text-x-text-primary">
                       Xquik Pro
                     </span>
                   </div>
                   <span className={`text-[10px] px-2.5 py-1 rounded-none font-bold ${
                     isActive
-                      ? 'bg-[#0A0A0A]/10 text-x-text-primary'
+                      ? 'bg-x-text-primary/10 text-x-text-primary'
                       : 'bg-x-accent/10 text-x-accent'
                   }`}>
                     {isActive ? 'Aktif' : 'Pasif'}
@@ -246,7 +246,7 @@ export default function Settings() {
                   <div className="h-3 bg-x-surface-hover rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
-                        usagePct > 80 ? 'bg-x-accent' : usagePct > 50 ? 'bg-campaign-gold' : 'bg-[#0A0A0A]'
+                        usagePct > 80 ? 'bg-x-accent' : usagePct > 50 ? 'bg-campaign-gold' : 'bg-x-text-primary'
                       }`}
                       style={{ width: `${Math.max(2, usagePct)}%` }}
                     />
@@ -361,7 +361,7 @@ export default function Settings() {
             {xAccounts.map(acc => (
               <div key={acc.id} className="flex items-center justify-between bg-x-surface-hover rounded-none p-4 border border-x-border">
                 <div className="flex items-center gap-3">
-                  <span className={`w-2.5 h-2.5 rounded-full ${acc.status === 'active' || acc.status === 'connected' ? 'bg-[#0A0A0A]' : 'bg-campaign-gold'}`} />
+                  <span className={`w-2.5 h-2.5 rounded-full ${acc.status === 'active' || acc.status === 'connected' ? 'bg-x-text-primary' : 'bg-campaign-gold'}`} />
                   <div>
                     <div className="text-sm font-bold text-x-text-primary">@{acc.xUsername}</div>
                     <div className="text-[10px] text-x-text-secondary">{acc.status}</div>
@@ -432,7 +432,7 @@ export default function Settings() {
         </div>
 
         {autoError && (
-          <div className={`rounded-none p-3 border mb-4 ${autoError === 'Test çalıştırıldı' ? 'bg-[#0A0A0A]/10 border-x-border/20' : 'bg-x-accent/10 border-x-accent/20'}`}>
+          <div className={`rounded-none p-3 border mb-4 ${autoError === 'Test çalıştırıldı' ? 'bg-x-text-primary/10 border-x-border/20' : 'bg-x-accent/10 border-x-accent/20'}`}>
             <div className={`text-xs ${autoError === 'Test çalıştırıldı' ? 'text-x-text-primary' : 'text-x-accent'}`}>{autoError}</div>
           </div>
         )}
@@ -450,7 +450,7 @@ export default function Settings() {
               automations.map(flow => (
                 <div key={flow.id} className="flex items-center justify-between bg-x-surface-hover rounded-none p-4 border border-x-border">
                   <div className="flex items-center gap-3">
-                    <span className={`w-2.5 h-2.5 rounded-full ${flow.isActive ? 'bg-[#0A0A0A] animate-pulse' : 'bg-[rgba(10,10,10,0.4)]'}`} />
+                    <span className={`w-2.5 h-2.5 rounded-full ${flow.isActive ? 'bg-x-text-primary animate-pulse' : 'bg-x-text-secondary'}`} />
                     <div>
                       <div className="text-sm font-bold text-x-text-primary">{flow.name}</div>
                       <div className="text-[10px] text-x-text-secondary">Tetik: {flow.triggerType} | {flow.isActive ? 'Aktif' : 'Pasif'}</div>
@@ -677,10 +677,10 @@ export default function Settings() {
                       <div key={i} className="flex items-center gap-2">
                         <div className="w-32 flex-shrink-0 flex items-center gap-1">
                           <span className="text-[10px] text-x-text-primary">{sw.signal}</span>
-                          {isConfirmed && <span className="text-[7px] px-1 rounded bg-[#0A0A0A]/10 text-x-text-primary">kaynak</span>}
+                          {isConfirmed && <span className="text-[7px] px-1 rounded bg-x-text-primary/10 text-x-text-primary">kaynak</span>}
                         </div>
                         <div className="flex-1 h-2.5 bg-x-surface-hover rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${isPositive ? 'bg-[#0A0A0A]/60' : 'bg-x-accent/60'}`} style={{ width: barWidth }} />
+                          <div className={`h-full rounded-full ${isPositive ? 'bg-x-text-primary/60' : 'bg-x-accent/60'}`} style={{ width: barWidth }} />
                         </div>
                         <span className={`w-10 text-right text-[10px] font-bold ${isPositive ? 'text-x-text-primary' : 'text-x-accent'}`}>
                           {sw.weight > 0 ? '+' : ''}{sw.weight}

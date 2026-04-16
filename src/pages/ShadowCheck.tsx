@@ -6,7 +6,7 @@ import type { CheckResult } from '../lib/shadowBanHistory'
 import { Link } from 'react-router-dom'
 
 const STATUS_CONFIG: Record<OverallStatus, { label: string; color: string; bg: string }> = {
-  clean: { label: 'Temiz', color: 'text-x-text-primary', bg: 'bg-[#0A0A0A]/10 border-x-border/20' },
+  clean: { label: 'Temiz', color: 'text-x-text-primary', bg: 'bg-x-text-primary/10 border-x-border/20' },
   suspicious: { label: 'Şüpheli', color: 'text-campaign-gold', bg: 'bg-campaign-gold/10 border-campaign-gold/20' },
   likely_banned: { label: 'Muhtemel Ban', color: 'text-campaign-gold', bg: 'bg-campaign-gold/10 border-campaign-gold/20' },
   confirmed_banned: { label: 'Onaylı Shadow Ban', color: 'text-x-accent', bg: 'bg-x-accent/10 border-x-accent/20' },

@@ -841,7 +841,7 @@ export default function StyleClone() {
                         {userCache[style.xUsername]?.profilePicture ? (
                           <img src={proxyImageUrl(userCache[style.xUsername].profilePicture)} alt="" className="w-8 h-8 rounded-full object-cover" />
                         ) : (
-                          <div className="w-8 h-8 rounded-full bg-[rgba(10,10,10,0.06)] flex items-center justify-center text-xs font-bold text-x-text-primary">
+                          <div className="w-8 h-8 rounded-full bg-x-surface-active flex items-center justify-center text-xs font-bold text-x-text-primary">
                             {style.xUsername[0]?.toUpperCase()}
                           </div>
                         )}
@@ -864,7 +864,7 @@ export default function StyleClone() {
                             onClick={e => { e.stopPropagation(); toggleMonitor(style.xUsername) }}
                             className={`btn text-[10px] py-1 px-2 ${
                               monitors.some(m => m.username === style.xUsername)
-                                ? 'text-x-text-primary bg-[#0A0A0A]/10'
+                                ? 'text-x-text-primary bg-x-text-primary/10'
                                 : 'text-x-text-secondary'
                             }`}
                             title={monitors.some(m => m.username === style.xUsername) ? 'Canlı takip aktif' : 'Canlı takibi aç'}
@@ -979,7 +979,7 @@ export default function StyleClone() {
                             {pic ? (
                               <img src={proxyImageUrl(pic)} alt="" className="w-6 h-6 rounded-full object-cover" />
                             ) : (
-                              <div className="w-6 h-6 rounded-full bg-[rgba(10,10,10,0.06)] flex items-center justify-center text-[10px] font-bold text-x-text-secondary">
+                              <div className="w-6 h-6 rounded-full bg-x-surface-active flex items-center justify-center text-[10px] font-bold text-x-text-secondary">
                                 {s.xUsername[0]?.toUpperCase()}
                               </div>
                             )}
@@ -1133,7 +1133,7 @@ export default function StyleClone() {
                                 composeTopic === s.title ? 'ring-2 ring-offset-1 ' : ''
                               }${
                                 s.source === 'campaign' ? 'bg-[rgba(227,10,23,0.15)] text-x-accent border-x-accent/20' :
-                                s.source === 'live' ? 'bg-[#0A0A0A]/10 text-x-text-primary border-x-border/20' :
+                                s.source === 'live' ? 'bg-x-text-primary/10 text-x-text-primary border-x-border/20' :
                                 'bg-x-surface-hover text-x-text-secondary border-x-border'
                               }`}
                               title={s.reason}
@@ -1152,7 +1152,7 @@ export default function StyleClone() {
                         </div>
                         {/* Expanded topic tweet cards */}
                         {expandedTopic !== null && topicSuggestions[expandedTopic]?.tweets && topicSuggestions[expandedTopic].tweets!.length > 0 && (
-                          <div className="bg-[rgba(10,10,10,0.01)] rounded-none border border-x-border p-3 space-y-2 animate-fade-in">
+                          <div className="bg-x-surface-hover rounded-none border border-x-border p-3 space-y-2 animate-fade-in">
                             <div className="flex items-center justify-between">
                               <span className="text-[10px] font-bold text-x-text-secondary tracking-wider">
                                 {topicSuggestions[expandedTopic].title}
@@ -1317,7 +1317,7 @@ export default function StyleClone() {
                     <button
                       onClick={handleTrendGenerate}
                       disabled={trendLoading || !composeStyle}
-                      className="btn w-full justify-center disabled:opacity-50 text-xs bg-[#0A0A0A]/10 text-x-text-primary border-x-border/20 hover:bg-[#0A0A0A]/20"
+                      className="btn w-full justify-center disabled:opacity-50 text-xs bg-x-text-primary/10 text-x-text-primary border-x-border/20 hover:bg-x-text-primary/20"
                     >
                       {trendLoading ? (
                         <span className="flex items-center gap-1.5">
@@ -1337,7 +1337,7 @@ export default function StyleClone() {
           <div className="space-y-5">
             {scoreResult && (
               <div className={`card rounded-none p-6 ${scoreResult.passed
-                ? 'bg-[#0A0A0A]/10 border border-x-border/20'
+                ? 'bg-x-text-primary/10 border border-x-border/20'
                 : 'bg-x-accent/10 border border-x-accent/20'
               }`}>
                 <div className="flex items-center justify-between mb-5">
@@ -1435,12 +1435,12 @@ export default function StyleClone() {
                         {/* Thread chain line + number */}
                         {isThread && (
                           <>
-                            <div className="absolute left-3 top-0 bottom-0 w-px bg-[rgba(10,10,10,0.06)]" />
+                            <div className="absolute left-3 top-0 bottom-0 w-px bg-x-surface-active" />
                             <div className={`absolute left-0 top-4 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold z-10 ${
                               i === 0
                                 ? 'bg-x-accent text-white'
                                 : displayPassed
-                                  ? 'bg-[#0A0A0A]/20 text-x-text-primary border border-x-border/30'
+                                  ? 'bg-x-text-primary/20 text-x-text-primary border border-x-border/30'
                                   : 'bg-x-surface-active text-x-text-secondary border border-x-border'
                             }`}>
                               {i + 1}
@@ -1449,7 +1449,7 @@ export default function StyleClone() {
                         )}
                         <div className={`${isThread ? 'py-3' : ''} ${!isThread ? `p-4 rounded-none border ${
                           displayPassed
-                            ? 'bg-[#0A0A0A] border-x-border/20'
+                            ? 'bg-x-text-primary border-x-border/20'
                             : 'bg-x-surface-hover border-x-border'
                         }` : ''}`}>
                           <p className="text-sm text-x-text-primary leading-relaxed whitespace-pre-line">{gt.tweet}</p>
@@ -1467,7 +1467,7 @@ export default function StyleClone() {
                               )}
                               <span className="text-[10px] text-x-text-secondary">{gt.tweet.length} chr</span>
                               {gt.styleMatch != null && (
-                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${gt.styleMatch >= 80 ? 'bg-[#0A0A0A]/10 text-x-text-primary' : gt.styleMatch >= 60 ? 'bg-campaign-gold/10 text-campaign-gold' : 'bg-x-accent/10 text-x-accent'}`}>
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${gt.styleMatch >= 80 ? 'bg-x-text-primary/10 text-x-text-primary' : gt.styleMatch >= 60 ? 'bg-campaign-gold/10 text-campaign-gold' : 'bg-x-accent/10 text-x-accent'}`}>
                                   stil {gt.styleMatch}%
                                 </span>
                               )}
@@ -1646,7 +1646,7 @@ export default function StyleClone() {
                   <div className="flex items-center gap-2">
                     {draft.score !== undefined && (
                       <span className={`chip text-[10px] ${
-                        draft.score === 11 ? 'bg-[#0A0A0A]/10 text-x-text-primary border-x-border/20'
+                        draft.score === 11 ? 'bg-x-text-primary/10 text-x-text-primary border-x-border/20'
                         : 'bg-campaign-gold/10 text-campaign-gold border-campaign-gold/20'
                       }`}>{draft.score}/11</span>
                     )}
