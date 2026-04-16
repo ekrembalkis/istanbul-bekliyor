@@ -24,6 +24,7 @@ export default function PreviewMedia({
     <button
       type="button"
       onClick={onClick}
+      aria-label={`${asset.title || 'Görsel'} seç`}
       className={`group relative w-full overflow-hidden border text-left transition-all ${
         selected
           ? 'border-[#E30A17] border-2'
@@ -33,7 +34,7 @@ export default function PreviewMedia({
       <div className={`relative ${aspectClass} bg-[#000]`}>
         <img
           src={asset.dataUrl}
-          alt={asset.title}
+          alt={asset.title || 'Preview görsel'}
           className="absolute inset-0 h-full w-full object-cover"
           style={{ objectPosition: `${asset.focalX}% ${asset.focalY}%` }}
         />

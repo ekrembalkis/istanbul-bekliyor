@@ -131,7 +131,8 @@ export function loadPreviewAssets(): PreviewAsset[] {
       .filter(Boolean) as PreviewAsset[]
 
     return safe.length > 0 ? safe : SAMPLE_ASSETS
-  } catch {
+  } catch (err) {
+    console.error('Failed to load preview assets:', err)
     return SAMPLE_ASSETS
   }
 }

@@ -66,7 +66,7 @@ export default function InstagramPreview() {
     savePreviewAssets(assets)
   }, [assets])
 
-  const selectedAsset = assets.find(asset => asset.id === selectedId) || assets[0]
+  const selectedAsset = assets.find(asset => asset.id === selectedId) || assets[0] || null
   const selectedIndex = assets.findIndex(asset => asset.id === selectedAsset?.id)
   const reelsAssets = assets.filter(asset => asset.kind === 'reel')
   const heroCount = assets.filter(asset => asset.highlight).length
@@ -129,12 +129,12 @@ export default function InstagramPreview() {
     const isBlockA = blockIndex % 2 === 0
 
     if (isBlockA) {
-      // Block A: items 0,1 are small squares, item 2 is large
-      if (posInBlock === 2) return { className: 'row-span-2', aspectClass: 'aspect-square' }
+      // Block A: items 0,1 are small squares, item 2 is large (2 rows)
+      if (posInBlock === 2) return { className: 'row-span-2 h-full', aspectClass: '' }
       return { className: '', aspectClass: 'aspect-square' }
     } else {
-      // Block B: item 0 is large, items 1,2 are small squares
-      if (posInBlock === 0) return { className: 'row-span-2', aspectClass: 'aspect-square' }
+      // Block B: item 0 is large (2 rows), items 1,2 are small squares
+      if (posInBlock === 0) return { className: 'row-span-2 h-full', aspectClass: '' }
       return { className: '', aspectClass: 'aspect-square' }
     }
   }
@@ -254,7 +254,7 @@ export default function InstagramPreview() {
 
               {/* Explore Grid: 3 cols, 1:1 kare, mosaic pattern, 2px gap */}
               {surface === 'explore' && (
-                <div className="grid grid-cols-3 gap-[2px]">
+                <div className="grid grid-cols-3 auto-rows-[minmax(0,1fr)] gap-[2px]">
                   {assets.map((asset, index) => {
                     const { className: mosaicClass, aspectClass } = getExploreMosaicClass(index)
                     return (
