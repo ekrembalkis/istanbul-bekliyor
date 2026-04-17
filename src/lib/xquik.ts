@@ -361,6 +361,38 @@ export async function generateTweet(opts: {
   return res.json()
 }
 
+// ── Rewrite (user's text → target profile's style) ──
+
+export interface RewriteResult {
+  rewrites: string[]
+  language: string
+  usage?: { inputTokens: number; outputTokens: number }
+}
+
+/** Rewrite the user's existing text in the target profile's voice. Meaning preserved, style changed. */
+export async function rewriteTweet(opts: {
+  styleUsername: string
+  userText: string
+  count?: number
+}): Promise<RewriteResult> {
+  const res = await fetch('/api/rewrite-tweet', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      styleUsername: opts.styleUsername.replace('@', ''),
+      userText: opts.userText,
+      count: opts.count ?? 3,
+    }),
+  })
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }))
+    throw new Error(err.error || `Rewrite failed: ${res.status}`)
+  }
+
+  return res.json()
+}
+
 // ── Radar (Trending Topics) ──
 
 export interface RadarItem {

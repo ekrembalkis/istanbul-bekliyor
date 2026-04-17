@@ -8,7 +8,7 @@ import {
   startDeepAnalysis, getExtractionJob, getAllExtractionResults, saveCuratedStyle,
   createMonitor, listMonitors, deleteMonitor, createWebhook, listWebhooks,
   generateTweet, getRadarTopics, lookupTweet, analyzePersonality, generateStyleSummary,
-  getConnectedAccounts, publishTweet,
+  getConnectedAccounts, publishTweet, rewriteTweet,
 } from '../lib/xquik'
 import type { StyleProfile, XUser, Draft, ScoreResult, ComposeRefineResult, Monitor, GeneratedTweet, PersonalityDNA, XAccount } from '../lib/xquik'
 import { getLibrary, saveEntry, togglePin, incrementGenerated, addTopic, CATEGORIES } from '../lib/styleLibrary'
@@ -21,7 +21,7 @@ import { checkCampaignRules, getScoreColor, getScoreBg, getDayCount } from '../l
 import { getDayPlan } from '../data/campaign'
 import { scoreDraft } from '../lib/xquik'
 
-type Tab = 'analyze' | 'compose' | 'drafts'
+type Tab = 'analyze' | 'compose' | 'rewrite' | 'drafts'
 
 export default function StyleClone() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -103,6 +103,38 @@ export default function StyleClone() {
 
   // ── Drafts ──
   const [drafts, setDrafts] = useState<Draft[]>([])
+
+  // ── Rewrite ──
+  const [rewriteInput, setRewriteInput] = useState('')
+  const [rewriteStyle, setRewriteStyle] = useState('')
+  const [rewriteLoading, setRewriteLoading] = useState(false)
+  const [rewriteOutputs, setRewriteOutputs] = useState<string[]>([])
+  const [rewriteError, setRewriteError] = useState('')
+
+  const handleRewrite = async () => {
+    setRewriteError('')
+    if (!rewriteInput.trim()) { setRewriteError('Önce yeniden yazılacak metni gir.'); return }
+    if (!rewriteStyle) { setRewriteError('Bir profil stili seç.'); return }
+    setRewriteLoading(true)
+    try {
+      const result = await rewriteTweet({ styleUsername: rewriteStyle, userText: rewriteInput, count: 3 })
+      setRewriteOutputs(result.rewrites)
+      if (result.usage) {
+        trackGeminiUsage({
+          promptTokens: result.usage.inputTokens,
+          completionTokens: result.usage.outputTokens,
+          totalTokens: result.usage.inputTokens + result.usage.outputTokens,
+          calls: 1,
+        })
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Yeniden yazma başarısız.'
+      setRewriteError(msg)
+      setRewriteOutputs([])
+    } finally {
+      setRewriteLoading(false)
+    }
+  }
 
   // ── X Publishing ──
   const [xAccounts, setXAccounts] = useState<XAccount[]>([])
@@ -632,6 +664,7 @@ export default function StyleClone() {
         {([
           { key: 'analyze' as Tab, label: 'Profil Analizi', count: styles.length },
           { key: 'compose' as Tab, label: 'Tweet Üret' },
+          { key: 'rewrite' as Tab, label: 'Yeniden Yaz' },
           { key: 'drafts' as Tab, label: 'Taslaklar', count: drafts.length },
         ]).map(t => (
           <button
@@ -1624,6 +1657,100 @@ export default function StyleClone() {
             </div>
           </div>
         </div>
+        </div>
+      )}
+
+      {/* ═══════════ REWRITE TAB ═══════════ */}
+      {tab === 'rewrite' && (
+        <div className="space-y-6">
+          <div className="card p-6 space-y-5">
+            <div>
+              <div className="text-[10px] font-bold text-x-text-secondary tracking-widest mb-1">YENİDEN YAZ</div>
+              <p className="text-sm text-x-text-secondary">
+                Metnini yaz, bir profil seç — tool seçtiğin profilin tarzında yeniden yazar. Anlam değişmez, sadece stil değişir.
+              </p>
+            </div>
+
+            <div>
+              <label className="text-[10px] font-bold text-x-text-secondary tracking-wider block mb-1.5">SENİN METNİN</label>
+              <textarea
+                value={rewriteInput}
+                onChange={e => setRewriteInput(e.target.value)}
+                placeholder="Yeniden yazılmasını istediğin tweeti / metni buraya yaz..."
+                rows={4}
+                maxLength={600}
+                className="w-full input-field px-3 py-2.5 text-sm text-x-text-primary resize-none"
+              />
+              <div className="text-[10px] text-x-text-secondary mt-1 text-right">{rewriteInput.length}/600</div>
+            </div>
+
+            <div>
+              <label className="text-[10px] font-bold text-x-text-secondary tracking-wider block mb-1.5">STİL PROFİLİ</label>
+              {styles.length === 0 ? (
+                <div className="input-field px-3 py-2.5 text-sm text-x-text-secondary">
+                  Önce "Profil Analizi" sekmesinden bir profil ekle.
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {styles.filter(s => isValidXUsername(s.xUsername)).map(s => {
+                    const pic = userCache[s.xUsername]?.profilePicture
+                    const isSelected = rewriteStyle === s.xUsername
+                    return (
+                      <button
+                        key={s.xUsername}
+                        onClick={() => setRewriteStyle(isSelected ? '' : s.xUsername)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-none border transition-all ${
+                          isSelected
+                            ? 'bg-[rgba(227,10,23,0.15)] border-x-accent/30 ring-2 ring-brand-red/20'
+                            : 'bg-x-surface-hover border-x-border hover:border-x-border'
+                        }`}
+                      >
+                        {pic ? (
+                          <img src={proxyImageUrl(pic)} alt="" className="w-6 h-6 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-6 h-6 rounded-full bg-x-surface-active flex items-center justify-center text-[10px] font-bold text-x-text-secondary">
+                            {s.xUsername[0]?.toUpperCase()}
+                          </div>
+                        )}
+                        <span className={`text-xs font-semibold ${isSelected ? 'text-x-accent' : 'text-x-text-primary'}`}>@{s.xUsername}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={handleRewrite}
+              disabled={rewriteLoading || !rewriteInput.trim() || !rewriteStyle}
+              className="btn btn-primary w-full justify-center disabled:opacity-50"
+            >
+              {rewriteLoading ? 'Yeniden yazılıyor...' : 'Yeniden Yaz'}
+            </button>
+
+            {rewriteError && (
+              <div className="text-xs text-x-accent bg-x-accent/5 border-l-2 border-x-accent px-3 py-2">
+                {rewriteError}
+              </div>
+            )}
+          </div>
+
+          {rewriteOutputs.length > 0 && (
+            <div className="space-y-3">
+              <div className="text-[10px] font-bold text-x-text-secondary tracking-widest">
+                @{rewriteStyle} TARZINDA — {rewriteOutputs.length} VERSİYON
+              </div>
+              {rewriteOutputs.map((text, i) => (
+                <div key={i} className="card p-4 space-y-2">
+                  <p className="text-sm text-x-text-primary leading-relaxed whitespace-pre-wrap">{text}</p>
+                  <div className="flex items-center justify-between pt-1 border-t border-x-border">
+                    <span className="text-[10px] text-x-text-secondary">v{i + 1} · {text.length} karakter</span>
+                    <CopyBtn text={text} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
