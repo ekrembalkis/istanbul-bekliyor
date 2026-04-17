@@ -1,5 +1,5 @@
 // Rewrite user's text in a chosen X profile's style.
-// POST /api/rewrite-tweet { styleUsername, userText, count? }
+// POST /api/rewrite-tweet { styleUsername, userText, count?, tone?, lengthHint? }
 
 import { setCorsHeaders } from './lib/cors.js'
 import { XQUIK_BASE_URL, GEMINI_BASE_URL, GEMINI_MODEL } from './lib/endpoints.js'
@@ -16,6 +16,32 @@ function detectLanguage(tweets) {
   return 'en'
 }
 
+const LENGTH_RULES = {
+  tr: {
+    kisa: 'UZUNLUK: Her versiyon 60–120 karakter arasında olmalı. 60\'tan kısa KABUL EDİLMEZ.',
+    normal: 'UZUNLUK: Her versiyon 100–200 karakter arasında olmalı. 100\'den kısa KABUL EDİLMEZ.',
+    uzun: 'UZUNLUK: Her versiyon 200–270 karakter arasında olmalı. 200\'den kısa KABUL EDİLMEZ. 280\'i GEÇME.',
+    auto: (avg) => `UZUNLUK: Profilin ortalaması ${avg} karakter — o aralıkta kal.`,
+  },
+  en: {
+    kisa: 'LENGTH: Each version must be 60–120 characters. Under 60 is NOT acceptable.',
+    normal: 'LENGTH: Each version must be 100–200 characters. Under 100 is NOT acceptable.',
+    uzun: 'LENGTH: Each version must be 200–270 characters. Under 200 is NOT acceptable. Do NOT exceed 280.',
+    auto: (avg) => `LENGTH: Profile average is ${avg} characters — stay in that range.`,
+  },
+}
+
+function lengthBlock(lang, hint, avgLen) {
+  const rules = LENGTH_RULES[lang] || LENGTH_RULES.en
+  if (hint === 'kisa' || hint === 'normal' || hint === 'uzun') return rules[hint]
+  return rules.auto(avgLen)
+}
+
+function toneBlock(lang, tone) {
+  if (!tone || !tone.trim()) return ''
+  return lang === 'tr' ? `TON: ${tone.trim()}` : `TONE: ${tone.trim()}`
+}
+
 export default async function handler(req, res) {
   setCorsHeaders(req, res)
   if (req.method === 'OPTIONS') return res.status(200).end()
@@ -26,10 +52,19 @@ export default async function handler(req, res) {
   if (!GEMINI_KEY) return res.status(500).json({ error: 'GEMINI_API_KEY not configured' })
   if (!XQUIK_KEY) return res.status(500).json({ error: 'XQUIK_API_KEY not configured' })
 
-  const { styleUsername, userText, count = 3 } = req.body || {}
+  const {
+    styleUsername,
+    userText,
+    count = 3,
+    tone = '',
+    lengthHint = '',
+  } = req.body || {}
+
   if (!styleUsername || !userText || !userText.trim()) {
     return res.status(400).json({ error: 'styleUsername and userText are required' })
   }
+
+  const clampedCount = Math.max(1, Math.min(10, Number(count) || 3))
 
   try {
     const styleRes = await fetch(
@@ -50,28 +85,65 @@ export default async function handler(req, res) {
     }
 
     const lang = detectLanguage(styleTweets)
+    const avgLen = Math.round(styleTweets.reduce((s, tw) => s + tw.length, 0) / styleTweets.length)
     const examples = styleTweets.map((tw, i) => `${i + 1}. ${tw}`).join('\n')
+    const lenLine = lengthBlock(lang, lengthHint, avgLen)
+    const toneLine = toneBlock(lang, tone)
+    const extraBlock = [toneLine, lenLine].filter(Boolean).join('\n')
 
     const prompts = {
       tr: {
-        system: `Sen bir tweet yeniden yazarısın. Görevin: kullanıcının yazdığı metnin ANLAMINI KORU, ama verilen profilin ses tonunda, kelime seçiminde, cümle yapısında, uzunluğunda ve karakterinde yeniden yaz.`,
-        user: `STİL ÖRNEKLERİ (@${styleUsername}'in gerçek tweetleri — bu tarzı birebir yakala):\n${examples}\n\nKULLANICININ METNİ (anlamını koru, stilini değiştir):\n"${userText.trim()}"\n\nKURALLAR:\n- ASLA orijinal metnin anlamını değiştirme, sadece STİLİ değiştir\n- Üstteki profilin uzunluk, noktalama, büyük/küçük harf, argo, emoji, hashtag alışkanlıklarını birebir taklit et\n- ASLA açıklama yazma, sadece yeniden yazılmış tweet\n- Profilin stili hashtag/emoji KULLANMIYORSA, sen de KULLANMA\n- Link ekleme\n\n${count} farklı versiyon üret. Her biri AYNI ANLAMI taşısın ama farklı açıdan, farklı kelime seçimiyle yazılsın. Sadece tweet metinlerini yaz. Her birini yeni satırda numara ile başlat (1. 2. 3.). Başka hiçbir şey yazma.`,
+        system: `Sen bir tweet yeniden yazarısın. Görevin: kullanıcının yazdığı metnin ANLAMINI KORU, ama verilen profilin ses tonunda, kelime seçiminde, cümle yapısında ve karakterinde yeniden yaz.`,
+        user: `STİL ÖRNEKLERİ (@${styleUsername}'in gerçek tweetleri — bu tarzı birebir yakala):
+${examples}
+
+KULLANICININ METNİ (anlamını koru, stilini değiştir):
+"${userText.trim()}"
+
+${extraBlock}
+
+KURALLAR:
+- ASLA orijinal metnin anlamını değiştirme, sadece STİLİ değiştir
+- Üstteki profilin noktalama, büyük/küçük harf, argo, emoji, hashtag alışkanlıklarını birebir taklit et
+- ASLA açıklama yazma, sadece yeniden yazılmış tweet
+- Profilin stili hashtag/emoji KULLANMIYORSA, sen de KULLANMA
+- Link ekleme
+- Uzunluk kuralı yukarıda — ONA MUTLAKA UY
+
+${clampedCount} farklı versiyon üret. Her biri AYNI ANLAMI taşısın ama farklı açıdan, farklı kelime seçimiyle yazılsın. Sadece tweet metinlerini yaz. Her birini yeni satırda numara ile başlat (1. 2. 3.). Başka hiçbir şey yazma.`,
       },
       en: {
-        system: `You are a tweet rewriter. Your job: PRESERVE the MEANING of the user's text, but rewrite it in the given profile's voice, word choice, sentence structure, length, and character.`,
-        user: `STYLE EXAMPLES (@${styleUsername}'s real tweets — imitate this voice exactly):\n${examples}\n\nUSER'S TEXT (keep the meaning, change only the style):\n"${userText.trim()}"\n\nRULES:\n- NEVER change the original meaning, only change the STYLE\n- Exactly mimic the profile's length, punctuation, capitalization, slang, emoji, hashtag habits\n- NEVER write explanations, only the rewritten tweet\n- If the profile's style does NOT use hashtags/emojis, do NOT use them\n- No links\n\nProduce ${count} different versions. Each should carry the SAME MEANING but from a different angle with different word choices. Only write the tweet texts. Start each on a new line numbered (1. 2. 3.). Nothing else.`,
+        system: `You are a tweet rewriter. Your job: PRESERVE the MEANING of the user's text, but rewrite it in the given profile's voice, word choice, sentence structure, and character.`,
+        user: `STYLE EXAMPLES (@${styleUsername}'s real tweets — imitate this voice exactly):
+${examples}
+
+USER'S TEXT (keep the meaning, change only the style):
+"${userText.trim()}"
+
+${extraBlock}
+
+RULES:
+- NEVER change the original meaning, only change the STYLE
+- Exactly mimic the profile's punctuation, capitalization, slang, emoji, hashtag habits
+- NEVER write explanations, only the rewritten tweet
+- If the profile's style does NOT use hashtags/emojis, do NOT use them
+- No links
+- Length rule is above — YOU MUST FOLLOW IT
+
+Produce ${clampedCount} different versions. Each should carry the SAME MEANING but from a different angle with different word choices. Only write the tweet texts. Start each on a new line numbered (1. 2. 3.). Nothing else.`,
       },
     }
     const p = prompts[lang] || prompts.en
 
     const geminiUrl = `${GEMINI_BASE_URL}/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`
+    const maxOutput = Math.min(2400, 240 * clampedCount + 200)
     const geminiRes = await fetch(geminiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: p.system }] },
         contents: [{ role: 'user', parts: [{ text: p.user }] }],
-        generationConfig: { temperature: 0.9, maxOutputTokens: 800 },
+        generationConfig: { temperature: 0.9, maxOutputTokens: maxOutput },
       }),
     })
 
@@ -89,7 +161,7 @@ export default async function handler(req, res) {
       .map(line => line.replace(/^\d+[\.\)\/]\s*/, '').trim())
       .map(line => line.replace(/^["'`]|["'`]$/g, '').trim())
       .filter(line => line.length > 10)
-      .slice(0, count)
+      .slice(0, clampedCount)
 
     if (rewrites.length === 0) {
       return res.status(500).json({ error: 'Rewrite failed', raw })

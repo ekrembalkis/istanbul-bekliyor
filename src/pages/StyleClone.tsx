@@ -107,6 +107,9 @@ export default function StyleClone() {
   // ── Rewrite ──
   const [rewriteInput, setRewriteInput] = useState('')
   const [rewriteStyle, setRewriteStyle] = useState('')
+  const [rewriteTone, setRewriteTone] = useState('duygusal, umut dolu')
+  const [rewriteLengthHint, setRewriteLengthHint] = useState('')
+  const [rewriteCount, setRewriteCount] = useState(3)
   const [rewriteLoading, setRewriteLoading] = useState(false)
   const [rewriteOutputs, setRewriteOutputs] = useState<string[]>([])
   const [rewriteError, setRewriteError] = useState('')
@@ -117,7 +120,13 @@ export default function StyleClone() {
     if (!rewriteStyle) { setRewriteError('Bir profil stili seç.'); return }
     setRewriteLoading(true)
     try {
-      const result = await rewriteTweet({ styleUsername: rewriteStyle, userText: rewriteInput, count: 3 })
+      const result = await rewriteTweet({
+        styleUsername: rewriteStyle,
+        userText: rewriteInput,
+        count: rewriteCount,
+        tone: rewriteTone,
+        lengthHint: rewriteLengthHint,
+      })
       setRewriteOutputs(result.rewrites)
       if (result.usage) {
         trackGeminiUsage({
@@ -1720,12 +1729,60 @@ export default function StyleClone() {
               )}
             </div>
 
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[10px] font-bold text-x-text-secondary tracking-wider block mb-1.5">TON</label>
+                <select value={rewriteTone} onChange={e => setRewriteTone(e.target.value)}
+                  className="w-full input-field px-2 py-2 text-xs text-x-text-primary">
+                  <option value="duygusal, umut dolu">Umutlu</option>
+                  <option value="sarkastik, keskin">Sarkastik</option>
+                  <option value="ofkeli, isyankar">Öfkeli</option>
+                  <option value="siirsel, duygusal">Şiirsel</option>
+                  <option value="samimi, sokak agzi">Samimi</option>
+                  <option value="ciddi, resmi">Resmi</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-x-text-secondary tracking-wider block mb-1.5">ADET</label>
+                <select value={rewriteCount} onChange={e => setRewriteCount(Number(e.target.value))}
+                  className="w-full input-field px-2 py-2 text-xs text-x-text-primary">
+                  {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                    <option key={n} value={n}>{n}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[10px] font-bold text-x-text-secondary tracking-wider block mb-1.5">UZUNLUK</label>
+              <div className="flex gap-1.5">
+                {[
+                  { value: '', label: 'Otomatik' },
+                  { value: 'kisa', label: 'Kısa' },
+                  { value: 'normal', label: 'Normal' },
+                  { value: 'uzun', label: 'Uzun' },
+                ].map(f => (
+                  <button
+                    key={f.value}
+                    onClick={() => setRewriteLengthHint(f.value)}
+                    className={`flex-1 text-[10px] py-1.5 rounded-none border transition-all ${
+                      rewriteLengthHint === f.value
+                        ? 'bg-[rgba(227,10,23,0.15)] text-x-accent border-x-accent/20 font-bold'
+                        : 'text-x-text-secondary border-x-border hover:text-x-text-primary'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <button
               onClick={handleRewrite}
               disabled={rewriteLoading || !rewriteInput.trim() || !rewriteStyle}
               className="btn btn-primary w-full justify-center disabled:opacity-50"
             >
-              {rewriteLoading ? 'Yeniden yazılıyor...' : 'Yeniden Yaz'}
+              {rewriteLoading ? 'Yeniden yazılıyor...' : `Yeniden Yaz (${rewriteCount} versiyon)`}
             </button>
 
             {rewriteError && (

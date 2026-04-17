@@ -1,0 +1,5 @@
+{
+  "XQUIK_BASE_URL": "https://xquik.com/api/v1",
+  "GEMINI_BASE_URL": "https://generativelanguage.googleapis.com/v1beta",
+  "GEMINI_MODEL": "gemini-3.1-flash-lite-preview"
+}

@@ -1,12 +1,8 @@
 // Centralized external service endpoints.
-// All values MUST be provided via env vars (see .env.example).
+// Defaults load from config.json — override via env vars for staging/testing.
 
-function required(name) {
-  const v = (process.env[name] || '').trim()
-  if (!v) throw new Error(`${name} is not configured. Set it in .env or deployment environment.`)
-  return v
-}
+import defaults from './endpoints.defaults.json' with { type: 'json' }
 
-export const XQUIK_BASE_URL = required('XQUIK_BASE_URL')
-export const GEMINI_BASE_URL = required('GEMINI_BASE_URL')
-export const GEMINI_MODEL = required('GEMINI_MODEL')
+export const XQUIK_BASE_URL = (process.env.XQUIK_BASE_URL || defaults.XQUIK_BASE_URL).trim()
+export const GEMINI_BASE_URL = (process.env.GEMINI_BASE_URL || defaults.GEMINI_BASE_URL).trim()
+export const GEMINI_MODEL = (process.env.GEMINI_MODEL || defaults.GEMINI_MODEL).trim()

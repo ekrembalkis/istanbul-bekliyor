@@ -374,6 +374,8 @@ export async function rewriteTweet(opts: {
   styleUsername: string
   userText: string
   count?: number
+  tone?: string
+  lengthHint?: string
 }): Promise<RewriteResult> {
   const res = await fetch('/api/rewrite-tweet', {
     method: 'POST',
@@ -382,6 +384,8 @@ export async function rewriteTweet(opts: {
       styleUsername: opts.styleUsername.replace('@', ''),
       userText: opts.userText,
       count: opts.count ?? 3,
+      tone: opts.tone ?? '',
+      lengthHint: opts.lengthHint ?? '',
     }),
   })
 
