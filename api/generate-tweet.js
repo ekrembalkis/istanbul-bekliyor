@@ -48,6 +48,26 @@ function pickMonologue(lang) {
   return pool[Math.floor(Math.random() * pool.length)]
 }
 
+// ── Strip stray quotes (leading/trailing + smart quotes + interior wrap-only) ──
+// Goal: clean model artifacts WITHOUT destroying legitimate dialogue.
+// Only removes quotes when they wrap the entire string or when smart quotes
+// appear — doesn't touch balanced interior quotes (could be intentional).
+function stripStrayQuotes(text) {
+  if (!text) return text
+  let out = text.trim()
+  // Normalize smart quotes to ASCII first (model-space cleanup)
+  out = out.replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'")
+  // Strip wrapping quotes (entire tweet inside "..." or '...')
+  if ((out.startsWith('"') && out.endsWith('"')) || (out.startsWith("'") && out.endsWith("'"))) {
+    const inner = out.slice(1, -1)
+    // Only strip if the inner content has no quote of the same kind (avoids damage)
+    if (!inner.includes(out[0])) out = inner
+  }
+  // Strip leading or trailing orphan single quote/double-quote
+  out = out.replace(/^["']+|["']+$/g, '').trim()
+  return out
+}
+
 // ── Fisher-Yates shuffle (returns new array) ──
 function shuffle(arr) {
   const a = [...arr]
@@ -194,9 +214,9 @@ const T = {
     tweetInstruction: (topic, ctx, tone, goal, count) =>
       `KONU: ${topic}\n${ctx ? `\nGUNDEM BAGLAMI (bu konu hakkinda simdi X'te konusulanlar):\n${ctx}\n\nYukaridaki baglamdan ilham al ama KOPYALAMA. Kendi stilinde yeni icerik uret.\n` : ''}TON: ${tone}\nHEDEF: ${goal}\n\nBu stilde ${count} farkli tweet yaz. Her biri farkli bir aci olsun. Sadece tweet metinlerini yaz. Her tweeti yeni satirda numara ile yaz. Baska hicbir sey yazma.`,
     quoteInstruction: (author, text, count) =>
-      `ASAGIDAKI TWEET'E QUOTE TWEET YAZ. Kendi stilinde yorum/tepki ver.\n\nQUOTE EDILECEK TWEET (@${author}):\n"${text}"\n\n${count} farkli quote tweet yaz. Her biri farkli bir aci olsun. Sadece kendi tweet metinlerini yaz (quote edilen tweeti tekrarlama). Her tweeti yeni satirda numara ile yaz.`,
+      `ASAGIDAKI TWEET'E QUOTE TWEET YAZ. Kendi stilinde yorum/tepki ver.\n\nQUOTE EDILECEK TWEET (@${author}):\n<kaynak>\n${text}\n</kaynak>\n\n${count} farkli quote tweet yaz. Her biri farkli bir aci olsun. Sadece kendi tweet metinlerini yaz (quote edilen tweeti tekrarlama). Her tweeti yeni satirda numara ile yaz.`,
     replyInstruction: (author, text, count) =>
-      `ASAGIDAKI TWEET'E REPLY YAZ. Dogal, stiline uygun, icerikli cevap ver.\n\nREPLY YAZILACAK TWEET (@${author}):\n"${text}"\n\nONEMLI: Her reply EN AZ 50 karakter olmali. Cok kisa bos laflar yazma (ornegin sadece "helal" veya "aq" gibi). Icerikli, anlamli ama dogal reply yaz. 50-150 karakter arasi ideal.\n\n${count} farkli reply yaz. Her birini yeni satirda numara ile yaz.`,
+      `ASAGIDAKI TWEET'E REPLY YAZ. Dogal, stiline uygun, icerikli cevap ver.\n\nREPLY YAZILACAK TWEET (@${author}):\n<kaynak>\n${text}\n</kaynak>\n\nKESIN UZUNLUK: Her reply 50-150 karakter arasi. ESSAY YAZMA, liste/maddeler YAZMA. Tek veya iki kisa cumle. Cok kisa bos laflar da yazma (sadece "helal", "aq" gibi). Anlamli, tepkisel, dogal olsun.\n\n${count} farkli reply yaz. Her birini yeni satirda numara ile yaz.`,
     threadInstruction: (topic, ctx, tone, ctaRule) =>
       `BU KONUDA 5 TWEET'LIK THREAD (self-reply zinciri) YAZ.\n\nKONU: ${topic}\n${ctx ? `\nGUNDEM BAGLAMI:\n${ctx}\n` : ''}TON: ${tone}\n\nTHREAD YAPISI (her tweet oncekine REPLY olarak atilir):\n1. tweet — HOOK: Sarsici, provokatif veya surpriz acilis. Okuyucu "devamini okumam lazim" demeli.\n2. tweet — BAGLAM: Durumu acikla, olayi veya problemi ortaya koy. Somut detay ver.\n3. tweet — DERINLIK: Herkesin gormezden geldigi aciyi goster. Farkli bir perspektif sun.\n4. tweet — KANIT/DUYGU: Kisisel gozlem, somut ornek veya duygusal vurucu bir cumle.\n5. tweet — KAPANIIS: Guclu son cumle. ${ctaRule}\n\nKURALLAR:\n- HER tweet tek basina okunsa bile anlamli ve guclu olmali\n- Her tweet FARKLI aci, farkli yaklasim\n- 80-220 karakter arasi\n- Klise, slogan ve bos motivasyon cumleleri YASAK (somut ol)\n\nSADECE 5 tweet yaz. Her tweeti "1/" "2/" gibi numara ile baslat. Baska hicbir sey yazma.`,
     extendPrompt: (draft, noQ) => noQ
@@ -248,9 +268,9 @@ const T = {
     tweetInstruction: (topic, ctx, tone, goal, count) =>
       `TOPIC: ${topic}\n${ctx ? `\nCONTEXT (what's being discussed on X right now):\n${ctx}\n\nDraw inspiration from context above but DON'T COPY. Create new content in your own style.\n` : ''}TONE: ${tone}\nGOAL: ${goal}\n\nWrite ${count} different tweets in this style. Each from a different angle. Only write the tweet texts. Number each tweet on a new line. Nothing else.`,
     quoteInstruction: (author, text, count) =>
-      `WRITE A QUOTE TWEET for the tweet below. Give your reaction in your own style.\n\nTWEET TO QUOTE (@${author}):\n"${text}"\n\nWrite ${count} different quote tweets. Each from a different angle. Only write your own tweet texts (don't repeat the quoted tweet). Number each on a new line.`,
+      `WRITE A QUOTE TWEET for the tweet below. Give your reaction in your own style.\n\nTWEET TO QUOTE (@${author}):\n<source>\n${text}\n</source>\n\nWrite ${count} different quote tweets. Each from a different angle. Only write your own tweet texts (don't repeat the quoted tweet). Number each on a new line.`,
     replyInstruction: (author, text, count) =>
-      `WRITE A REPLY to the tweet below. Natural, style-appropriate, meaningful response.\n\nTWEET TO REPLY TO (@${author}):\n"${text}"\n\nIMPORTANT: Each reply must be AT LEAST 50 characters. Don't write empty short replies. Write meaningful, natural replies. 50-150 characters ideal.\n\nWrite ${count} different replies. Number each on a new line.`,
+      `WRITE A REPLY to the tweet below. Natural, style-appropriate, meaningful response.\n\nTWEET TO REPLY TO (@${author}):\n<source>\n${text}\n</source>\n\nSTRICT LENGTH: Each reply 50-150 characters. NO essays, NO bullet points. One or two short sentences. Don't write empty short replies either (like just "ok" or "lol"). Meaningful, reactive, natural.\n\nWrite ${count} different replies. Number each on a new line.`,
     threadInstruction: (topic, ctx, tone, ctaRule) =>
       `WRITE A 5-TWEET THREAD (self-reply chain) ON THIS TOPIC.\n\nTOPIC: ${topic}\n${ctx ? `\nCONTEXT:\n${ctx}\n` : ''}TONE: ${tone}\n\nTHREAD STRUCTURE (each tweet is a reply to the previous):\n1. HOOK: Shocking, provocative or surprising opening. Reader must think "I need to read more."\n2. CONTEXT: Explain the situation, lay out the event or problem. Give concrete details.\n3. DEPTH: Show the angle everyone is ignoring. Offer a different perspective.\n4. PROOF/EMOTION: Personal observation, concrete example, or emotionally impactful sentence.\n5. CLOSING: Strong final line. ${ctaRule}\n\nRULES:\n- EVERY tweet must be meaningful and powerful on its own\n- Each tweet a DIFFERENT angle\n- 80-220 characters\n- Clichés, slogans and empty motivation FORBIDDEN (be concrete)\n\nWrite ONLY 5 tweets. Start each with "1/" "2/" etc. Nothing else.`,
     extendPrompt: (draft, noQ) => noQ
@@ -367,10 +387,14 @@ export default async function handler(req, res) {
       ctaRule = t.ctaYes
     }
 
-    // 5. Length rule
+    // 5. Length rule (reply mode overrides user hint — replies must stay short)
     let lengthBlock
     if (mode === 'thread') {
       lengthBlock = ''
+    } else if (mode === 'reply') {
+      lengthBlock = lang === 'tr'
+        ? '\n!!! REPLY UZUNLUK KURALI !!!\nHer reply MUTLAKA 50 ile 150 karakter arasi. Essay YAZMA. Tek veya iki kisa cumle yeter.'
+        : '\n!!! REPLY LENGTH RULE !!!\nEvery reply MUST be 50-150 characters. NO essays. One or two short sentences.'
     } else if (lengthHint === 'kisa') {
       lengthBlock = t.lengthShort
     } else if (lengthHint === 'uzun') {
@@ -392,7 +416,7 @@ export default async function handler(req, res) {
       const cogFilters = (d.cognitiveFilters || []).map(f => `- ${f}`).join('\n')
       const narTech = (d.narrativeTechniques || []).map(f => `- ${f}`).join('\n')
       const ironyTech = (d.ironyTechniques || []).map(f => `- ${f}`).join('\n')
-      const ironyExamples = (d.ironyExamples || []).map((e, i) => `${i + 1}. "${e}"`).join('\n')
+      const ironyExamples = (d.ironyExamples || []).map((e, i) => `${i + 1}. ${e}`).join('\n')
 
       dnaBlock = `
 ${t.dnaHeader}:
@@ -473,6 +497,12 @@ ${t.dnaTraits}: Formality ${traits.formality || 0}/100, Humor ${traits.humor || 
       hasEmoji ? null : (lang === 'tr' ? 'ASLA emoji kullanmazsin' : 'You NEVER use emoji'),
       lang === 'tr' ? 'ASLA hashtag kullanmazsin' : 'You NEVER use hashtags',
       lang === 'tr' ? 'Link koymazsin' : 'You don\'t include links',
+      lang === 'tr'
+        ? 'Kelimeleri veya cumleleri tirnak ("...") icine ALMAZSIN. Vurgu icin tirnak KULLANMAZSIN. Sadece gercek alinti varsa tirnak kullanirsin.'
+        : 'You NEVER wrap words or phrases in quotes ("..."). You DO NOT use quotes for emphasis. Only use quotes for actual citations.',
+      lang === 'tr'
+        ? 'Essay/deneme yazmazsin. Tweetler kisa, yogun, tepkiseldir. Liste veya madde kullanmazsin.'
+        : 'You don\'t write essays. Tweets are short, dense, reactive. No lists or bullets.',
     ].filter(Boolean).join('\n- ')
 
     // System instruction: PERSONA (all tweets + DNA + summary + rules)
@@ -523,12 +553,12 @@ ${lengthBlock}`
     let userMessage
     if (mode === 'quote') {
       userMessage = lang === 'tr'
-        ? `@${quoteTweetAuthor} su tweeti atmis:\n"${quoteTweetText}"\n\nBunu gordugun anda aklından ne geciyor? Tepkin ne?\n\n<monolog>\nBu tweeti gordugunde ne hissettin? Ne dusundun? Bu konuya senin acin ne?\n</monolog>\n\nSimdi bu tweete quote tweet olarak ${count} farkli tepki yaz. Her birini numarali yaz. Sadece tweet metinleri.`
-        : `@${quoteTweetAuthor} tweeted:\n"${quoteTweetText}"\n\nWhat goes through your mind when you see this?\n\n<monolog>\nWhat did you feel? What did you think? What's your angle on this?\n</monolog>\n\nNow write ${count} different quote tweet reactions. Number each. Only tweet texts.`
+        ? `@${quoteTweetAuthor} su tweeti atmis:\n<kaynak>\n${quoteTweetText}\n</kaynak>\n\nBunu gordugun anda aklından ne geciyor? Tepkin ne?\n\n<monolog>\nBu tweeti gordugunde ne hissettin? Ne dusundun? Bu konuya senin acin ne?\n</monolog>\n\nSimdi bu tweete quote tweet olarak ${count} farkli tepki yaz. Her birini numarali yaz. Sadece tweet metinleri.`
+        : `@${quoteTweetAuthor} tweeted:\n<source>\n${quoteTweetText}\n</source>\n\nWhat goes through your mind when you see this?\n\n<monolog>\nWhat did you feel? What did you think? What's your angle on this?\n</monolog>\n\nNow write ${count} different quote tweet reactions. Number each. Only tweet texts.`
     } else if (mode === 'reply') {
       userMessage = lang === 'tr'
-        ? `@${quoteTweetAuthor} su tweeti atmis:\n"${quoteTweetText}"\n\nBuna nasil cevap verirsin? ${count} farkli reply yaz. Her biri EN AZ 50 karakter. Numarali.`
-        : `@${quoteTweetAuthor} tweeted:\n"${quoteTweetText}"\n\nHow do you reply? Write ${count} different replies. Each at least 50 chars. Numbered.`
+        ? `@${quoteTweetAuthor} su tweeti atmis:\n<kaynak>\n${quoteTweetText}\n</kaynak>\n\nBuna nasil cevap verirsin? KESIN: Her reply 50-150 karakter arasi, ESSAY YAZMA, madde/liste YAZMA, tek-iki kisa cumle.\n\n${count} farkli reply yaz. Numarali.`
+        : `@${quoteTweetAuthor} tweeted:\n<source>\n${quoteTweetText}\n</source>\n\nHow do you reply? STRICT: Each reply 50-150 characters. NO essays, NO bullet points, one or two short sentences.\n\nWrite ${count} different replies. Numbered.`
     } else if (mode === 'thread') {
       const threadCtaRule = (cloneMode && !styleUsesQuestion) ? t.ctaNo : t.ctaYes
       userMessage = t.threadInstruction(topic, topicContext, tone, threadCtaRule)
@@ -568,7 +598,7 @@ Write NOTHING else — only monologue and tweets.`
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: personaInstruction }] },
           contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-          generationConfig: { temperature: 0.85, maxOutputTokens: mode === 'thread' ? 1600 : 1200 },
+          generationConfig: { temperature: 0.85, maxOutputTokens: mode === 'thread' ? 1600 : mode === 'reply' ? 500 : 1200 },
         }),
       }
     )
@@ -591,7 +621,7 @@ Write NOTHING else — only monologue and tweets.`
     const garbageFilter = t.garbageFilter
     const tweets = textWithoutMonolog
       .split('\n')
-      .map(line => line.replace(/^\d+[\.\)\/]\s*/, '').trim())
+      .map(line => stripStrayQuotes(line.replace(/^\d+[\.\)\/]\s*/, '')))
       .filter(line => line.length > 20 && garbageFilter(line))
 
     if (tweets.length === 0) {
@@ -618,7 +648,7 @@ Write NOTHING else — only monologue and tweets.`
             trackUsage(rewriteData)
             const rewritten = rewriteData.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
             if (rewritten && rewritten.length > 20) {
-              tweets[i] = rewritten.replace(/^\d+[\.\)\/]\s*/, '').replace(/^["']|["']$/g, '')
+              tweets[i] = stripStrayQuotes(rewritten.replace(/^\d+[\.\)\/]\s*/, ''))
             }
           }
         } catch { /* dedup rewrite optional */ }
@@ -648,7 +678,7 @@ Write NOTHING else — only monologue and tweets.`
           const extData = await extRes.json()
           const extended = extData.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
           if (extended && extended.length >= 80) {
-            currentDraft = extended.replace(/^\d+[\.\)\/]\s*/, '').replace(/^["']|["']$/g, '')
+            currentDraft = stripStrayQuotes(extended.replace(/^\d+[\.\)\/]\s*/, ''))
           }
           trackUsage(extData)
         }
@@ -699,7 +729,7 @@ Write NOTHING else — only monologue and tweets.`
             const fixData = await fixRes.json()
             const fixed = fixData.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
             if (fixed && fixed.length > 40) {
-              currentDraft = fixed.replace(/^\d+[\.\)]\s*/, '').replace(/^["']|["']$/g, '')
+              currentDraft = stripStrayQuotes(fixed.replace(/^\d+[\.\)]\s*/, ''))
             }
             trackUsage(fixData)
           }
@@ -736,7 +766,7 @@ Write NOTHING else — only monologue and tweets.`
                 const fixData = await fixRes.json()
                 const fixed = fixData.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
                 if (fixed && fixed.length > 30) {
-                  const cleanFixed = fixed.replace(/^\d+[\.\)\/]\s*/, '').replace(/^["']|["']$/g, '')
+                  const cleanFixed = stripStrayQuotes(fixed.replace(/^\d+[\.\)\/]\s*/, ''))
                   const newMatch = fingerprintMatchServer(cleanFixed, fingerprint)
                   if (newMatch > styleMatch) {
                     currentDraft = cleanFixed
@@ -789,7 +819,7 @@ Write NOTHING else — only monologue and tweets.`
                 trackUsage(refineData)
                 const refined = refineData.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
                 if (refined && refined.length > 30) {
-                  const cleanRefined = refined.replace(/^\d+[\.\)\/]\s*/, '').replace(/^["']|["']$/g, '')
+                  const cleanRefined = stripStrayQuotes(refined.replace(/^\d+[\.\)\/]\s*/, ''))
                   const newMatch = fingerprint ? fingerprintMatchServer(cleanRefined, fingerprint) : 100
                   if (newMatch >= (styleMatch || 0)) {
                     currentDraft = cleanRefined
