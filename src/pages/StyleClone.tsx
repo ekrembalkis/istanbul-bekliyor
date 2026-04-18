@@ -1489,10 +1489,10 @@ export default function StyleClone() {
                             </div>
                           </>
                         )}
-                        <div className={`${isThread ? 'py-3' : ''} ${!isThread ? `p-4 rounded-none border ${
+                        <div className={`${isThread ? 'py-3' : ''} ${!isThread ? `p-4 rounded-none border-l-2 border-y border-r ${
                           displayPassed
-                            ? 'bg-x-text-primary border-x-border/20'
-                            : 'bg-x-surface-hover border-x-border'
+                            ? 'bg-x-surface-active border-l-campaign-gold border-y-x-border border-r-x-border'
+                            : 'bg-x-surface-hover border-l-x-border border-y-x-border border-r-x-border'
                         }` : ''}`}>
                           <p className="text-sm text-x-text-primary leading-relaxed whitespace-pre-line">{gt.tweet}</p>
                           <div className="flex items-center justify-between mt-1.5">
