@@ -175,7 +175,7 @@ export default function HaberServisi() {
           <select
             value={filter.source}
             onChange={e => setFilter(f => ({ ...f, source: e.target.value }))}
-            className="px-3 py-2 text-xs rounded-none border border-x-border bg-[#000000] text-x-text-primary focus:outline-none focus:ring-2 focus:ring-x-accent/20"
+            className="min-w-[170px] px-3 py-2 pr-8 text-xs rounded-none border border-x-border bg-[#000000] text-x-text-primary focus:outline-none focus:ring-2 focus:ring-x-accent/20"
           >
             {SOURCES.map(s => (
               <option key={s.key} value={s.key}>{s.label}</option>
@@ -489,7 +489,7 @@ function NewsCard({
   return (
     <article
       className={`border-b border-x-border py-4 transition-all hover:bg-x-surface-hover ${
-        isCampaign ? 'border-l-4 border-l-campaign-red' : ''
+        isCampaign ? 'bg-campaign-red/[0.04]' : ''
       }`}
     >
       <div className="flex flex-col sm:flex-row sm:items-start gap-3">
