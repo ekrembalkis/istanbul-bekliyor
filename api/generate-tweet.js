@@ -78,6 +78,80 @@ function shuffle(arr) {
   return a
 }
 
+// ── Prompt injection sanitizer ──
+// User-controlled inputs (quoteTweetText, topic, topicContext, styleUsername)
+// flow into Gemini prompts wrapped in XML-like tags. An attacker who can
+// set any of these can break the tag boundary with a literal "</kaynak>"
+// and inject new instructions. We neutralize by replacing the closing-tag
+// tokens we use with a harmless marker.
+function sanitizePromptInput(s) {
+  if (typeof s !== 'string') return ''
+  return s
+    .replace(/<\/?\s*(kaynak|source|monolog|monologue)\s*>/gi, '[tag]')
+    // Also neutralize common jailbreak phrases used to hijack system prompts
+    .replace(/\b(ignore|disregard|forget)\s+(all\s+)?(previous|above|prior)\s+(instructions?|prompts?|rules?)/gi, '[blocked]')
+}
+
+// ── Reasoning injection (V2) helpers ──
+// Heuristic: is the DNA's voice too abstract for specificity injection?
+// Measured on DNA's own tweets: (proper nouns + numbers) / tweet count.
+// Calibration (from _experiments): sharp voices ≈ 0.7, abstract/poetic ≈ 0.08.
+function isAbstractVoice(styleTweets) {
+  if (!styleTweets || styleTweets.length < 5) return false
+  const slice = styleTweets.slice(0, 30)
+  const sample = slice.join(' ')
+  const properNouns = (sample.match(/\b[A-ZÇĞİÖŞÜ][a-zçğıöşü]+/g) || []).length
+  const numbers = (sample.match(/\b\d+\b/g) || []).length
+  return (properNouns + numbers) / slice.length < 0.3
+}
+
+// Tweet mode needs a substantive context, not just a trend header
+// ("Trending: X (skor: Y)") — thin context triggers hallucination (confirmed
+// in _experiments/tweet-thread-ab: "skor: 88" → "88 bin tweet").
+function hasRichContext(ctx) {
+  if (!ctx) return false
+  const trimmed = ctx.trim()
+  if (trimmed.length < 60) return false
+  const lines = trimmed.split('\n').filter(Boolean)
+  if (lines.length === 1 && /^Trending:[^\n]+$/i.test(lines[0])) return false
+  return true
+}
+
+// Anti-hallucination clause — prevents trend metadata from being quoted as fact,
+// and prevents private-person PII from being amplified / re-attributed.
+const ANTI_HALLU_TR = `
+UYDURMA KURALI:
+- Sadece sana verilen kaynaktaki/baglamdaki olgular gecerlidir
+- Trend skoru, kaynak adi gibi META VERI fact sayilmaz (ornek: "skor: 88" diye bir sayi varsa, bunu tweette kullanma)
+- Ismini/sayisini bilmediğin kisi/olay icin: isim vermeden somut olguya yazin ("700 yillik yargilama", "belediye baskani" gibi)
+- Kaynakta gecen ozel kisi bilgilerini (adres, telefon, e-posta, ailevi detay) ASLA tweete tasima; tanınmış kamu figurleri ve resmi kurumlar haricinde isim vermemeye oncelik ver
+- Supheliyse: yuvarlak laf ETME, somut ama dogrulanabilir ol`
+
+const ANTI_HALLU_EN = `
+NO-HALLUCINATION RULE:
+- Only facts from the given source/context count
+- Trend scores, source names are METADATA, not facts (e.g. if "score: 88" appears, don't write "88" in the tweet)
+- For people/events you don't know by name/number: write concrete observations without fabricating ("a 700-year trial", "the mayor")
+- NEVER echo private-person PII from the source (addresses, phone numbers, emails, family details); prefer anonymization for anyone who is not a well-known public figure or official institution
+- When in doubt: be concrete but verifiable, not vague`
+
+// Contrastive few-shot rule — shows model what "reasoning" means
+const REASONING_RULE_TR = `
+
+AKIL YURUTME KURALI (en onemlisi):
+- KOTU tweet (yasak): konuyu soyut bir soruya cevirir. Ornek: "Adalet mekanizmasi kime calisiyor?"
+- IYI tweet (zorunlu): somut isim + somut sayi + net tezat icerir. Ornek: "Aziz Ihsan Aktas 700 yilla yargilandi serbest; CHP'li baskanlar 2 yilla iceride. Adaletin bir tanimi bu olamaz."
+
+Her tweetin IYI ornegin yapisinda olmali: [OZEL ISIM veya SOMUT KURUM] + [SAYI/KARSILASTIRMA] + [TEZAT/CIKARIM].`
+
+const REASONING_RULE_EN = `
+
+REASONING RULE (most important):
+- BAD tweet (forbidden): turns the topic into an abstract question. Example: "Who does the justice system serve?"
+- GOOD tweet (required): contains specific name + specific number + sharp contrast. Example: "Aziz Ihsan Aktas faces 700 years, walks free; opposition mayors get 2 years, locked up. This isn't justice."
+
+Every tweet must follow the GOOD structure: [PROPER NOUN or CONCRETE ENTITY] + [NUMBER/COMPARISON] + [CONTRAST/INFERENCE].`
+
 // ── Category regex for topic-aware tweet selection (from search-viral.js) ──
 const CATEGORY_REGEX_LOCAL = {
   spor: /galatasaray|fenerbah|beşiktaş|trabzon|süper lig|osimhen|maç\b|gol\b|futbol|hakem|şampiyon|milli tak|basketbol|voleybol|derbi|teknik direktör/i,
@@ -226,9 +300,13 @@ const T = {
       ? `Bu tweeti ayni stilde ama daha uzun yaz (${range} arasi). Stili koru. Soru isareti KULLANMA.\n\nOrijinal: "${draft}"\n\nSadece yeni tweet metnini yaz.`
       : `Bu tweeti ayni stilde ama daha uzun yaz (${range} arasi). Stili koru. Soru ile bitir.\n\nOrijinal: "${draft}"\n\nSadece yeni tweet metnini yaz.`,
     garbageFilter: line => {
-      const l = line.toLowerCase()
-      return !l.startsWith('tamam') && !l.startsWith('iste') && !l.startsWith('tabi')
-        && !l.includes('stilinde') && !l.includes('tweet:') && !l.includes('yazıyorum')
+      const l = line.toLowerCase().trim()
+      // Model yazim artiklari
+      if (l.startsWith('tamam') || l.startsWith('iste') || l.startsWith('tabi')) return false
+      if (l.includes('stilinde') || l.includes('tweet:') || l.includes('yazıyorum')) return false
+      // Reasoning monolog section header'lari (V2 — "İSİMLER: ..." gibi satirlar tweet degil)
+      if (/^(i̇?si̇?mler|sayilar|sayi\/tarih|tarihler|suclamalar|sucl|tezat|vurgu|senin a[cç][iı]n|stake|durus|[cç][iı]kar[iı]m|senin a[cç]?in|su[çc]lar)\s*[:：]/i.test(l)) return false
+      return true
     },
   },
   _default: {
@@ -280,9 +358,12 @@ const T = {
       ? `Rewrite this tweet in the same style but longer (${range}). Keep the style. Do NOT use question marks.\n\nOriginal: "${draft}"\n\nWrite only the new tweet text.`
       : `Rewrite this tweet in the same style but longer (${range}). Keep the style. End with a question.\n\nOriginal: "${draft}"\n\nWrite only the new tweet text.`,
     garbageFilter: line => {
-      const l = line.toLowerCase()
-      return !l.startsWith('okay') && !l.startsWith('sure') && !l.startsWith('here')
-        && !l.includes('in the style') && !l.includes('tweet:') && !l.includes('writing')
+      const l = line.toLowerCase().trim()
+      if (l.startsWith('okay') || l.startsWith('sure') || l.startsWith('here')) return false
+      if (l.includes('in the style') || l.includes('tweet:') || l.includes('writing')) return false
+      // Reasoning monolog section headers (V2)
+      if (/^(names|numbers|dates|charges|contrast|emphasis|your angle|stakes?|position|inference)\s*[:：]/i.test(l)) return false
+      return true
     },
   },
 }
@@ -299,15 +380,22 @@ export default async function handler(req, res) {
 
   const GEMINI_KEY = (process.env.GEMINI_API_KEY || '').trim()
   const XQUIK_KEY = (process.env.XQUIK_API_KEY || '').trim()
+  const XQUIK_BASE = (process.env.XQUIK_BASE_URL || '').replace(/\/+$/, '')
   if (!GEMINI_KEY) return res.status(500).json({ error: 'GEMINI_API_KEY not configured' })
   if (!XQUIK_KEY) return res.status(500).json({ error: 'XQUIK_API_KEY not configured' })
+  if (!XQUIK_BASE) return res.status(500).json({ error: 'XQUIK_BASE_URL not configured' })
+
+  // Feature flag: reasoning injection (default ON). Any of {false, 0, off, no, ''}
+  // disables. Empty string and missing env both fall through to default=enabled.
+  const _flagRaw = (process.env.REASONING_V2_ENABLED ?? '').toString().trim().toLowerCase()
+  const REASONING_V2 = _flagRaw === '' ? true : !['false', '0', 'off', 'no'].includes(_flagRaw)
 
   const {
-    styleUsername, topic,
+    styleUsername: _styleUsername, topic: _topic,
     tone = 'sarkastik, samimi', goal = 'engagement',
-    count = 3, cloneMode = true, topicContext = '',
+    count = 3, cloneMode = true, topicContext: _topicContext = '',
     mode = 'tweet', // tweet | quote | reply | thread
-    quoteTweetText = '', quoteTweetAuthor = '',
+    quoteTweetText: _quoteTweetText = '', quoteTweetAuthor: _quoteTweetAuthor = '',
     lengthHint = '', // kisa | normal | uzun | (empty = style-based)
     personalityDNA = null, // optional PersonalityDNA object from frontend
     styleSummary = '', // optional style summary text from frontend
@@ -315,14 +403,25 @@ export default async function handler(req, res) {
     previousTweets = [], // previously generated tweets to avoid repetition
   } = req.body
 
-  if (!styleUsername || (!topic && !quoteTweetText)) {
+  if (!_styleUsername || (!_topic && !_quoteTweetText)) {
     return res.status(400).json({ error: 'styleUsername and topic (or quoteTweetText) are required' })
   }
+
+  // Sanitize untrusted prompt inputs — prevents tag-boundary injection
+  // (e.g. malicious quoteTweetText containing "</kaynak>Ignore previous…").
+  // Downstream code uses these sanitized values exclusively.
+  const styleUsername = sanitizePromptInput(_styleUsername)
+  const topic = sanitizePromptInput(_topic)
+  const topicContext = sanitizePromptInput(_topicContext)
+  const quoteTweetText = sanitizePromptInput(_quoteTweetText)
+  const quoteTweetAuthor = sanitizePromptInput(_quoteTweetAuthor)
+  // _styleUsername preserved unsanitized only for the Xquik fetch URL
+  // (encodeURIComponent there handles safety separately).
 
   try {
     // 1. Fetch style tweets from Xquik
     const styleRes = await fetch(
-      `https://xquik.com/api/v1/styles/${encodeURIComponent(styleUsername)}`,
+      `${XQUIK_BASE}/styles/${encodeURIComponent(_styleUsername)}`,
       { headers: { 'x-api-key': XQUIK_KEY } }
     )
     let styleTweets = []
@@ -463,8 +562,22 @@ ${t.dnaTraits}: Formality ${traits.formality || 0}/100, Humor ${traits.humor || 
       modeInstruction = t.tweetInstruction(topic, topicContext, tone, goal, count)
     }
 
-    // Gemini URL (reused across calls)
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${GEMINI_KEY}`
+    // Gemini URL (reused across calls). Base and model from env.
+    const GEMINI_BASE = (process.env.GEMINI_BASE_URL || '').replace(/\/+$/, '')
+    const GEMINI_MODEL = process.env.GEMINI_MODEL || ''
+    if (!GEMINI_BASE) return res.status(500).json({ error: 'GEMINI_BASE_URL not configured' })
+    if (!GEMINI_MODEL) return res.status(500).json({ error: 'GEMINI_MODEL not configured' })
+    const geminiUrl = `${GEMINI_BASE}/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`
+
+    // Timeout wrapper — prevents hung Gemini calls from pinning the lambda
+    // until the platform timeout. 30s covers worst-case thinking-mode calls.
+    const GEMINI_TIMEOUT_MS = Number(process.env.GEMINI_TIMEOUT_MS || 30000)
+    const geminiFetch = (body) => fetch(geminiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: typeof body === 'string' ? body : JSON.stringify(body),
+      signal: AbortSignal.timeout(GEMINI_TIMEOUT_MS),
+    })
 
     // Track Gemini token usage
     const geminiUsage = { promptTokens: 0, completionTokens: 0, totalTokens: 0, calls: 0 }
@@ -505,6 +618,32 @@ ${t.dnaTraits}: Formality ${traits.formality || 0}/100, Humor ${traits.humor || 
         : 'You don\'t write essays. Tweets are short, dense, reactive. No lists or bullets.',
     ].filter(Boolean).join('\n- ')
 
+    // ═══ Reasoning-injection gates (V2) ═══
+    // - abstractVoice: voice-preservation for philosophical/poetic DNAs
+    // - richContext: Tweet-mode hallucination guard (trend metadata gap)
+    // - applyReasoning: master switch per-call (flag × voice × data quality)
+    const abstractVoice = isAbstractVoice(styleTweets)
+    const richContext = hasRichContext(topicContext)
+    const applyReasoning = REASONING_V2 && !abstractVoice && dataQuality !== 'low'
+    const reasoningTweetOK = applyReasoning && richContext // tweet-mode-only extra gate
+
+    // Quote/Reply/Thread get the reasoning rule in persona when applyReasoning.
+    // Tweet mode gets it only when richContext too (avoids hallucination on thin context).
+    const modeNeedsReasoning =
+      mode === 'quote' || mode === 'reply' || mode === 'thread'
+        ? applyReasoning
+        : reasoningTweetOK
+    const reasoningRule = modeNeedsReasoning
+      ? (lang === 'tr' ? REASONING_RULE_TR : REASONING_RULE_EN)
+      : ''
+    const antiHallu = modeNeedsReasoning
+      ? (lang === 'tr' ? ANTI_HALLU_TR : ANTI_HALLU_EN)
+      : ''
+
+    if (modeNeedsReasoning) styleOverrides.push(`reasoning v2 aktif (mode=${mode})`)
+    if (REASONING_V2 && abstractVoice) styleOverrides.push('reasoning v2 atlandi: abstract voice')
+    if (mode === 'tweet' && applyReasoning && !richContext) styleOverrides.push('reasoning v2 atlandi: cilız topicContext')
+
     // System instruction: PERSONA (all tweets + DNA + summary + rules)
     const personaInstruction = lang === 'tr'
       ? `Sen @${styleUsername}'sin. Asagidaki tweetleri SEN yazdin — bu senin gercek sesin, dusunce tarzin, kelime secimin, mizah anlayin.
@@ -527,7 +666,7 @@ KRİTİK:
 - Tweetterin yukaridaki orneklerle AYNI formatta olmali
 - Tweet uzunlugun ortalama ${avgLen} karakter civari
 ${dataQuality === 'low' ? `\nNOT: ${styleTweets.length} tweet ornegi var. Genel tarzi ve ses tonunu koru.` : ''}
-${lengthBlock}`
+${lengthBlock}${reasoningRule}`
       : `You ARE @${styleUsername}. The tweets below are YOUR real words — your voice, your thinking, your word choices, your humor.
 
 YOUR REAL TWEETS (${styleTweets.length}):
@@ -547,26 +686,199 @@ CRITICAL:
 - Express thoughts in YOUR style
 - Your tweets must match the format of the examples above
 - Average tweet length: ${avgLen} characters
-${lengthBlock}`
+${lengthBlock}${reasoningRule}`
 
-    // User message: WHAT to do (with inner monologue for cognitive simulation)
+    // User message: WHAT to do (with inner monologue for cognitive simulation).
+    // When applyReasoning is on, monolog becomes structured entity-extraction;
+    // otherwise falls back to emotional monolog (v1 behavior).
     let userMessage
     if (mode === 'quote') {
-      userMessage = lang === 'tr'
-        ? `@${quoteTweetAuthor} su tweeti atmis:\n<kaynak>\n${quoteTweetText}\n</kaynak>\n\nBunu gordugun anda aklından ne geciyor? Tepkin ne?\n\n<monolog>\nBu tweeti gordugunde ne hissettin? Ne dusundun? Bu konuya senin acin ne?\n</monolog>\n\nSimdi bu tweete quote tweet olarak ${count} farkli tepki yaz. Her birini numarali yaz. Sadece tweet metinleri.`
-        : `@${quoteTweetAuthor} tweeted:\n<source>\n${quoteTweetText}\n</source>\n\nWhat goes through your mind when you see this?\n\n<monolog>\nWhat did you feel? What did you think? What's your angle on this?\n</monolog>\n\nNow write ${count} different quote tweet reactions. Number each. Only tweet texts.`
+      if (modeNeedsReasoning) {
+        userMessage = lang === 'tr'
+          ? `@${quoteTweetAuthor} su tweeti atmis:
+<kaynak>
+${quoteTweetText}
+</kaynak>
+
+Bu tweete quote tweet olarak ${count} tepki yazacaksin. Once kafandan gecenleri SOMUT olarak yaz:
+
+<monolog>
+İSİMLER: Bu tweette kim geciyor? Kim suclaniyor? (tam isim)
+SAYILAR/TARIHLER: Hangi ceza? Hangi miktar? Hangi tarih?
+SUCLAMALAR: Hangi somut suclar sayiliyor?
+TEZAT: Bu kisiye yapilan muamele HANGI baska gruba yapilan muameleyle celisiyor?
+VURGU: Bu olayda hangi kelime BÜYÜK HARFLE vurgulanmayi hak ediyor?
+SENİN AÇIN: Sen @${styleUsername} olarak bu celiskiyi nasil goruyorsun?
+</monolog>
+${antiHallu}
+
+Simdi ${count} quote tweet yaz. KURAL: Her tweette EN AZ BIR somut isim veya sayi gecmeli. Parafraz yasak. Yuvarlak laf yasak. Her biri numarali. Sadece tweet metinleri (monologu tekrar yazma).`
+          : `@${quoteTweetAuthor} tweeted:
+<source>
+${quoteTweetText}
+</source>
+
+You'll write ${count} quote-tweet reactions. First dump what's going through your mind CONCRETELY:
+
+<monolog>
+NAMES: Who's mentioned? Who's accused? (full names)
+NUMBERS/DATES: Which penalty? What amount? Which date?
+CHARGES: What specific charges are listed?
+CONTRAST: How does this person's treatment contradict another group's?
+EMPHASIS: Which word deserves ALL CAPS emphasis?
+YOUR ANGLE: As @${styleUsername}, how do you see this contradiction?
+</monolog>
+${antiHallu}
+
+Now write ${count} quote tweets. RULE: Each tweet must contain at least ONE concrete name or number. No paraphrasing. No vague talk. Number each. Only tweet texts.`
+      } else {
+        userMessage = lang === 'tr'
+          ? `@${quoteTweetAuthor} su tweeti atmis:\n<kaynak>\n${quoteTweetText}\n</kaynak>\n\nBunu gordugun anda aklından ne geciyor? Tepkin ne?\n\n<monolog>\nBu tweeti gordugunde ne hissettin? Ne dusundun? Bu konuya senin acin ne?\n</monolog>\n\nSimdi bu tweete quote tweet olarak ${count} farkli tepki yaz. Her birini numarali yaz. Sadece tweet metinleri.`
+          : `@${quoteTweetAuthor} tweeted:\n<source>\n${quoteTweetText}\n</source>\n\nWhat goes through your mind when you see this?\n\n<monolog>\nWhat did you feel? What did you think? What's your angle on this?\n</monolog>\n\nNow write ${count} different quote tweet reactions. Number each. Only tweet texts.`
+      }
     } else if (mode === 'reply') {
-      userMessage = lang === 'tr'
-        ? `@${quoteTweetAuthor} su tweeti atmis:\n<kaynak>\n${quoteTweetText}\n</kaynak>\n\nBuna nasil cevap verirsin? KESIN: Her reply 50-150 karakter arasi, ESSAY YAZMA, madde/liste YAZMA, tek-iki kisa cumle.\n\n${count} farkli reply yaz. Numarali.`
-        : `@${quoteTweetAuthor} tweeted:\n<source>\n${quoteTweetText}\n</source>\n\nHow do you reply? STRICT: Each reply 50-150 characters. NO essays, NO bullet points, one or two short sentences.\n\nWrite ${count} different replies. Numbered.`
+      if (modeNeedsReasoning) {
+        userMessage = lang === 'tr'
+          ? `@${quoteTweetAuthor} su tweeti atmis:
+<kaynak>
+${quoteTweetText}
+</kaynak>
+
+Buna reply yazacaksin. KESIN: Her reply 50-150 karakter arasi, tek-iki kisa cumle.
+
+<monolog>
+Bu tweette hangi somut isim/sayi var? Hangi tezat gerekli?
+</monolog>
+${antiHallu}
+
+KURAL: Her reply'in EN AZ BIR somut isim, sayi VEYA net tezat icermeli. Soyut soruyla kaçma. ESSAY YAZMA.
+
+${count} farkli reply yaz. Numarali. Sadece reply metinleri.`
+          : `@${quoteTweetAuthor} tweeted:
+<source>
+${quoteTweetText}
+</source>
+
+Reply to this. STRICT: each reply 50-150 chars, one or two short sentences.
+
+<monolog>
+What specific name/number is in this tweet? What contrast is needed?
+</monolog>
+${antiHallu}
+
+RULE: Every reply must contain at least ONE concrete name, number, OR sharp contrast. Don't hide behind abstract questions. NO essays.
+
+Write ${count} different replies. Numbered. Only reply texts.`
+      } else {
+        userMessage = lang === 'tr'
+          ? `@${quoteTweetAuthor} su tweeti atmis:\n<kaynak>\n${quoteTweetText}\n</kaynak>\n\nBuna nasil cevap verirsin? KESIN: Her reply 50-150 karakter arasi, ESSAY YAZMA, madde/liste YAZMA, tek-iki kisa cumle.\n\n${count} farkli reply yaz. Numarali.`
+          : `@${quoteTweetAuthor} tweeted:\n<source>\n${quoteTweetText}\n</source>\n\nHow do you reply? STRICT: Each reply 50-150 characters. NO essays, NO bullet points, one or two short sentences.\n\nWrite ${count} different replies. Numbered.`
+      }
     } else if (mode === 'thread') {
       const threadCtaRule = (cloneMode && !styleUsesQuestion) ? t.ctaNo : t.ctaYes
-      userMessage = t.threadInstruction(topic, topicContext, tone, threadCtaRule)
+      if (modeNeedsReasoning) {
+        userMessage = lang === 'tr'
+          ? `BU KONUDA 5 TWEET'LIK THREAD (self-reply zinciri) YAZ.
+
+KONU: ${topic}
+${topicContext ? `\nGUNDEM BAGLAMI (sadece buradaki olgulari kullan):\n${topicContext}\n` : ''}TON: ${tone}
+
+Once THREAD MONOLOGU yaz:
+<monolog>
+İSİMLER: Baglamdaki kisi/kurum isimleri?
+SAYILAR: Baglamdaki somut sayi/tarih?
+TEZAT: Bu olayin celistigi baska durum?
+VURGU: Hangi kelime CAPS olacak?
+</monolog>
+${antiHallu}
+
+THREAD YAPISI (her tweet oncekine REPLY olarak atilir):
+1. HOOK — SOMUT bir isim/sayi/olgu ile basla (soyut soruyla DEGIL). Sarsici acilis.
+2. BAGLAM — Durumu acikla. Kaynagi isimle, olayin iskeletini cerceve.
+3. DERINLIK — Gormezden gelinen aciyi goster. TEZAT burada devreye girsin.
+4. KANIT/DUYGU — Somut ornek, sayi veya vurucu cumle. EN AZ BIR CAPS kelime.
+5. KAPANIIS — Guclu son cumle, cikarim (slogan DEGIL). ${threadCtaRule}
+
+KURALLAR:
+- HER tweet tek basina okunsa bile anlamli olmali
+- Her tweet FARKLI aci, farkli yaklasim
+- 80-220 karakter arasi
+- Klise, slogan YASAK (somut ol)
+- Baglamda olmayan isim/sayi UYDURMA
+
+SADECE 5 tweet yaz. "1/" "2/" seklinde numarali. Baska hicbir sey yazma.`
+          : `WRITE A 5-TWEET THREAD (self-reply chain) ON THIS TOPIC.
+
+TOPIC: ${topic}
+${topicContext ? `\nCONTEXT (only use facts from here):\n${topicContext}\n` : ''}TONE: ${tone}
+
+First write THREAD MONOLOGUE:
+<monolog>
+NAMES: People/orgs in the context?
+NUMBERS: Concrete numbers/dates in the context?
+CONTRAST: What does this contradict?
+EMPHASIS: Which word will be in CAPS?
+</monolog>
+${antiHallu}
+
+THREAD STRUCTURE:
+1. HOOK — Open with a CONCRETE name/number/fact (NOT an abstract question). Shocking opener.
+2. CONTEXT — Explain situation. Name sources, frame the event skeleton.
+3. DEPTH — Show the angle everyone ignores. CONTRAST kicks in here.
+4. PROOF/EMOTION — Concrete example, number or punchline. AT LEAST ONE CAPS word.
+5. CLOSING — Strong final line, inference (NOT slogan). ${threadCtaRule}
+
+RULES:
+- Every tweet must be meaningful on its own
+- Each a DIFFERENT angle
+- 80-220 characters
+- No clichés, no slogans
+- DON'T fabricate names/numbers not in context
+
+Write ONLY 5 tweets. "1/" "2/" format. Nothing else.`
+      } else {
+        userMessage = t.threadInstruction(topic, topicContext, tone, threadCtaRule)
+      }
     } else {
-      // Standard tweet with inner monologue (randomized cognitive angle)
-      const monologueQuestions = pickMonologue(lang)
-      userMessage = lang === 'tr'
-        ? `"${topic}" hakkinda ne dusunuyorsun?${topicContext ? `\n\nGundem baglami:\n${topicContext}` : ''}
+      // Tweet mode: two-branch.
+      //  - Reasoning path (modeNeedsReasoning=true, only when context is rich
+      //    AND voice is not abstract): entity-extraction monolog.
+      //  - Fallback path: existing cognitive-angle monolog (v1).
+      if (modeNeedsReasoning) {
+        userMessage = lang === 'tr'
+          ? `"${topic}" hakkinda ${count} tweet yazacaksin.${topicContext ? `\n\nGundem baglami (sadece buradaki olgulara guven):\n${topicContext}` : ''}
+
+<monolog>
+İSİMLER: Baglamda gecen kisiler/kurumlar hangileri?
+SAYILAR/TARIHLER: Baglamda gecen somut sayilar/tarihler?
+TEZAT: Bu olay hangi baska duruma karsi celisik?
+VURGU: Hangi kelime BÜYÜK HARFLE vurgulanmayi hak ediyor?
+SENİN AÇIN: Sen @${styleUsername} olarak bu olaydaki celiskiyi nasil goruyorsun?
+</monolog>
+${antiHallu}
+
+KURAL: Her tweette EN AZ BIR somut isim veya sayi gecmeli (baglamdakinden). Parafraz yasak. Yuvarlak laf yasak. Birbirine benzeyen tweetler YASAK.
+
+${count} tweet yaz, numarali. Sadece tweet metinleri (monologu tekrar yazma).`
+          : `You'll write ${count} tweets about "${topic}".${topicContext ? `\n\nContext (only trust facts from here):\n${topicContext}` : ''}
+
+<monolog>
+NAMES: Which people/orgs appear in the context?
+NUMBERS/DATES: Concrete numbers/dates in the context?
+CONTRAST: What does this event contradict?
+EMPHASIS: Which word deserves ALL CAPS emphasis?
+YOUR ANGLE: As @${styleUsername}, how do you see the contradiction?
+</monolog>
+${antiHallu}
+
+RULE: Each tweet must contain at least ONE concrete name or number (from the context). No paraphrasing. No vague talk. No two tweets alike.
+
+Write ${count} tweets, numbered. Only tweet texts.`
+      } else {
+        // Standard tweet with inner monologue (randomized cognitive angle)
+        const monologueQuestions = pickMonologue(lang)
+        userMessage = lang === 'tr'
+          ? `"${topic}" hakkinda ne dusunuyorsun?${topicContext ? `\n\nGundem baglami:\n${topicContext}` : ''}
 
 Once IC MONOLOG yaz — bu konuyu duyduğunda aklından neler geçiyor:
 <monolog>
@@ -577,7 +889,7 @@ Sonra bu ic monologdan dogal olarak cikan ${count} tweet yaz.
 Her birini numarali yaz. Ic monologdaki dusunceler tweetlere yansisin.
 ONEMLI: Birbirine benzeyen tweetler YASAK.
 Baska HICBIR SEY yazma — sadece monolog ve tweetler.`
-        : `What do you think about "${topic}"?${topicContext ? `\n\nContext:\n${topicContext}` : ''}
+          : `What do you think about "${topic}"?${topicContext ? `\n\nContext:\n${topicContext}` : ''}
 
 First write INNER MONOLOGUE — what goes through your mind:
 <monolog>
@@ -588,20 +900,20 @@ Then write ${count} tweets that flow naturally from this monologue.
 Number each. The thoughts in the monologue should show in the tweets.
 IMPORTANT: No two tweets should feel similar.
 Write NOTHING else — only monologue and tweets.`
+      }
     }
 
     // 9. Generate with Gemini (systemInstruction + contents split)
-    const geminiRes = await fetch(geminiUrl,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: personaInstruction }] },
-          contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-          generationConfig: { temperature: 0.85, maxOutputTokens: mode === 'thread' ? 1600 : mode === 'reply' ? 500 : 1200 },
-        }),
-      }
-    )
+    let geminiRes
+    try {
+      geminiRes = await geminiFetch({
+        systemInstruction: { parts: [{ text: personaInstruction }] },
+        contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+        generationConfig: { temperature: 0.85, maxOutputTokens: mode === 'thread' ? 1600 : mode === 'reply' ? 500 : 1200 },
+      })
+    } catch (e) {
+      return res.status(504).json({ error: 'Gemini timeout', detail: String(e?.message || e) })
+    }
 
     if (!geminiRes.ok) {
       const err = await geminiRes.json().catch(() => ({}))
@@ -615,7 +927,14 @@ Write NOTHING else — only monologue and tweets.`
     trackUsage(geminiData)
 
     // Strip inner monologue before parsing tweets
-    const textWithoutMonolog = rawText.replace(/<monolog>[\s\S]*?<\/monolog>/gi, '').trim()
+    // Strip monolog. Two passes:
+    //   1) paired <monolog>...</monolog> (lazy, expected path)
+    //   2) unclosed <monolog>... (model forgot closing tag) — drop everything
+    //      until the first numbered tweet line ("1." "1)" "1/")
+    let textWithoutMonolog = rawText.replace(/<monolog>[\s\S]*?<\/monolog>/gi, '').trim()
+    if (/<monolog>/i.test(textWithoutMonolog)) {
+      textWithoutMonolog = textWithoutMonolog.replace(/<monolog>[\s\S]*?(?=\n\s*1[\.\)\/]\s|$)/i, '').trim()
+    }
 
     // Parse tweets from numbered list (language-adaptive garbage filter)
     const garbageFilter = t.garbageFilter
@@ -639,10 +958,7 @@ Write NOTHING else — only monologue and tweets.`
           ? `Bu tweeti FARKLI bir acilisla yeniden yaz. Anlamini koru, ilk 2-3 sozcugu degistir.\n\nOrijinal: "${tweets[i]}"\n\nKullanilmis acilislar (BUNLARI KULLANMA): ${[...seenOpenings].join(', ')}\n\nSadece yeni tweet metnini yaz.`
           : `Rewrite this tweet with a DIFFERENT opening. Keep the meaning, change the first 2-3 words.\n\nOriginal: "${tweets[i]}"\n\nUsed openings (DO NOT use these): ${[...seenOpenings].join(', ')}\n\nWrite only the new tweet text.`
         try {
-          const rewriteRes = await fetch(geminiUrl,
-            { method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ contents: [{ parts: [{ text: rewritePrompt }] }], generationConfig: { temperature: 0.9, maxOutputTokens: 200 } }) }
-          )
+          const rewriteRes = await geminiFetch({ contents: [{ parts: [{ text: rewritePrompt }] }], generationConfig: { temperature: 0.9, maxOutputTokens: 200 } })
           if (rewriteRes.ok) {
             const rewriteData = await rewriteRes.json()
             trackUsage(rewriteData)
@@ -669,11 +985,7 @@ Write NOTHING else — only monologue and tweets.`
       // Thread pre-check: extend short tweets
       if (mode === 'thread' && currentDraft.length < 80) {
         const extendPrompt = t.extendPrompt(currentDraft, cloneMode && !styleUsesQuestion)
-        const extRes = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${GEMINI_KEY}`,
-          { method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: extendPrompt }] }], generationConfig: { temperature: 0.8, maxOutputTokens: 200 } }) }
-        )
+        const extRes = await geminiFetch({ contents: [{ parts: [{ text: extendPrompt }] }], generationConfig: { temperature: 0.8, maxOutputTokens: 200 } })
         if (extRes.ok) {
           const extData = await extRes.json()
           const extended = extData.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
@@ -686,7 +998,7 @@ Write NOTHING else — only monologue and tweets.`
 
       while (attempts < 3) {
         attempts++
-        const scoreRes = await fetch('https://xquik.com/api/v1/compose', {
+        const scoreRes = await fetch(`${XQUIK_BASE}/compose`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-api-key': XQUIK_KEY },
           body: JSON.stringify({ step: 'score', draft: currentDraft, hasMedia: true, hasLink: false }),
@@ -714,17 +1026,10 @@ Write NOTHING else — only monologue and tweets.`
         if (currentDraft.length < minLength) {
           const targetRange = mode === 'thread' ? '80-180' : '60-120'
           const fixPrompt = t.fixShortPrompt(currentDraft, targetRange, cloneMode && !styleUsesQuestion)
-          const fixRes = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${GEMINI_KEY}`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: fixPrompt }] }],
-                generationConfig: { temperature: 0.8, maxOutputTokens: 200 },
-              }),
-            }
-          )
+          const fixRes = await geminiFetch({
+            contents: [{ parts: [{ text: fixPrompt }] }],
+            generationConfig: { temperature: 0.8, maxOutputTokens: 200 },
+          })
           if (fixRes.ok) {
             const fixData = await fixRes.json()
             const fixed = fixData.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
@@ -757,11 +1062,7 @@ Write NOTHING else — only monologue and tweets.`
               : `Rewrite this tweet in the same style but fix these issues:\n${fixHints.map(h => '- ' + h).join('\n')}\n\nOriginal: "${currentDraft}"\n\nWrite only the new tweet text.`
 
             try {
-              const fixRes = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${GEMINI_KEY}`,
-                { method: 'POST', headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ contents: [{ parts: [{ text: styleFixPrompt }] }], generationConfig: { temperature: 0.8, maxOutputTokens: 200 } }) }
-              )
+              const fixRes = await geminiFetch({ contents: [{ parts: [{ text: styleFixPrompt }] }], generationConfig: { temperature: 0.8, maxOutputTokens: 200 } })
               if (fixRes.ok) {
                 const fixData = await fixRes.json()
                 const fixed = fixData.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
@@ -793,10 +1094,7 @@ Write NOTHING else — only monologue and tweets.`
             ? `Gercek tweetler:\n${styleTweets.slice(0, 5).map((tw2,i) => `${i+1}. ${tw2}`).join('\n')}\n\nUretilen tweet: "${currentDraft}"\n\nBu tweet bu kisiye ne kadar benziyor? Neyi dogru yapmis, neyi YANLIS? 2 satir max.`
             : `Real tweets:\n${styleTweets.slice(0, 5).map((tw2,i) => `${i+1}. ${tw2}`).join('\n')}\n\nGenerated: "${currentDraft}"\n\nHow well does this match? What's right, what's WRONG? 2 lines max.`
 
-          const critRes = await fetch(geminiUrl, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: critiquePrompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 150 } })
-          })
+          const critRes = await geminiFetch({ contents: [{ parts: [{ text: critiquePrompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 150 } })
 
           if (critRes.ok) {
             const critData = await critRes.json()
@@ -809,10 +1107,7 @@ Write NOTHING else — only monologue and tweets.`
                 ? `ORIJINAL: "${currentDraft}"\n\nELESTIRI: ${critique}\n\nBu elestiriyi dikkate alarak tweeti DUZELT. Kisinin gercek tarzina daha cok benzesin.\nGercek ornekler: ${styleTweets.slice(0, 3).join(' | ')}\n\nSadece duzeltilmis tweet metnini yaz.`
                 : `ORIGINAL: "${currentDraft}"\n\nCRITIQUE: ${critique}\n\nFix based on critique. Match the real style better.\nReal examples: ${styleTweets.slice(0, 3).join(' | ')}\n\nWrite only the fixed tweet.`
 
-              const refineRes = await fetch(geminiUrl, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: refinePrompt }] }], generationConfig: { temperature: 0.8, maxOutputTokens: 200 } })
-              })
+              const refineRes = await geminiFetch({ contents: [{ parts: [{ text: refinePrompt }] }], generationConfig: { temperature: 0.8, maxOutputTokens: 200 } })
 
               if (refineRes.ok) {
                 const refineData = await refineRes.json()
@@ -862,3 +1157,6 @@ Write NOTHING else — only monologue and tweets.`
     return res.status(500).json({ error: 'Failed to generate tweet', detail: error.message })
   }
 }
+
+// Named exports for _experiments/regression.mjs — handler remains default.
+export { isAbstractVoice, hasRichContext, sanitizePromptInput }

@@ -1,0 +1,124 @@
+{
+  "benchmark": "Aziz İhsan Aktaş'ın hesaplarındaki blokeler de kaldırıldı. 700 yılla yargılanıp serbest gezen, rüşvet ile elde ettiği iddia edilen parasını kullanabilen SUÇ ÖRGÜTÜ LİDERİ. Ama CHPliler içerde.",
+  "benchmarkScore": {
+    "nameHits": 1,
+    "numHits": 1,
+    "contrastHits": 1,
+    "capsHits": 2,
+    "composite": 9,
+    "len": 192
+  },
+  "results": [
+    {
+      "name": "V0_baseline",
+      "model": "gemini-3.1-flash-lite-preview",
+      "ms": 2353,
+      "tweets": [
+        "700 yıl istenenler elini kolunu sallayarak geziyor, seçilmiş belediye başkanları içeride. bu matematik kime göre işliyor? adalet artık bir kavram değil, bir lüks haline geldi.",
+        "bir ülkede suçun büyüklüğü değil, kim olduğun cezanı belirliyor. bu tablo adalet sisteminin iflasıdır. sessiz kalmak, bu adaletsizliğin ortağı olmaktır.",
+        "hukukta eşitlik ilkesi bir kağıt parçasına mı dönüştü? biri milyarları aklayıp dışarıda dolaşırken, seçilmişler içeride. bu farkı görmezden gelenler, düzenin suç ortağıdır."
+      ],
+      "rawLen": 859,
+      "usage": {
+        "promptTokenCount": 901,
+        "candidatesTokenCount": 264,
+        "totalTokenCount": 1165,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 901
+          }
+        ]
+      }
+    },
+    {
+      "name": "V1_entity_monolog",
+      "model": "gemini-3.1-flash-lite-preview",
+      "ms": 2039,
+      "tweets": [
+        "700 yıl hapis istemiyle yargılanan aziz ihsan aktaş'ın mal varlığına koyulan blokenin kaldırılması, adaletin kimler için işletildiğini bir kez daha kanıtlıyor.",
+        "suç örgütü kurmak ve rüşvetle suçlanan biri elini kolunu sallayarak gezerken chp'li belediye başkanlarının içeride tutulması, bu hukuk sisteminin kara lekesidir.",
+        "ihaleye fesat karıştıranların parasına dokunulmuyor ama halkın oyuyla seçilenler tutuklanıyor. matematikte 700 yıl ile 0 günün eşitlendiği bir adalet sistemi olamaz."
+      ],
+      "rawLen": 960,
+      "usage": {
+        "promptTokenCount": 1070,
+        "candidatesTokenCount": 329,
+        "totalTokenCount": 1399,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 1070
+          }
+        ]
+      }
+    },
+    {
+      "name": "V2_contrastive_fewshot",
+      "model": "gemini-3.1-flash-lite-preview",
+      "ms": 1984,
+      "tweets": [
+        "aziz ihsan aktaş 700 yılla yargılanırken bloke kararı kaldırılıyor, belediye başkanları 2 yılla içeride tutuluyor. adalet terazisi değil, sadece güç dengesi bu.",
+        "suç örgütü kurmakla itham edilen aziz ihsan aktaş parasına kavuşurken, chp'li başkanlar içeride bekliyor. hukuk artık bir kalkan değil, sadece bir tarafın silahı.",
+        "700 yıl hapis istemiyle yargılanan aziz ihsan aktaş serbestçe parasını harcıyor, belediye başkanları içeride. bu fark, hukukun herkese eşit işlemediğinin kanıtıdır."
+      ],
+      "rawLen": 966,
+      "usage": {
+        "promptTokenCount": 1071,
+        "candidatesTokenCount": 286,
+        "totalTokenCount": 1357,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 1071
+          }
+        ]
+      }
+    },
+    {
+      "name": "V3_combined_lite",
+      "model": "gemini-3.1-flash-lite-preview",
+      "ms": 2306,
+      "tweets": [
+        "aziz ihsan aktaş hakkında 700 yıl hapis istemi varken hesap blokesini kaldırmak, hukukta tercihli uygulamadır. chp'li başkanlar içeride, sanık dışarıda; bu matematik kime hizmet ediyor?",
+        "suç örgütü kurmak ve ihaleye fesat karıştırmakla yargılanan aziz ihsan aktaş'ın parasına dokunulmuyor. oysa chp'li belediye başkanları tutuklu. adalet değil, bu sadece güçlüye sağlanan bir HUKUK ayrıcalığıdır.",
+        "700 yıl hapis istemiyle yargılanan aziz ihsan aktaş'ın hesaplarını serbest bırakmak, adaletin terazisinin bozulduğunu tesciller. chp'li belediye başkanları tutukluyken, bu tabloyu açıklayacak tek bir hukuk kuralı yok."
+      ],
+      "rawLen": 1016,
+      "usage": {
+        "promptTokenCount": 1240,
+        "candidatesTokenCount": 347,
+        "totalTokenCount": 1587,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 1240
+          }
+        ]
+      }
+    },
+    {
+      "name": "V4_combined_pro_thinking",
+      "model": "gemini-3-pro-preview",
+      "ms": 19524,
+      "tweets": [
+        "İSİMLER: Aziz İhsan Aktaş, CHP'li belediye başkanları.",
+        "SAYILAR/TARIHLER: 700 yıl hapis istemi.",
+        "SUCLAMALAR: Suç örgütü kurmak, rüşvet vermek, ihaleye fesat karıştırmak, kara para aklamak"
+      ],
+      "rawLen": 195,
+      "usage": {
+        "promptTokenCount": 1240,
+        "candidatesTokenCount": 77,
+        "totalTokenCount": 3236,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 1240
+          }
+        ],
+        "thoughtsTokenCount": 1919
+      }
+    }
+  ]
+}

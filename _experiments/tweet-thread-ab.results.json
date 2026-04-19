@@ -1,0 +1,108 @@
+{
+  "runs": [
+    {
+      "name": "tweet_V0_baseline_sharp_specific",
+      "ms": 2274,
+      "tweets": [
+        "700 yıl hapis istemiyle yargılanan sanığın hesap blokesini kaldırmak, adaletin kimin için işlediğini bir kez daha kanıtlıyor. Hukuk, güçlülerin etrafında örülen bir kalkan değildir.",
+        "Bir yanda 700 yıl yargılananlara tanınan imtiyazlar, diğer yanda haksız yere tutuklu kalan belediye başkanları. Adalet terazisinin kefeleri çoktan kırılmış, adaleti artık sadece masallarda arıyoruz.",
+        "Hukuk herkese eşit işlemiyorsa, orada hukuk değil sadece birilerinin çıkarları vardır. Bugünün kararı, yargının geldiği noktayı ve kimin yanında durduğunu en açık şekilde gözler önüne sermektedir."
+      ],
+      "raw": "<monolog>\n- İlk fark ettiğim şey, hukukun bir kez daha birilerinin lehine nasıl eğilip büküldüğü.\n- Öfke ve bıkkınlık hissediyorum; bu çifte standart artık sistemin bir parçası haline gelmiş.\n- Daha önce belirttiğim 700 yıl yargılaması ile belediye başkanlarının durumu arasındaki uçurumu hatırlatıyor.\n- Amacım, bu hukuksuzluğu gözler önüne sermek ve toplumun bu eşitsizliği kanıksamasını engellemek.\n</monolog>\n\n1. 700 yıl hapis istemiyle yargılanan sanığın hesap blokesini kaldırmak, adaletin kimin için işlediğini bir kez daha kanıtlıyor. Hukuk, güçlülerin etrafında örülen bir kalkan değildir.\n\n2. Bir yanda 700 yıl yargılananlara tanınan imtiyazlar, diğer yanda haksız yere tutuklu kalan belediye başkanları. Adalet terazisinin kefeleri çoktan kırılmış, adaleti artık sadece masallarda arıyoruz.\n\n3. Hukuk herkese eşit işlemiyorsa, orada hukuk değil sadece birilerinin çıkarları vardır. Bugünün kararı, yargının geldiği noktayı ve kimin yanında durduğunu en açık şekilde gözler önüne sermektedir."
+    },
+    {
+      "name": "tweet_V1_entity_sharp_specific",
+      "ms": 1499,
+      "tweets": [
+        "700 yıl hapis istemiyle yargılanan aziz ihsan aktaş için hesaplardaki blokeyi kaldırmak, adaletin kimin için işlediğini tekrar kanıtlıyor. bu ülkede hukuk her an ADALETSİZLİĞE evriliyor.",
+        "bir yanda 700 yıla kadar yargılananlara tanınan imtiyazlar, diğer yanda hala tutuklu olan belediye başkanları. hukuk herkese eşit işlemiyorsa o ülkede hukuk YOKTUR, sadece kişiye özel kararlar vardır.",
+        "700 yıl istemle yargılanan sanığın hesaplarındaki blokenin kaldırıldığı bir düzen, vicdanları yaralıyor. belediye başkanları içeride, suç isnat edilenler dışarıda. bu dengeyi kimse HUKUK diye yutturamaz."
+      ],
+      "raw": "1. 700 yıl hapis istemiyle yargılanan aziz ihsan aktaş için hesaplardaki blokeyi kaldırmak, adaletin kimin için işlediğini tekrar kanıtlıyor. bu ülkede hukuk her an ADALETSİZLİĞE evriliyor.\n\n2. bir yanda 700 yıla kadar yargılananlara tanınan imtiyazlar, diğer yanda hala tutuklu olan belediye başkanları. hukuk herkese eşit işlemiyorsa o ülkede hukuk YOKTUR, sadece kişiye özel kararlar vardır.\n\n3. 700 yıl istemle yargılanan sanığın hesaplarındaki blokenin kaldırıldığı bir düzen, vicdanları yaralıyor. belediye başkanları içeride, suç isnat edilenler dışarıda. bu dengeyi kimse HUKUK diye yutturamaz."
+    },
+    {
+      "name": "tweet_V2_stance_sharp_specific",
+      "ms": 1906,
+      "tweets": [
+        "700 yıl hapis istemiyle yargılanan aziz ihsan aktaş'ın hesaplarındaki bloke kaldırıldı. belediye başkanları içeride tutulurken bu ayrıcalık hukuk devletinin sonunu ilan eder.",
+        "adalet herkese eşit olmalı dedik ama aziz ihsan aktaş davasında gördük ki blokesi kaldırılanlar başkaları. 700 yıl yargılama süren birinin hesap özgürlüğü adaleti bitirmiştir.",
+        "muhalif belediye başkanları tutuklu kalırken 700 yıl hapisle yargılanan aziz ihsan aktaş'ın mal varlığı üzerindeki bloke kalkıyor. bu sistemde adalet değil sadece güçlünün hukuku var."
+      ],
+      "raw": "<monolog>\nDURUS: Hukukun üstünlüğü yerine kişiye özel ayrıcalıkların tanınmasına karşıyım.\nSTAKE: Toplumun adalet duygusu kaybediyor, hukuk sistemini manipüle edenler kazanıyor.\nVURGU: BLOKE kelimesi vurgulanmalı.\nCİKARİM: Yargılamanın ciddiyeti ile kararlar arasındaki uçurum, adaletin artık bir \"tercih\" meselesi haline geldiğini kanıtlıyor.\n</monolog>\n\n1. 700 yıl hapis istemiyle yargılanan aziz ihsan aktaş'ın hesaplarındaki bloke kaldırıldı. belediye başkanları içeride tutulurken bu ayrıcalık hukuk devletinin sonunu ilan eder.\n\n2. adalet herkese eşit olmalı dedik ama aziz ihsan aktaş davasında gördük ki blokesi kaldırılanlar başkaları. 700 yıl yargılama süren birinin hesap özgürlüğü adaleti bitirmiştir.\n\n3. muhalif belediye başkanları tutuklu kalırken 700 yıl hapisle yargılanan aziz ihsan aktaş'ın mal varlığı üzerindeki bloke kalkıyor. bu sistemde adalet değil sadece güçlünün hukuku var."
+    },
+    {
+      "name": "tweet_V3_combined_sharp_specific",
+      "ms": 1811,
+      "tweets": [
+        "aziz ihsan aktaş davasında 700 yıl hapis istemiyle yargılanan sanığın hesaplarındaki blokenin kalktığı gün, chp'li belediye başkanları hala tutuklu. HUKUKUN bittiği yer burası.",
+        "700 yıl hapis istemiyle yargılanan aziz ihsan aktaş’ın banka hesaplarına erişimi açılırken, chp’li belediye başkanları içeride tutuluyor. bu ülkede adalet birilerine GÜLÜMSÜYOR.",
+        "aziz ihsan aktaş davasında 700 yıl yargılama varken bloke kalkıyor, seçilmiş chp'li belediye başkanları ise demir parmaklık ardında. bu tabloya bakıp HUKUK var demek imkansız."
+      ],
+      "raw": "1. aziz ihsan aktaş davasında 700 yıl hapis istemiyle yargılanan sanığın hesaplarındaki blokenin kalktığı gün, chp'li belediye başkanları hala tutuklu. HUKUKUN bittiği yer burası.\n\n2. 700 yıl hapis istemiyle yargılanan aziz ihsan aktaş’ın banka hesaplarına erişimi açılırken, chp’li belediye başkanları içeride tutuluyor. bu ülkede adalet birilerine GÜLÜMSÜYOR.\n\n3. aziz ihsan aktaş davasında 700 yıl yargılama varken bloke kalkıyor, seçilmiş chp'li belediye başkanları ise demir parmaklık ardında. bu tabloya bakıp HUKUK var demek imkansız."
+    },
+    {
+      "name": "tweet_V0_baseline_sharp_generic",
+      "ms": 2164,
+      "tweets": [
+        "insanlar evine ekmek götürememenin derdini unutmak için doksan dakika boyunca yeşil sahaya kilitleniyor. oysa saha dışındaki maçta hepimiz kaybediyoruz.",
+        "saha içinde kovaladığınız o top, mutfaktaki yangını söndürmeyecek. stadyumlardaki o yüksek sesler, ülkedeki adaletsizliğin sessizliğini örtmeye yetmiyor.",
+        "gerçek gündemden kaçış için bir derbi maçı yine ilaç niyetine kullanılıyor. kazananın kupayı alacağı ama herkesin geleceğini kaybedeceği bir oyun bu."
+      ],
+      "raw": "<monolog>\n- İnsanların ülke gündemindeki gerçek sorunlardan kaçmak için bir futbol maçına nasıl bu kadar sığındığını fark ediyorum.\n- Ülkenin üzerine çöken kasvetin, iki renk arasındaki yapay bir kavgayla geçiştirilmesinden rahatsızım.\n- Bu durum bana \"ekmek ve sirk\" politikasını hatırlatıyor; insanlar acı çekerken eğlenceyle uyutuluyor.\n- Amacım, insanların dikkatini sahadaki 90 dakikadan çekip, hayatlarındaki asıl kayıplara ve toplumsal yozlaşmaya odaklamalarını sağlamak.\n</monolog>\n\n1. insanlar evine ekmek götürememenin derdini unutmak için doksan dakika boyunca yeşil sahaya kilitleniyor. oysa saha dışındaki maçta hepimiz kaybediyoruz.\n\n2. saha içinde kovaladığınız o top, mutfaktaki yangını söndürmeyecek. stadyumlardaki o yüksek sesler, ülkedeki adaletsizliğin sessizliğini örtmeye yetmiyor.\n\n3. gerçek gündemden kaçış için bir derbi maçı yine ilaç niyetine kullanılıyor. kazananın kupayı alacağı ama herkesin geleceğini kaybedeceği bir oyun bu."
+    },
+    {
+      "name": "tweet_V3_combined_sharp_generic",
+      "ms": 1626,
+      "tweets": [
+        "galatasaray fenerbahçe derbisi sosyal medyada 88 skorla trend olmuş. milletin geçim derdi varken 88 bin tane tweet atanların ilgisi hayret verici. gerçek gündem bu değil.",
+        "ekonomi konuşulması gereken yerde 88 skorla galatasaray fenerbahçe derbisi konuşuluyor. halkın dikkati dağıtıldıkça, market raflarındaki fiyat artışları daha da derinleşiyor.",
+        "galatasaray fenerbahçe derbisi için 88 skorla trend listesi doluyor. hukuksuzluklar sürerken stadyumların ve sosyal medyanın uyuşturucu etkisi toplumu sessizliğe mahkum ediyor."
+      ],
+      "raw": "1. galatasaray fenerbahçe derbisi sosyal medyada 88 skorla trend olmuş. milletin geçim derdi varken 88 bin tane tweet atanların ilgisi hayret verici. gerçek gündem bu değil.\n\n2. ekonomi konuşulması gereken yerde 88 skorla galatasaray fenerbahçe derbisi konuşuluyor. halkın dikkati dağıtıldıkça, market raflarındaki fiyat artışları daha da derinleşiyor.\n\n3. galatasaray fenerbahçe derbisi için 88 skorla trend listesi doluyor. hukuksuzluklar sürerken stadyumların ve sosyal medyanın uyuşturucu etkisi toplumu sessizliğe mahkum ediyor."
+    },
+    {
+      "name": "tweet_V0_baseline_abstract",
+      "ms": 2215,
+      "tweets": [
+        "yalnızlık bir ceza değil, insanın kendi sesini duyabilmesi için verilen tek sessiz aradır. bazen en çok kendi yanımızda yabancılaşırız, oysa kendimizle tanışmak için en iyi yerdir boşluk.",
+        "kalabalıklar sadece gürültüden ibaret, insanın içindeki o derin sessizliği örtmeye yetmiyor. yalnız kalmaktan korkma çünkü asıl kalabalıklar içindeki o uçurum seni yavaş yavaş kendine yabancılaştırıyor.",
+        "insan önce kendi yalnızlığıyla barışmalı, yoksa başka birinde aradığı huzur sadece bir kaçıştan ibaret kalır. kimsesiz kalmak değil bu, sadece kendi içindeki o derin boşlukla baş başa kalıp onu anlamaya çalışmaktır."
+      ],
+      "raw": "<monolog>\n- Yalnızlığın aslında bir eksiklik değil, insanın kendine dönmesi için tek fırsat olduğunu fark ediyorum.\n- Bir boşluktan ziyade, içsel bir doluluk hissi veriyor, bazen ağır ama huzurlu.\n- Kalabalık masalarda bile insanın kendi içine gömülüşünü, o tanıdık sessizliği hatırlatıyor.\n- İnsanların yalnızlıktan korkmak yerine onunla nasıl barışabileceğine dair bir iz bırakmak istiyorum.\n</monolog>\n\n1. yalnızlık bir ceza değil, insanın kendi sesini duyabilmesi için verilen tek sessiz aradır. bazen en çok kendi yanımızda yabancılaşırız, oysa kendimizle tanışmak için en iyi yerdir boşluk.\n\n2. kalabalıklar sadece gürültüden ibaret, insanın içindeki o derin sessizliği örtmeye yetmiyor. yalnız kalmaktan korkma çünkü asıl kalabalıklar içindeki o uçurum seni yavaş yavaş kendine yabancılaştırıyor.\n\n3. insan önce kendi yalnızlığıyla barışmalı, yoksa başka birinde aradığı huzur sadece bir kaçıştan ibaret kalır. kimsesiz kalmak değil bu, sadece kendi içindeki o derin boşlukla baş başa kalıp onu anlamaya çalışmaktır."
+    },
+    {
+      "name": "tweet_V3_combined_abstract",
+      "ms": 1708,
+      "tweets": [
+        "yalnızlık 1 kişilik oda demek, kalabalık ise 80 milyonluk bir hapishane. odadaki sessizlik YALNIZLIK değil, o sadece kendi kendine kalabilme cesaretidir.",
+        "istanbul 16 milyon insanla dolu ama herkes kendi yalnızlığına gömülü. kimse kimsenin sesini duymuyor, çünkü herkes sadece kendi GÜRÜLTÜSÜNÜN esiri olmuş.",
+        "24 saatin içinde insan bazen tek bir kelime bile edemiyor. kalabalıkta kaybolmak mı daha zor, yoksa 4 duvar arasında kendine tutunmak mı, bunu sadece yalnızlar bilir."
+      ],
+      "raw": "1. yalnızlık 1 kişilik oda demek, kalabalık ise 80 milyonluk bir hapishane. odadaki sessizlik YALNIZLIK değil, o sadece kendi kendine kalabilme cesaretidir.\n\n2. istanbul 16 milyon insanla dolu ama herkes kendi yalnızlığına gömülü. kimse kimsenin sesini duymuyor, çünkü herkes sadece kendi GÜRÜLTÜSÜNÜN esiri olmuş.\n\n3. 24 saatin içinde insan bazen tek bir kelime bile edemiyor. kalabalıkta kaybolmak mı daha zor, yoksa 4 duvar arasında kendine tutunmak mı, bunu sadece yalnızlar bilir."
+    },
+    {
+      "name": "thread_V0_baseline",
+      "ms": 2520,
+      "tweets": [
+        "700 yıl hapis istemiyle yargılanan sanığın hesaplarındaki blokeyi bir çırpıda kaldırıyorlar. Adalet terazisinin kefeleri artık sadece ağırlığa göre değil, kime yakın olduğunuza göre hareket ediyor.",
+        "Aziz İhsan Aktaş davasında yaşananlar, hukuk sisteminin kimin için koruma kalkanı görevi gördüğünün en somut kanıtı oldu. Masumiyet karinesi herkes için değil, sadece iktidar çevreleri için varmış.",
+        "Bir tarafta milyonlarca liralık hesapları serbest bırakılan sanıklar, diğer yanda hiçbir somut delil yokken tutuklu kalan belediye başkanları. Bu manzara hukukun değil, düpedüz bir tercihin resmidir.",
+        "Hukuk, güçlülerin işine geldiği an bükülen bir sopa değil, herkesi aynı derecede sarması gereken bir zırhtır. Bu ülkede adalet bir lüks tüketim maddesine dönüştürüldü, bedelini ise hep halk ödüyor.",
+        "Sessiz kaldığınız her an, bu adaletsizliği normalleştiren birer tuğla koyuyorsunuz sisteme. Bugün başkasının hakkı gasp edilirken susanlar, yarın kendi haklarını savunacak bir yargıç bile bulamayacaklar."
+      ],
+      "raw": "1/ 700 yıl hapis istemiyle yargılanan sanığın hesaplarındaki blokeyi bir çırpıda kaldırıyorlar. Adalet terazisinin kefeleri artık sadece ağırlığa göre değil, kime yakın olduğunuza göre hareket ediyor.\n\n2/ Aziz İhsan Aktaş davasında yaşananlar, hukuk sisteminin kimin için koruma kalkanı görevi gördüğünün en somut kanıtı oldu. Masumiyet karinesi herkes için değil, sadece iktidar çevreleri için varmış.\n\n3/ Bir tarafta milyonlarca liralık hesapları serbest bırakılan sanıklar, diğer yanda hiçbir somut delil yokken tutuklu kalan belediye başkanları. Bu manzara hukukun değil, düpedüz bir tercihin resmidir.\n\n4/ Hukuk, güçlülerin işine geldiği an bükülen bir sopa değil, herkesi aynı derecede sarması gereken bir zırhtır. Bu ülkede adalet bir lüks tüketim maddesine dönüştürüldü, bedelini ise hep halk ödüyor.\n\n5/ Sessiz kaldığınız her an, bu adaletsizliği normalleştiren birer tuğla koyuyorsunuz sisteme. Bugün başkasının hakkı gasp edilirken susanlar, yarın kendi haklarını savunacak bir yargıç bile bulamayacaklar."
+    },
+    {
+      "name": "thread_V1_reasoning",
+      "ms": 2205,
+      "tweets": [
+        "700 yıl hapis istemiyle yargılanan Aziz İhsan Aktaş'ın banka hesaplarındaki bloke bugün itibarıyla kaldırıldı. Hukukun kimin için çalıştığını anlamak için bu karara bakmak yeterli.",
+        "Aziz İhsan Aktaş dosyası sürüncemede bırakılırken, hakkında henüz kesinleşmiş ağır hapis cezaları bulunmayan CHP'li belediye başkanları aylardır cezaevinde tutulmaya devam ediliyor.",
+        "Bir tarafta 700 yıl yargılaması olan sanığa mali özgürlük tanınıyor, diğer tarafta ise seçilmiş belediye başkanları demir parmaklıklar ardında tutuluyor. Bu sadece bir tercih değil.",
+        "Aziz İhsan Aktaş'a gösterilen bu esneklik, hukuk devletinde ÇİFTE STANDART olduğunun en somut kanıtıdır. Suçun ağırlığına göre değil, kimin korunduğuna göre karar veriliyor.",
+        "Adalet bakanının açıkladığı bu karar, yargının kime hizmet ettiğini açıkça ortaya koydu. 700 yıl yargılanan dışarıda, seçilmiş başkan içeride; bu düzenin adı hukuk olamaz."
+      ],
+      "raw": "<monolog>\nİSİMLER: Aziz İhsan Aktaş, CHP'li belediye başkanları.\nSAYILAR: 700 yıl hapis istemi, kaldırılan bloke.\nTEZAT: 700 yılla yargılanan serbest, belediye başkanları tutuklu.\nVURGU: HUKUK, ADALET, ÇİFTE STANDART.\n</monolog>\n\n1/ 700 yıl hapis istemiyle yargılanan Aziz İhsan Aktaş'ın banka hesaplarındaki bloke bugün itibarıyla kaldırıldı. Hukukun kimin için çalıştığını anlamak için bu karara bakmak yeterli.\n\n2/ Aziz İhsan Aktaş dosyası sürüncemede bırakılırken, hakkında henüz kesinleşmiş ağır hapis cezaları bulunmayan CHP'li belediye başkanları aylardır cezaevinde tutulmaya devam ediliyor.\n\n3/ Bir tarafta 700 yıl yargılaması olan sanığa mali özgürlük tanınıyor, diğer tarafta ise seçilmiş belediye başkanları demir parmaklıklar ardında tutuluyor. Bu sadece bir tercih değil.\n\n4/ Aziz İhsan Aktaş'a gösterilen bu esneklik, hukuk devletinde ÇİFTE STANDART olduğunun en somut kanıtıdır. Suçun ağırlığına göre değil, kimin korunduğuna göre karar veriliyor.\n\n5/ Adalet bakanının açıkladığı bu karar, yargının kime hizmet ettiğini açıkça ortaya koydu. 700 yıl yargılanan dışarıda, seçilmiş başkan içeride; bu düzenin adı hukuk olamaz."
+    }
+  ]
+}
