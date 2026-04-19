@@ -730,6 +730,50 @@ export function proxyImageUrl(url: string | undefined): string {
   return `/api/image-proxy?url=${encodeURIComponent(upgraded)}`
 }
 
+/** External avatar fallback (scrapes X public page). Used when Xquik has no
+ *  cached profilePicture — last-resort before showing initials.
+ *  Base configured via VITE_AVATAR_FALLBACK_BASE (e.g. "https://unavatar.io/x").
+ *  Empty when unset → function returns '' (fallback silently disabled). */
+const AVATAR_FALLBACK_BASE = (import.meta.env.VITE_AVATAR_FALLBACK_BASE || '').replace(/\/+$/, '')
+export function externalAvatarUrl(username: string): string {
+  if (!username || typeof username !== 'string' || !AVATAR_FALLBACK_BASE) return ''
+  return `${AVATAR_FALLBACK_BASE}/${encodeURIComponent(username.replace('@', ''))}`
+}
+
+/** Resolve avatar with priority chain — call this instead of accessing
+ *  userCache/library directly. Order:
+ *    1) cached from library (persisted, always hot)
+ *    2) live userCache (fresh, may be missing on error)
+ *    3) unavatar.io external fallback (last resort)
+ *    '' if no username. Consumer decides whether to render initials fallback
+ *    based on img onError. */
+export function resolveAvatarUrl(
+  username: string,
+  cachedFromLibrary?: string,
+  live?: string,
+): string {
+  if (!username) return ''
+  const picked = cachedFromLibrary || live || ''
+  if (picked) return proxyImageUrl(picked)
+  return externalAvatarUrl(username)
+}
+
+/** lookupUser with silent retry (one extra attempt after 1.5s delay).
+ *  Handles transient 5xx / network blips that would otherwise leave
+ *  avatar stuck on initials fallback forever. */
+export async function lookupUserResilient(username: string): Promise<XUser | null> {
+  try {
+    return await lookupUser(username)
+  } catch {
+    await new Promise(r => setTimeout(r, 1500))
+    try {
+      return await lookupUser(username)
+    } catch {
+      return null
+    }
+  }
+}
+
 // ── Local Storage for Drafts ──
 export interface Draft {
   id: string

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { CopyBtn } from '../components/CopyBtn'
+import { AvatarImg } from '../components/AvatarImg'
 import {
   hasApiKey, analyzeStyle, listStyles, getStyleFromAPI, deleteStyleFromAPI, saveCustomStyle,
-  composeRefine, lookupUser, isValidXUsername, proxyImageUrl,
+  composeRefine, lookupUser, lookupUserResilient, isValidXUsername, proxyImageUrl, resolveAvatarUrl,
   getSavedDrafts, saveDraft, deleteDraft,
   startDeepAnalysis, getExtractionJob, getAllExtractionResults, saveCuratedStyle,
   createMonitor, listMonitors, deleteMonitor, createWebhook, listWebhooks,
@@ -249,11 +250,22 @@ export default function StyleClone() {
       listStyles().then(res => {
         const s = res.styles || []
         setStyles(s)
-        // Fetch profile pictures only for valid X usernames
+        // Fetch profile pictures only for valid X usernames.
+        // On success persist to library so the avatar survives transient Xquik
+        // failures and across sessions (prevents the "E fallback" bug).
         s.filter(style => isValidXUsername(style.xUsername)).forEach(style => {
-          lookupUser(style.xUsername)
-            .then(user => setUserCache(prev => ({ ...prev, [style.xUsername]: user })))
-            .catch(() => {})
+          lookupUserResilient(style.xUsername).then(user => {
+            if (!user) return
+            setUserCache(prev => ({ ...prev, [style.xUsername]: user }))
+            if (user.profilePicture) {
+              saveEntry({
+                username: style.xUsername,
+                profilePicture: user.profilePicture,
+                displayName: user.name,
+                profileFetchedAt: new Date().toISOString(),
+              })
+            }
+          })
         })
       }).catch(() => {})
       listMonitors().then(res => setMonitors(res.monitors || [])).catch(() => {})
@@ -272,11 +284,23 @@ export default function StyleClone() {
     setCurrentStyle(null)
     setDeepProgress('Kullanıcı bilgisi alınıyor...')
 
-    // 1. Fetch user info first (free call)
+    // 1. Fetch user info first (free call). Use resilient variant so one
+    // flaky Xquik call doesn't leave the account without an avatar forever;
+    // also persist to library so future sessions skip the lookup entirely.
     try {
-      const user = await lookupUser(clean)
-      setUserInfo(user)
-      setUserCache(prev => ({ ...prev, [clean]: user }))
+      const user = await lookupUserResilient(clean)
+      if (user) {
+        setUserInfo(user)
+        setUserCache(prev => ({ ...prev, [clean]: user }))
+        if (user.profilePicture) {
+          saveEntry({
+            username: clean,
+            profilePicture: user.profilePicture,
+            displayName: user.name,
+            profileFetchedAt: new Date().toISOString(),
+          })
+        }
+      }
     } catch { /* user info optional */ }
 
     // 2. Start extraction job — adaptive minFaves (try high first, fallback to lower)
@@ -767,14 +791,13 @@ export default function StyleClone() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       {(() => {
-                        const pic = userInfo?.profilePicture || userCache[currentStyle.xUsername]?.profilePicture
-                        return pic ? (
-                          <img src={proxyImageUrl(pic)} alt="" className="w-12 h-12 rounded-full object-cover" />
-                        ) : (
-                          <div className="w-12 h-12 rounded-full bg-[rgba(227,10,23,0.15)] flex items-center justify-center text-x-accent font-bold text-lg">
-                            {currentStyle.xUsername[0]?.toUpperCase()}
-                          </div>
+                        const libEntry = library.find(e => e.username === currentStyle.xUsername)
+                        const resolved = resolveAvatarUrl(
+                          currentStyle.xUsername,
+                          libEntry?.profilePicture,
+                          userInfo?.profilePicture || userCache[currentStyle.xUsername]?.profilePicture,
                         )
+                        return <AvatarImg src={resolved} fallbackChar={currentStyle.xUsername[0]} size={12} />
                       })()}
                       <div>
                         <h3 className="font-bold text-x-text-primary">@{currentStyle.xUsername}</h3>
@@ -880,13 +903,11 @@ export default function StyleClone() {
                       onClick={() => handleLoadStyle(style.xUsername)}
                     >
                       <div className="flex items-center gap-3">
-                        {userCache[style.xUsername]?.profilePicture ? (
-                          <img src={proxyImageUrl(userCache[style.xUsername].profilePicture)} alt="" className="w-8 h-8 rounded-full object-cover" />
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-x-surface-active flex items-center justify-center text-xs font-bold text-x-text-primary">
-                            {style.xUsername[0]?.toUpperCase()}
-                          </div>
-                        )}
+                        {(() => {
+                          const libEntry = library.find(e => e.username === style.xUsername)
+                          const resolved = resolveAvatarUrl(style.xUsername, libEntry?.profilePicture, userCache[style.xUsername]?.profilePicture)
+                          return <AvatarImg src={resolved} fallbackChar={style.xUsername[0]} size={8} />
+                        })()}
                         <div>
                           <div className="flex items-center gap-1.5">
                             <span className="text-sm font-semibold text-x-text-primary">@{style.xUsername}</span>
@@ -1006,7 +1027,8 @@ export default function StyleClone() {
                   ) : (
                     <div className="flex flex-wrap gap-2">
                       {styles.filter(s => isValidXUsername(s.xUsername)).map(s => {
-                        const pic = userCache[s.xUsername]?.profilePicture
+                        const libEntry = library.find(e => e.username === s.xUsername)
+                        const resolved = resolveAvatarUrl(s.xUsername, libEntry?.profilePicture, userCache[s.xUsername]?.profilePicture)
                         const isSelected = composeStyle === s.xUsername
                         return (
                           <button
@@ -1018,13 +1040,8 @@ export default function StyleClone() {
                                 : 'bg-x-surface-hover border-x-border hover:border-x-border'
                             }`}
                           >
-                            {pic ? (
-                              <img src={proxyImageUrl(pic)} alt="" className="w-6 h-6 rounded-full object-cover" />
-                            ) : (
-                              <div className="w-6 h-6 rounded-full bg-x-surface-active flex items-center justify-center text-[10px] font-bold text-x-text-secondary">
-                                {s.xUsername[0]?.toUpperCase()}
-                              </div>
-                            )}
+                            <AvatarImg src={resolved} fallbackChar={s.xUsername[0]} size={6} />
+
                             <div className="text-left">
                               <div className="flex items-center gap-1">
                                 <span className={`text-xs font-semibold ${isSelected ? 'text-x-accent' : 'text-x-text-primary'}`}>@{s.xUsername}</span>
@@ -1702,7 +1719,8 @@ export default function StyleClone() {
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {styles.filter(s => isValidXUsername(s.xUsername)).map(s => {
-                    const pic = userCache[s.xUsername]?.profilePicture
+                    const libEntry = library.find(e => e.username === s.xUsername)
+                    const resolved = resolveAvatarUrl(s.xUsername, libEntry?.profilePicture, userCache[s.xUsername]?.profilePicture)
                     const isSelected = rewriteStyle === s.xUsername
                     return (
                       <button
@@ -1714,13 +1732,7 @@ export default function StyleClone() {
                             : 'bg-x-surface-hover border-x-border hover:border-x-border'
                         }`}
                       >
-                        {pic ? (
-                          <img src={proxyImageUrl(pic)} alt="" className="w-6 h-6 rounded-full object-cover" />
-                        ) : (
-                          <div className="w-6 h-6 rounded-full bg-x-surface-active flex items-center justify-center text-[10px] font-bold text-x-text-secondary">
-                            {s.xUsername[0]?.toUpperCase()}
-                          </div>
-                        )}
+                        <AvatarImg src={resolved} fallbackChar={s.xUsername[0]} size={6} />
                         <span className={`text-xs font-semibold ${isSelected ? 'text-x-accent' : 'text-x-text-primary'}`}>@{s.xUsername}</span>
                       </button>
                     )

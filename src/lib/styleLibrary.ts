@@ -20,6 +20,11 @@ export interface StyleLibraryEntry {
   extractedTweetCount?: number
   dataQuality?: 'high' | 'medium' | 'low'
   topicCoverage?: Record<string, number>
+  // Cached display data from last successful lookupUser — persists avatar
+  // across sessions and transient Xquik failures. Avoids "E fallback" bug.
+  profilePicture?: string
+  displayName?: string
+  profileFetchedAt?: string
 }
 
 const LIBRARY_KEY = 'ib_style_library'
