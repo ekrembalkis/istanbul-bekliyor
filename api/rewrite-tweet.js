@@ -2,7 +2,8 @@
 // POST /api/rewrite-tweet { styleUsername, userText, count?, tone?, lengthHint? }
 
 import { setCorsHeaders } from './lib/cors.js'
-import { XQUIK_BASE_URL, GEMINI_BASE_URL, GEMINI_MODEL } from './lib/endpoints.js'
+import { XQUIK_BASE_URL } from './lib/endpoints.js'
+import { geminiCall, sendGeminiError } from './lib/geminiCall.js'
 
 function detectLanguage(tweets) {
   const text = tweets.join(' ').toLowerCase()
@@ -47,9 +48,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const GEMINI_KEY = (process.env.GEMINI_API_KEY || '').trim()
   const XQUIK_KEY = (process.env.XQUIK_API_KEY || '').trim()
-  if (!GEMINI_KEY) return res.status(500).json({ error: 'GEMINI_API_KEY not configured' })
   if (!XQUIK_KEY) return res.status(500).json({ error: 'XQUIK_API_KEY not configured' })
 
   const {
@@ -135,36 +134,65 @@ Produce ${clampedCount} different versions. Each should carry the SAME MEANING b
     }
     const p = prompts[lang] || prompts.en
 
-    const geminiUrl = `${GEMINI_BASE_URL}/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`
-    const maxOutput = Math.min(2400, 240 * clampedCount + 200)
-    const geminiRes = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: p.system }] },
-        contents: [{ role: 'user', parts: [{ text: p.user }] }],
-        generationConfig: { temperature: 0.9, maxOutputTokens: maxOutput },
-      }),
-    })
+    // Output budget: ~240 tok/version + slack. Helper applies thinkingLevel=low
+    // on top, so output budget is no longer eaten by silent reasoning.
+    const maxOutput = Math.min(3000, 280 * clampedCount + 400)
 
-    if (!geminiRes.ok) {
-      const err = await geminiRes.json().catch(() => ({}))
-      return res.status(500).json({ error: 'Gemini API error', detail: err.error?.message })
+    let geminiResult
+    try {
+      geminiResult = await geminiCall({
+        systemInstruction: p.system,
+        prompt: p.user,
+        thinkingLevel: 'low',
+        generationConfigOverrides: { maxOutputTokens: maxOutput },
+      })
+    } catch (err) {
+      console.error('rewrite-tweet: Gemini call failed', err.status, err.message)
+      return sendGeminiError(err, res)
     }
 
-    const data = await geminiRes.json()
-    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
-    const usage = data.usageMetadata || {}
+    const raw = geminiResult.text
+    const usage = {
+      promptTokenCount: geminiResult.usage.promptTokens,
+      candidatesTokenCount: geminiResult.usage.completionTokens,
+      thoughtsTokenCount: geminiResult.usage.thoughtTokens,
+      totalTokenCount: geminiResult.usage.totalTokens,
+    }
 
-    const rewrites = raw
+    // Tolerant parser:
+    //   1) Try newline-separated numbered list (preferred shape).
+    //   2) Fallback: pull every "<digit><.|)|/> ..." span via regex (handles
+    //      single-line "1. … 2. … 3. …" output).
+    //   3) Last resort: a single non-empty line is the only rewrite we got.
+    const cleanLine = line => line
+      .replace(/^\d+[\.\)\/]\s*/, '')
+      .replace(/^["'`]|["'`]$/g, '')
+      .trim()
+
+    let rewrites = raw
       .split('\n')
-      .map(line => line.replace(/^\d+[\.\)\/]\s*/, '').trim())
-      .map(line => line.replace(/^["'`]|["'`]$/g, '').trim())
+      .map(cleanLine)
       .filter(line => line.length > 10)
-      .slice(0, clampedCount)
+
+    if (rewrites.length < clampedCount) {
+      const inline = [...raw.matchAll(/(?:^|\s)\d+[\.\)\/]\s*([^\n]+?)(?=(?:\s+\d+[\.\)\/])|$)/g)]
+        .map(m => cleanLine(m[1] || ''))
+        .filter(line => line.length > 10)
+      if (inline.length > rewrites.length) rewrites = inline
+    }
+
+    if (rewrites.length === 0 && raw.trim().length > 10) {
+      rewrites = [cleanLine(raw.trim())]
+    }
+
+    rewrites = rewrites.slice(0, clampedCount)
 
     if (rewrites.length === 0) {
-      return res.status(500).json({ error: 'Rewrite failed', raw })
+      return res.status(502).json({
+        error: 'Rewrite produced no usable output',
+        finishReason: geminiResult.finishReason,
+        raw: raw.slice(0, 400),
+      })
     }
 
     return res.status(200).json({

@@ -146,8 +146,12 @@ Bu haberden Instagram içeriği üret. Tek bir JSON objesi dön: {"imageText":".
           { role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] }
         ],
         generationConfig: {
-          temperature: 0.7,
+          temperature: 1.0,
+          topP: 0.95,
+          topK: 40,
+          maxOutputTokens: 4000,
           responseMimeType: 'application/json',
+          thinkingConfig: { thinkingLevel: 'low' },
         },
       }),
     })

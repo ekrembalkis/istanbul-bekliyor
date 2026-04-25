@@ -88,7 +88,14 @@ export default async function handler(req, res) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: `Asagidaki gundem verilerinden 5 KISA KONU BASLIGI cikar. Her baslik 3-6 kelime, Turkce olmali. Kategori: ${category || 'siyaset'}. Sadece JSON string array dondur.\n\n${combined}\n\nJSON array:` }] }],
-          generationConfig: { temperature: 0.2, maxOutputTokens: 200 },
+          generationConfig: {
+            temperature: 1.0,
+            topP: 0.95,
+            topK: 40,
+            maxOutputTokens: 800,
+            responseMimeType: 'application/json',
+            thinkingConfig: { thinkingLevel: 'medium' },
+          },
         }),
       }
     )

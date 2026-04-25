@@ -60,7 +60,13 @@ Somut, spesifik, uygulanabilir yaz. Her madde icin tweetlerden gercek ornekler v
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 1200 },
+          generationConfig: {
+            temperature: 1.0,
+            topP: 0.95,
+            topK: 40,
+            maxOutputTokens: 2400,
+            thinkingConfig: { thinkingLevel: 'low' },
+          },
         }),
       }
     )

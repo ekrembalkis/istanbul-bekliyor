@@ -95,7 +95,14 @@ Return ONLY JSON, no explanation.`
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 3000 },
+          generationConfig: {
+            temperature: 1.0,
+            topP: 0.95,
+            topK: 40,
+            maxOutputTokens: 6000,
+            responseMimeType: 'application/json',
+            thinkingConfig: { thinkingLevel: 'medium' },
+          },
         }),
       }
     )

@@ -96,7 +96,13 @@ Sadece Ingilizce prompt metnini dondur, baska hicbir sey yazma.`
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: SYSTEM_PROMPT + '\n\n' + userPrompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 600 },
+          generationConfig: {
+            temperature: 1.0,
+            topP: 0.95,
+            topK: 40,
+            maxOutputTokens: 1200,
+            thinkingConfig: { thinkingLevel: 'low' },
+          },
         }),
       }
     )

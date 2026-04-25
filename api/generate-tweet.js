@@ -572,12 +572,37 @@ ${t.dnaTraits}: Formality ${traits.formality || 0}/100, Humor ${traits.humor || 
     // Timeout wrapper — prevents hung Gemini calls from pinning the lambda
     // until the platform timeout. 30s covers worst-case thinking-mode calls.
     const GEMINI_TIMEOUT_MS = Number(process.env.GEMINI_TIMEOUT_MS || 30000)
-    const geminiFetch = (body) => fetch(geminiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: typeof body === 'string' ? body : JSON.stringify(body),
-      signal: AbortSignal.timeout(GEMINI_TIMEOUT_MS),
-    })
+    // Gemini 3 default reasoning level silently consumes maxOutputTokens.
+    // We inject thinkingConfig.thinkingLevel='low' and a permissive
+    // safetySettings block on every call so callers don't have to repeat it.
+    const PERMISSIVE_SAFETY = [
+      'HARM_CATEGORY_HARASSMENT',
+      'HARM_CATEGORY_HATE_SPEECH',
+      'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+      'HARM_CATEGORY_DANGEROUS_CONTENT',
+    ].map(category => ({ category, threshold: 'BLOCK_ONLY_HIGH' }))
+    const geminiFetch = (body) => {
+      const obj = typeof body === 'string' ? JSON.parse(body) : body
+      obj.generationConfig = {
+        temperature: 1.0,
+        topP: 0.95,
+        topK: 40,
+        ...(obj.generationConfig || {}),
+        thinkingConfig: {
+          thinkingLevel: obj.generationConfig?.thinkingConfig?.thinkingLevel || 'low',
+        },
+      }
+      // Strip the legacy lower temperatures; Gemini 3 docs say keep at 1.0
+      // and tune diversity via topP/topK. (Only override if caller didn't.)
+      if (!obj._tempOverride) obj.generationConfig.temperature = 1.0
+      if (!obj.safetySettings) obj.safetySettings = PERMISSIVE_SAFETY
+      return fetch(geminiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(obj),
+        signal: AbortSignal.timeout(GEMINI_TIMEOUT_MS),
+      })
+    }
 
     // Track Gemini token usage
     const geminiUsage = { promptTokens: 0, completionTokens: 0, totalTokens: 0, calls: 0 }
