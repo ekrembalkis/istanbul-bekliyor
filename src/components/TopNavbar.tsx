@@ -30,13 +30,18 @@ export default function TopNavbar() {
   const [theme, setThemeState] = useState(() => getTheme())
 
   return (
-    <header className="sticky top-0 z-50 bg-[#0A0A0A] border-b-3 border-[#0A0A0A]">
+    <header className="sticky top-0 z-50 bg-[#0a0a0a] border-b border-[rgba(241,236,228,0.08)] relative">
+      {/* Editorial mast accent — small red block at far left */}
+      <div className="absolute left-0 bottom-[-1px] h-[3px] w-24 bg-[#e22b35]" aria-hidden="true" />
       <div className="max-w-[1280px] mx-auto px-4 lg:px-6">
         <div className="flex items-center h-16 gap-2">
           {/* Logo */}
-          <NavLink to="/" className="flex items-center gap-3 px-2 py-1 hover:bg-[rgba(227,10,23,0.15)] transition-colors shrink-0">
+          <NavLink to="/" className="flex items-center gap-3 px-2 py-1 hover:bg-[rgba(226,43,53,0.12)] transition-colors shrink-0">
             <img src="/logo.png" alt="İstanbul Bekliyor" className="w-7 h-7" />
-            <span className="font-display text-[11px] tracking-[3px] text-[#EBEBEB] uppercase hidden sm:block">İSTANBUL BEKLİYOR</span>
+            <span className="font-mono text-[11px] tracking-[0.22em] text-[#f1ece4] uppercase hidden sm:block">
+              <span className="font-semibold">İSTANBUL</span>
+              <span className="text-[rgba(241,236,228,0.5)]"> · BEKLİYOR</span>
+            </span>
           </NavLink>
 
           {/* Desktop Nav */}
@@ -47,14 +52,14 @@ export default function TopNavbar() {
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) =>
-                  `flex items-center gap-2 px-3 py-2 transition-colors font-mono text-[10px] tracking-[2px] ${
+                  `flex items-center gap-2 px-3 py-2 transition-colors font-mono text-[10px] tracking-[0.22em] ${
                     isActive
-                      ? 'font-bold text-x-accent border-b-2 border-x-accent'
-                      : 'text-[rgba(235,235,235,0.5)] hover:text-[#EBEBEB] border-b-2 border-transparent'
+                      ? 'font-medium text-[#e22b35] border-b border-[#e22b35]'
+                      : 'text-[rgba(241,236,228,0.5)] hover:text-[#f1ece4] border-b border-transparent'
                   }`
                 }
               >
-                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   {item.icon}
                 </svg>
                 <span>{item.label}</span>
@@ -65,9 +70,9 @@ export default function TopNavbar() {
             <div className="relative">
               <button
                 onClick={() => setMoreOpen(o => !o)}
-                className="flex items-center gap-2 px-3 py-2 text-[rgba(235,235,235,0.5)] hover:text-[#EBEBEB] transition-colors font-mono text-[10px] tracking-[2px] border-b-2 border-transparent"
+                className="flex items-center gap-2 px-3 py-2 text-[rgba(241,236,228,0.5)] hover:text-[#f1ece4] transition-colors font-mono text-[10px] tracking-[0.22em] border-b border-transparent"
               >
-                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                 </svg>
                 <span>DAHA FAZLA</span>
@@ -82,20 +87,19 @@ export default function TopNavbar() {
           {/* ÜRET CTA */}
           <NavLink
             to="/style"
-            className="flex items-center gap-2 bg-x-accent text-white font-mono text-[10px] tracking-[2px] uppercase px-4 py-2 border-2 border-[#EBEBEB] transition-all hover:bg-x-accent-hover shrink-0"
-            style={{ boxShadow: '2px 2px 0 rgba(235,235,235,0.3)' }}
+            className="flex items-center gap-2 bg-[#e22b35] text-white font-mono text-[10px] tracking-[0.22em] uppercase px-4 py-2 rounded-full border border-[#e22b35] transition-colors hover:bg-[#b81c25] hover:border-[#b81c25] shrink-0"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
             </svg>
-            <span className="hidden sm:block font-bold">ÜRET</span>
+            <span className="hidden sm:block font-medium">ÜRET</span>
           </NavLink>
 
           {/* Theme Toggle */}
           <button
             onClick={() => setThemeState(toggleTheme())}
             aria-label={theme === 'light' ? 'Koyu temaya geç' : 'Açık temaya geç'}
-            className="flex items-center justify-center w-9 h-9 text-[rgba(235,235,235,0.5)] hover:text-[#EBEBEB] hover:bg-[rgba(227,10,23,0.08)] transition-colors shrink-0"
+            className="flex items-center justify-center w-9 h-9 text-[rgba(241,236,228,0.5)] hover:text-[#f1ece4] hover:bg-[rgba(226,43,53,0.08)] transition-colors shrink-0 rounded-full"
           >
             {theme === 'light' ? (
               <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -108,16 +112,11 @@ export default function TopNavbar() {
             )}
           </button>
 
-          {/* Profile Badge */}
-          <div className="hidden md:flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-[rgba(227,10,23,0.08)] transition-colors shrink-0">
-            <div className="w-8 h-8 bg-x-accent flex items-center justify-center border-2 border-[#EBEBEB]">
-              <svg width="12" height="12" viewBox="0 0 60 60" fill="none">
-                <path d="M15 8 L45 8 L45 12 L33 28 L33 32 L45 48 L45 52 L15 52 L15 48 L27 32 L27 28 L15 12 Z" fill="white" />
-              </svg>
-            </div>
-            <div className="hidden lg:block">
-              <div className="font-mono text-[9px] font-bold text-[#EBEBEB] tracking-[1px]">GÜN {day}</div>
-            </div>
+          {/* Day counter pill — editorial */}
+          <div className="hidden md:flex items-center gap-2 pl-3 pr-3 py-1.5 rounded-full border border-[rgba(241,236,228,0.12)] bg-[rgba(226,43,53,0.08)] shrink-0">
+            <span className="live-dot shrink-0" />
+            <span className="font-display italic text-[#e22b35] text-[18px] leading-none tabular-nums">{day}</span>
+            <span className="font-mono text-[9px] tracking-[0.28em] text-[rgba(241,236,228,0.55)]">GÜN</span>
           </div>
 
           {/* Mobile Hamburger */}
@@ -126,7 +125,7 @@ export default function TopNavbar() {
             aria-expanded={mobileOpen}
             aria-controls="mobile-menu"
             aria-label={mobileOpen ? 'Menüyü kapat' : 'Menüyü aç'}
-            className="md:hidden flex items-center justify-center w-10 h-10 text-[#EBEBEB] hover:bg-[rgba(227,10,23,0.15)] transition-colors"
+            className="md:hidden flex items-center justify-center w-10 h-10 text-[#f1ece4] hover:bg-[rgba(226,43,53,0.12)] transition-colors rounded-full"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               {mobileOpen
@@ -140,7 +139,7 @@ export default function TopNavbar() {
 
       {/* Mobile Dropdown */}
       {mobileOpen && (
-        <div id="mobile-menu" className="md:hidden border-t-2 border-[rgba(235,235,235,0.1)] bg-[#0A0A0A]" role="navigation" aria-label="Mobil menü">
+        <div id="mobile-menu" className="md:hidden border-t border-[rgba(241,236,228,0.08)] bg-[#0a0a0a]" role="navigation" aria-label="Mobil menü">
           <nav className="px-4 py-3 space-y-1">
             {mainNav.map(item => (
               <NavLink
@@ -149,14 +148,14 @@ export default function TopNavbar() {
                 end={item.end}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 font-mono text-xs tracking-[2px] transition-colors ${
+                  `flex items-center gap-3 px-3 py-2.5 font-mono text-xs tracking-[0.22em] transition-colors ${
                     isActive
-                      ? 'font-bold text-x-accent bg-[rgba(227,10,23,0.1)]'
-                      : 'text-[rgba(235,235,235,0.5)] hover:text-[#EBEBEB]'
+                      ? 'font-medium text-[#e22b35] bg-[rgba(226,43,53,0.08)]'
+                      : 'text-[rgba(241,236,228,0.55)] hover:text-[#f1ece4]'
                   }`
                 }
               >
-                <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+                <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   {item.icon}
                 </svg>
                 <span>{item.label}</span>
@@ -174,10 +173,10 @@ export default function TopNavbar() {
                 to={item.to}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 font-mono text-xs tracking-[2px] transition-colors ${
+                  `flex items-center gap-3 px-3 py-2.5 font-mono text-xs tracking-[0.22em] transition-colors ${
                     isActive
-                      ? 'font-bold text-x-accent bg-[rgba(227,10,23,0.1)]'
-                      : 'text-[rgba(235,235,235,0.5)] hover:text-[#EBEBEB]'
+                      ? 'font-medium text-[#e22b35] bg-[rgba(226,43,53,0.08)]'
+                      : 'text-[rgba(241,236,228,0.55)] hover:text-[#f1ece4]'
                   }`
                 }
               >
@@ -186,16 +185,13 @@ export default function TopNavbar() {
             ))}
           </nav>
           {/* Mobile profile */}
-          <div className="px-4 py-3 border-t border-[rgba(235,235,235,0.1)] flex items-center gap-3">
-            <div className="w-8 h-8 bg-x-accent flex items-center justify-center border-2 border-[#EBEBEB]">
-              <svg width="12" height="12" viewBox="0 0 60 60" fill="none">
-                <path d="M15 8 L45 8 L45 12 L33 28 L33 32 L45 48 L45 52 L15 52 L15 48 L27 32 L27 28 L15 12 Z" fill="white" />
-              </svg>
+          <div className="px-4 py-3 border-t border-[rgba(241,236,228,0.08)] flex items-center gap-3">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[rgba(241,236,228,0.12)] bg-[rgba(226,43,53,0.08)]">
+              <span className="live-dot" />
+              <span className="font-display italic text-[#e22b35] text-[16px] leading-none tabular-nums">{day}</span>
+              <span className="font-mono text-[9px] tracking-[0.28em] text-[rgba(241,236,228,0.55)]">GÜN</span>
             </div>
-            <div>
-              <div className="font-mono text-[10px] font-bold text-[#EBEBEB] tracking-[1px]">@istbekliyor</div>
-              <div className="font-mono text-[9px] text-[rgba(235,235,235,0.4)]">GÜN {day}</div>
-            </div>
+            <span className="font-mono text-[10px] tracking-[0.22em] text-[rgba(241,236,228,0.55)]">@istbekliyor</span>
           </div>
         </div>
       )}

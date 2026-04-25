@@ -31,8 +31,9 @@ export default {
       },
       fontFamily: {
         sans: ['"DM Sans"', 'sans-serif'],
-        display: ['"Archivo Black"', 'sans-serif'],
-        mono: ['"Space Mono"', 'monospace'],
+        display: ['"Fraunces"', 'Georgia', 'serif'],
+        ornament: ['"DM Serif Display"', 'Georgia', 'serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
       },
       borderWidth: {
         '3': '3px',
