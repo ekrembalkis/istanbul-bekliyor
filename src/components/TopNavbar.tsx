@@ -1,8 +1,135 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { getDayCount } from '../lib/utils'
-import { getTheme, toggleTheme } from '../lib/themeToggle'
+import {
+  applyThemeWithTransition,
+  getTheme,
+  watchSystem,
+  type ThemeChoice,
+} from '../lib/themeToggle'
 import MoreMenu from './MoreMenu'
+
+const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
+  { value: 'light', label: 'Aydınlık tema' },
+  { value: 'system', label: 'Sistem teması' },
+  { value: 'dark', label: 'Karanlık tema' },
+]
+
+function ThemeIcon({ value }: { value: ThemeChoice }) {
+  if (value === 'light') {
+    return (
+      <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+        <circle cx="12" cy="12" r="4" fill="currentColor" />
+        <g stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+          <line x1="12" y1="2.5" x2="12" y2="5" />
+          <line x1="12" y1="19" x2="12" y2="21.5" />
+          <line x1="2.5" y1="12" x2="5" y2="12" />
+          <line x1="19" y1="12" x2="21.5" y2="12" />
+          <line x1="5.2" y1="5.2" x2="6.9" y2="6.9" />
+          <line x1="17.1" y1="17.1" x2="18.8" y2="18.8" />
+          <line x1="5.2" y1="18.8" x2="6.9" y2="17.1" />
+          <line x1="17.1" y1="6.9" x2="18.8" y2="5.2" />
+        </g>
+      </svg>
+    )
+  }
+  if (value === 'dark') {
+    return (
+      <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+        <path
+          d="M20.5 14.5A8 8 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"
+          fill="currentColor"
+        />
+      </svg>
+    )
+  }
+  return (
+    <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+      <rect x="3.5" y="4.5" width="17" height="12" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <line x1="8" y1="20" x2="16" y2="20" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <line x1="12" y1="16.5" x2="12" y2="20" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  )
+}
+
+function ThemeSegmentedControl() {
+  const [choice, setChoice] = useState<ThemeChoice>(() =>
+    typeof window === 'undefined' ? 'system' : getTheme(),
+  )
+  const buttonRefs = useRef<(HTMLButtonElement | null)[]>([])
+
+  useEffect(() => {
+    return watchSystem(() => {})
+  }, [])
+
+  const select = (next: ThemeChoice, el: HTMLElement) => {
+    if (next === choice) return
+    const r = el.getBoundingClientRect()
+    applyThemeWithTransition(
+      next,
+      { x: r.left + r.width / 2, y: r.top + r.height / 2 },
+      () => setChoice(next),
+    )
+  }
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const idx = THEME_OPTIONS.findIndex(o => o.value === choice)
+    let nextIdx = -1
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+        nextIdx = (idx + 1) % THEME_OPTIONS.length
+        break
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        nextIdx = (idx - 1 + THEME_OPTIONS.length) % THEME_OPTIONS.length
+        break
+      case 'Home':
+        nextIdx = 0
+        break
+      case 'End':
+        nextIdx = THEME_OPTIONS.length - 1
+        break
+      default:
+        return
+    }
+    e.preventDefault()
+    const target = buttonRefs.current[nextIdx]
+    if (target) {
+      target.focus()
+      select(THEME_OPTIONS[nextIdx].value, target)
+    }
+  }
+
+  return (
+    <div
+      className="theme-seg shrink-0"
+      role="radiogroup"
+      aria-label="Tema seçimi"
+      onKeyDown={onKeyDown}
+    >
+      {THEME_OPTIONS.map((opt, i) => {
+        const active = choice === opt.value
+        return (
+          <button
+            key={opt.value}
+            ref={el => {
+              buttonRefs.current[i] = el
+            }}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            aria-label={opt.label}
+            tabIndex={active ? 0 : -1}
+            onClick={e => select(opt.value, e.currentTarget)}
+          >
+            <ThemeIcon value={opt.value} />
+          </button>
+        )
+      })}
+    </div>
+  )
+}
 
 const mainNav = [
   {
@@ -27,7 +154,6 @@ export default function TopNavbar() {
   const day = getDayCount()
   const [moreOpen, setMoreOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [theme, setThemeState] = useState(() => getTheme())
 
   return (
     <header className="sticky top-0 z-50 bg-[#0a0a0a] border-b border-[rgba(241,236,228,0.08)] relative">
@@ -95,22 +221,8 @@ export default function TopNavbar() {
             <span className="hidden sm:block font-medium">ÜRET</span>
           </NavLink>
 
-          {/* Theme Toggle */}
-          <button
-            onClick={() => setThemeState(toggleTheme())}
-            aria-label={theme === 'light' ? 'Koyu temaya geç' : 'Açık temaya geç'}
-            className="flex items-center justify-center w-9 h-9 text-[rgba(241,236,228,0.5)] hover:text-[#f1ece4] hover:bg-[rgba(226,43,53,0.08)] transition-colors shrink-0 rounded-full"
-          >
-            {theme === 'light' ? (
-              <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-              </svg>
-            ) : (
-              <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-              </svg>
-            )}
-          </button>
+          {/* Theme segmented control (light / system / dark) */}
+          <ThemeSegmentedControl />
 
           {/* Day counter pill — editorial */}
           <div className="hidden md:flex items-center gap-2 pl-3 pr-3 py-1.5 rounded-full border border-[rgba(241,236,228,0.12)] bg-[rgba(226,43,53,0.08)] shrink-0">

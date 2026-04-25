@@ -237,6 +237,65 @@ input[type="checkbox"] { accent-color: var(--accent); }
   50% { opacity: 0.7; box-shadow: 0 0 0 6px transparent; }
 }
 
+/* ─────────────────────────────────────────────
+   VIEW TRANSITIONS — circular reveal for theme toggle
+   ───────────────────────────────────────────── */
+:root {
+  --vt-x: 50%;
+  --vt-y: 50%;
+  --vt-r: 1500px;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) {
+  z-index: 2;
+  animation: vt-circle-reveal 560ms cubic-bezier(.2, .65, .2, 1);
+}
+@keyframes vt-circle-reveal {
+  from { clip-path: circle(0 at var(--vt-x) var(--vt-y)); }
+  to   { clip-path: circle(var(--vt-r) at var(--vt-x) var(--vt-y)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-new(root),
+  ::view-transition-old(root) { animation: none; }
+}
+
+/* Theme segmented control */
+.theme-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid rgba(241,236,228,0.12);
+  background: rgba(241,236,228,0.04);
+}
+.theme-seg button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: rgba(241,236,228,0.55);
+  cursor: pointer;
+  transition: background-color .2s, color .2s;
+}
+.theme-seg button:hover {
+  color: #f1ece4;
+  background: rgba(241,236,228,0.06);
+}
+.theme-seg button[aria-checked="true"] {
+  color: #fff;
+  background: var(--accent);
+}
+
 @media (hover: hover) {
   .card:hover {
     border-color: var(--border);

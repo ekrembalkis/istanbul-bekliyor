@@ -9,7 +9,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,500;1,9..144,600&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
-  <script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('ib-theme')||'light')}catch(e){}</script>
+  <script>
+    (function(){
+      try{
+        var s=localStorage.getItem('ib-theme');
+        var c=(s==='light'||s==='dark'||s==='system')?s:'system';
+        var r=c==='system'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):c;
+        var h=document.documentElement;
+        h.setAttribute('data-theme',r);
+        h.dataset.themeChoice=c;
+      }catch(e){
+        document.documentElement.setAttribute('data-theme','light');
+      }
+    })();
+  </script>
 </head>
 <body>
   <div id="root"></div>
