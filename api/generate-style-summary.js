@@ -50,8 +50,11 @@ ${langInstruction}
 Somut, spesifik, uygulanabilir yaz. Her madde icin tweetlerden gercek ornekler ver.
 500-800 kelime arasi saf stil kilavuzu metni dondur. JSON degil, markdown degil, duz metin.`
 
+    const GEMINI_BASE = (process.env.GEMINI_BASE_URL || '').replace(/\/+$/, '')
+    const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3-flash-preview'
+
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${GEMINI_KEY}`,
+      `${GEMINI_BASE}/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

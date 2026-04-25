@@ -84,8 +84,12 @@ Fill in the JSON structure below completely. IMPORTANT: Write ALL values in the 
 
 Return ONLY JSON, no explanation.`
 
+    const GEMINI_BASE = (process.env.GEMINI_BASE_URL || '').replace(/\/+$/, '')
+    const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3-flash-preview'
+    if (!GEMINI_BASE) return res.status(500).json({ error: 'GEMINI_BASE_URL not configured' })
+
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${GEMINI_KEY}`,
+      `${GEMINI_BASE}/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

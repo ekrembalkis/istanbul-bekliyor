@@ -51,9 +51,11 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const GEMINI_KEY = (process.env.GEMINI_API_KEY || '').trim()
-  const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image'
-  const GEMINI_BASE_URL = process.env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta'
+  // Image generation uses the dedicated preview model. Override via GEMINI_IMAGE_MODEL env if needed.
+  const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-3-pro-image-preview'
+  const GEMINI_BASE_URL = (process.env.GEMINI_BASE_URL || '').replace(/\/+$/, '')
   if (!GEMINI_KEY) return res.status(500).json({ error: 'GEMINI_API_KEY not configured' })
+  if (!GEMINI_BASE_URL) return res.status(500).json({ error: 'GEMINI_BASE_URL not configured' })
 
   const { dayNumber, theme, scene, goldenElement, quote, customPrompt } = req.body
 

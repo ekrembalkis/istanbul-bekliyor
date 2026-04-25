@@ -2,8 +2,14 @@
 // POST /api/generate-instagram { title, description, url, source, category }
 // Returns: { imageText, captionHook, captionBody }
 
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
-const GEMINI_BASE_URL = process.env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta/models'
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3-flash-preview'
+// Note: panel's GEMINI_BASE_URL is the .../v1beta/ root (no trailing /models),
+// while individual endpoints append /models/<model> themselves. This default
+// mirrors that convention so the URL composes to /v1beta/models/<model>:…
+const GEMINI_BASE_URL_RAW = (process.env.GEMINI_BASE_URL || '').replace(/\/+$/, '')
+const GEMINI_BASE_URL = GEMINI_BASE_URL_RAW.endsWith('/models')
+  ? GEMINI_BASE_URL_RAW
+  : `${GEMINI_BASE_URL_RAW}/models`
 
 // Robust JSON parser: handles markdown wrappers, unescaped newlines in string values
 function safeParseJSON(text) {
